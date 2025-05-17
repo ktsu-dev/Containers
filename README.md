@@ -1,6 +1,6 @@
-# ktsu.Collections
+# ktsu.Containers
 
-A high-performance, modern C# collection library for .NET 8 and .NET 9, featuring a fixed-size circular buffer (ring buffer) implementation.
+A high-performance, modern C# container library for .NET 8 and .NET 9, featuring a fixed-size circular buffer (ring buffer) implementation.
 
 ## Features
 
@@ -14,7 +14,8 @@ A high-performance, modern C# collection library for .NET 8 and .NET 9, featurin
 
 ## Usage
 
-using ktsu.Collections;
+```csharp
+using ktsu.Containers;
 
 // Create a ring buffer of length 3
 var buffer = new RingBuffer<int>(3);
@@ -30,10 +31,15 @@ var zeros = new RingBuffer<int>(0, 5); // [0,0,0,0,0]
 
 // Prefill with a sequence
 var prefilled = new RingBuffer<int>(new[] { 1, 2, 3, 4, 5 }, 3); // [3,4,5]
+```
 
 ## Installation
 
-Add the NuGet package (coming soon):dotnet add package ktsu.Collections
+Add the NuGet package:
+
+```bash
+dotnet add package ktsu.Containers
+```
 
 ## License
 
