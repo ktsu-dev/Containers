@@ -5,6 +5,7 @@
 namespace ktsu.Containers;
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 /// <summary>
 /// Represents a fixed-size circular buffer (ring buffer) for storing elements of type <typeparamref name="T"/>.
@@ -25,7 +26,7 @@ using System.Collections;
 /// </list>
 /// </remarks>
 /// <typeparam name="T">The type of elements stored in the buffer.</typeparam>
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "RingBuffer is a known collection name")]
+[SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "RingBuffer is a known collection name")]
 public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyList<T>
 {
 	/// <summary>
