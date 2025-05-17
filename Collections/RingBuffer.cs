@@ -4,7 +4,11 @@
 
 internal class RingBuffer<T>
 {
-	public static object bufferLock = new();
+#if NET9_0_OR_GREATER
+	public static Lock Lock = new();
+#else
+	public static object Lock = new();
+#endif
 
 	public T[] buffer;
 	public int back;
@@ -14,7 +18,7 @@ internal class RingBuffer<T>
 
 	public RingBuffer(int _length)
 	{
-		lock (bufferLock)
+		lock (Lock)
 		{
 			length = _length;
 			capacity = (int)RingBuffer<T>.NextPower2((uint)_length);
@@ -30,7 +34,7 @@ internal class RingBuffer<T>
 
 	public void PushBack(T o)
 	{
-		lock (bufferLock)
+		lock (Lock)
 		{
 			back = (back + 1) & (capacity - 1);
 			front = (front + 1) & (capacity - 1);
@@ -40,7 +44,7 @@ internal class RingBuffer<T>
 
 	public T At(int index)
 	{
-		lock (bufferLock)
+		lock (Lock)
 		{
 			var idx = (front + index) & (capacity - 1);
 			return buffer[idx];
@@ -49,7 +53,7 @@ internal class RingBuffer<T>
 
 	public T Front()
 	{
-		lock (bufferLock)
+		lock (Lock)
 		{
 			return buffer[front];
 		}
@@ -57,7 +61,7 @@ internal class RingBuffer<T>
 
 	public T Back()
 	{
-		lock (bufferLock)
+		lock (Lock)
 		{
 			return buffer[back];
 		}
@@ -77,7 +81,7 @@ internal class RingBuffer<T>
 
 	public void Resize(int _length)
 	{
-		lock (bufferLock)
+		lock (Lock)
 		{
 			capacity = (int)RingBuffer<T>.NextPower2((uint)_length);
 			length = _length;
