@@ -193,19 +193,31 @@ function Get-GitTags {
     }
 
     Write-Information "Getting sorted tags..." -Tags "Get-GitTags"
-    # Get tags and ensure we return an array
+    # Get tags
     $output = "git tag --list --sort=-v:refname" | Invoke-ExpressionWithLogging -Tags "Get-GitTags"
 
-    $tags = @($output)
-
-    # Return default if no tags exist
-    if ($null -eq $tags -or $tags.Count -eq 0) {
-        Write-Information "No tags found, returning default v1.0.0-pre.0" -Tags "Get-GitTags"
-        return @('v1.0.0-pre.0')
+    # Ensure we always return an array
+    if ($null -eq $output) {
+        Write-Information "No tags found, returning empty array" -Tags "Get-GitTags"
+        return @()
+    }
+    
+    # Convert to array if it's not already
+    if ($output -isnot [array]) {
+        if ([string]::IsNullOrWhiteSpace($output)) {
+            Write-Information "No tags found, returning empty array" -Tags "Get-GitTags"
+            return @()
+        }
+        $output = @($output)
+    }
+    
+    if ($output.Count -eq 0) {
+        Write-Information "No tags found, returning empty array" -Tags "Get-GitTags"
+        return @()
     }
 
-    Write-Information "Found $($tags.Count) tags" -Tags "Get-GitTags"
-    return $tags
+    Write-Information "Found $($output.Count) tags" -Tags "Get-GitTags"
+    return $output
 }
 
 function Get-VersionType {
@@ -343,29 +355,26 @@ function Get-VersionInfoFromGit {
     # Get all tags
     $tags = Get-GitTags
     
-    # Fix: Check if $tags is valid before trying to access Count property
-    if ($null -ne $tags -and $tags -is [array]) {
-        Write-Information "Found $($tags.Count) tag(s)" -Tags "Get-VersionInfoFromGit"
-    } else {
-        Write-Information "No tags found, returning default v$InitialVersion-pre.0" -Tags "Get-VersionInfoFromGit"
+    # Ensure tags is always an array
+    if ($null -eq $tags) {
+        $tags = @()
+    } elseif ($tags -isnot [array]) {
+        $tags = @($tags)
     }
+    
+    Write-Information "Found $($tags.Count) tag(s)" -Tags "Get-VersionInfoFromGit"
 
     # Get the last tag and its commit
     $usingFallbackTag = $false
     $lastTag = ""
 
-    if ($null -eq $tags -or
-        ($tags -is [array] -and $tags.Count -eq 0) -or
-        ($tags -is [string] -and $tags.Trim() -eq "")) {
+    if ($tags.Count -eq 0) {
         $lastTag = "v$InitialVersion-pre.0"
         $usingFallbackTag = $true
         Write-Information "No tags found. Using fallback: $lastTag" -Tags "Get-VersionInfoFromGit"
-    } elseif ($tags -is [array]) {
+    } else {
         $lastTag = $tags[0]
         Write-Information "Using last tag: $lastTag" -Tags "Get-VersionInfoFromGit"
-    } else {
-        $lastTag = $tags
-        Write-Information "Using single tag: $lastTag" -Tags "Get-VersionInfoFromGit"
     }
 
     # Extract the version without 'v' prefix
@@ -392,7 +401,9 @@ function Get-VersionInfoFromGit {
 
     # Get the first commit in repo for fallback
     $firstCommit = "git rev-list HEAD" | Invoke-ExpressionWithLogging -Tags "Get-VersionInfoFromGit"
-    $firstCommit = $firstCommit[-1]
+    if ($firstCommit -is [array] -and $firstCommit.Count -gt 0) {
+        $firstCommit = $firstCommit[-1]
+    }
     Write-Information "First commit: $firstCommit" -Tags "Get-VersionInfoFromGit"
 
     # Find the last tag's commit
@@ -771,49 +782,133 @@ function Get-VersionNotes {
     }
 
     # Get the actual commit SHA for the from tag if it exists
+    $range = ""
+    $fromSha = ""
+    $gitSuccess = $true
+    
     if ($rangeFrom -ne "") {
-        $fromSha = "git rev-list -n 1 $rangeFrom" | Invoke-ExpressionWithLogging
+        try {
+            # Try to get the SHA for the from tag, but don't error if it doesn't exist
+            $fromSha = "git rev-list -n 1 $rangeFrom 2>$null" | Invoke-ExpressionWithLogging -ErrorAction SilentlyContinue
+            if ($LASTEXITCODE -ne 0) {
+                Write-Information "Warning: Could not find SHA for tag $rangeFrom. Using fallback range." -Tags "Get-VersionNotes"
+                $gitSuccess = $false
+                $fromSha = ""
+            }
 
-        # For the newest version with SHA provided (not yet tagged):
-        if ($isNewestVersion -and $ToSha -ne "") {
-            $range = "$fromSha..$ToSha"
-        } else {
-            # For already tagged versions, get the SHA for the to tag
-            $toShaResolved = "git rev-list -n 1 $rangeTo" | Invoke-ExpressionWithLogging
-            $range = "$fromSha..$toShaResolved"
+            # For the newest version with SHA provided (not yet tagged):
+            if ($isNewestVersion -and $ToSha -ne "" -and $gitSuccess) {
+                $range = "$fromSha..$ToSha"
+            } elseif ($gitSuccess) {
+                # For already tagged versions, get the SHA for the to tag
+                $toShaResolved = "git rev-list -n 1 $rangeTo 2>$null" | Invoke-ExpressionWithLogging -ErrorAction SilentlyContinue
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Information "Warning: Could not find SHA for tag $rangeTo. Using fallback range." -Tags "Get-VersionNotes"
+                    $gitSuccess = $false
+                }
+                else {
+                    $range = "$fromSha..$toShaResolved"
+                }
+            }
         }
-    } else {
-        # Handle case with no FROM tag (first version)
-        $range = $rangeTo
+        catch {
+            Write-Information "Error getting commit SHAs: $_" -Tags "Get-VersionNotes"
+            $gitSuccess = $false
+        }
+    }
+    
+    # Handle case with no FROM tag (first version) or failed git commands
+    if ($rangeFrom -eq "" -or -not $gitSuccess) {
+        if ($ToSha -ne "") {
+            $range = $ToSha
+        } else {
+            try {
+                $toShaResolved = "git rev-list -n 1 $rangeTo 2>$null" | Invoke-ExpressionWithLogging -ErrorAction SilentlyContinue
+                if ($LASTEXITCODE -eq 0) {
+                    $range = $toShaResolved
+                } else {
+                    # If we can't resolve either tag, use HEAD as fallback
+                    $range = "HEAD"
+                }
+            }
+            catch {
+                Write-Information "Error resolving tag SHA: $_. Using HEAD instead." -Tags "Get-VersionNotes"
+                $range = "HEAD"
+            }
+        }
     }
 
     # Debug output
     Write-Information "Processing range: $range (From: $rangeFrom, To: $rangeTo)" -Tags "Get-VersionNotes"
 
-    # Try with progressively more relaxed filtering to ensure we show commits
-
-    # Get full commit info with hash to ensure uniqueness
-    $format = '%h|%s|%aN'
-
-    # First try with standard filters
-    $rawCommits = "git log --pretty=format:`"$format`" --perl-regexp --regexp-ignore-case --grep=`"$EXCLUDE_PRS`" --invert-grep --committer=`"$EXCLUDE_BOTS`" --author=`"$EXCLUDE_BOTS`" `"$range`"" | Invoke-ExpressionWithLogging
-
-    # If no commits found, try with just PR exclusion but no author filtering
-    if (($rawCommits | Measure-Object).Count -eq 0) {
-        Write-Information "No commits found with standard filters, trying with relaxed author/committer filters..." -Tags "Get-VersionNotes"
-        $rawCommits = "git log --pretty=format:`"$format`" --perl-regexp --regexp-ignore-case --grep=`"$EXCLUDE_PRS`" --invert-grep `"$range`"" | Invoke-ExpressionWithLogging
+    # For repositories with no valid tags or no commits between tags, handle gracefully
+    if ([string]::IsNullOrWhiteSpace($range) -or $range -eq ".." -or $range -match '^\s*$') {
+        Write-Information "No valid commit range found. Creating a placeholder entry." -Tags "Get-VersionNotes"
+        $versionType = "initial" # Mark as initial release
+        $versionChangelog = "## $ToTag (initial release)$script:lineEnding$script:lineEnding"
+        $versionChangelog += "Initial version.$script:lineEnding$script:lineEnding"
+        return ($versionChangelog.Trim() + $script:lineEnding)
     }
 
-    # If still no commits, try with no filtering at all - show everything in the range
-    if (($rawCommits | Measure-Object).Count -eq 0) {
-        Write-Information "Still no commits found, trying with no filters..." -Tags "Get-VersionNotes"
-        $rawCommits = "git log --pretty=format:`"$format`" `"$range`"" | Invoke-ExpressionWithLogging
+    # Try with progressively more relaxed filtering to ensure we show commits
+    $rawCommits = @()
+    
+    try {
+        # Get full commit info with hash to ensure uniqueness
+        $format = '%h|%s|%aN'
 
-        # If it's a prerelease version, include also version update commits
-        if ($versionType -eq "prerelease" -and ($rawCommits | Measure-Object).Count -eq 0) {
-            Write-Information "Looking for version update commits for prerelease..." -Tags "Get-VersionNotes"
-            $rawCommits = "git log --pretty=format:`"$format`" --grep=`"Update VERSION to`" `"$range`"" | Invoke-ExpressionWithLogging
+        # First try with standard filters
+        $rawCommits = "git log --pretty=format:`"$format`" --perl-regexp --regexp-ignore-case --grep=`"$EXCLUDE_PRS`" --invert-grep --committer=`"$EXCLUDE_BOTS`" --author=`"$EXCLUDE_BOTS`" `"$range`"" | Invoke-ExpressionWithLogging -ErrorAction SilentlyContinue
+        
+        # Convert to array if needed
+        if ($null -eq $rawCommits) {
+            $rawCommits = @()
+        } elseif ($rawCommits -isnot [array]) {
+            $rawCommits = @($rawCommits)
         }
+
+        # If no commits found, try with just PR exclusion but no author filtering
+        if ($rawCommits.Count -eq 0) {
+            Write-Information "No commits found with standard filters, trying with relaxed author/committer filters..." -Tags "Get-VersionNotes"
+            $rawCommits = "git log --pretty=format:`"$format`" --perl-regexp --regexp-ignore-case --grep=`"$EXCLUDE_PRS`" --invert-grep `"$range`"" | Invoke-ExpressionWithLogging -ErrorAction SilentlyContinue
+            
+            # Convert to array if needed
+            if ($null -eq $rawCommits) {
+                $rawCommits = @()
+            } elseif ($rawCommits -isnot [array]) {
+                $rawCommits = @($rawCommits)
+            }
+        }
+
+        # If still no commits, try with no filtering at all - show everything in the range
+        if ($rawCommits.Count -eq 0) {
+            Write-Information "Still no commits found, trying with no filters..." -Tags "Get-VersionNotes"
+            $rawCommits = "git log --pretty=format:`"$format`" `"$range`"" | Invoke-ExpressionWithLogging -ErrorAction SilentlyContinue
+            
+            # Convert to array if needed
+            if ($null -eq $rawCommits) {
+                $rawCommits = @()
+            } elseif ($rawCommits -isnot [array]) {
+                $rawCommits = @($rawCommits)
+            }
+
+            # If it's a prerelease version, include also version update commits
+            if ($versionType -eq "prerelease" -and $rawCommits.Count -eq 0) {
+                Write-Information "Looking for version update commits for prerelease..." -Tags "Get-VersionNotes"
+                $rawCommits = "git log --pretty=format:`"$format`" --grep=`"Update VERSION to`" `"$range`"" | Invoke-ExpressionWithLogging -ErrorAction SilentlyContinue
+                
+                # Convert to array if needed
+                if ($null -eq $rawCommits) {
+                    $rawCommits = @()
+                } elseif ($rawCommits -isnot [array]) {
+                    $rawCommits = @($rawCommits)
+                }
+            }
+        }
+    }
+    catch {
+        Write-Information "Error during git log operations: $_" -Tags "Get-VersionNotes"
+        $rawCommits = @()
     }
 
     # Process raw commits into structured format
@@ -833,11 +928,11 @@ function Get-VersionNotes {
     # Get unique commits based on hash (ensures unique commits)
     $uniqueCommits = $structuredCommits | Sort-Object -Property Hash -Unique | ForEach-Object { $_.FormattedEntry }
 
-    Write-Information "Found $(($uniqueCommits | Measure-Object).Count) commits for $ToTag" -Tags "Get-VersionNotes"
+    Write-Information "Found $($uniqueCommits.Count) commits for $ToTag" -Tags "Get-VersionNotes"
 
     # Format changelog entry
     $versionChangelog = ""
-    if (($uniqueCommits | Measure-Object).Count -gt 0) {
+    if ($uniqueCommits.Count -gt 0) {
         $versionChangelog = "## $ToTag"
         if ($versionType -ne "unknown") {
             $versionChangelog += " ($versionType)"
@@ -863,6 +958,19 @@ function Get-VersionNotes {
         # For prerelease versions with no detected commits, include a placeholder entry
         $versionChangelog = "## $ToTag (prerelease)$script:lineEnding$script:lineEnding"
         $versionChangelog += "Incremental prerelease update.$script:lineEnding$script:lineEnding"
+    } else {
+        # For all other versions with no commits, create a placeholder message
+        $versionChangelog = "## $ToTag"
+        if ($versionType -ne "unknown") {
+            $versionChangelog += " ($versionType)"
+        }
+        $versionChangelog += "$script:lineEnding$script:lineEnding"
+        
+        if ($FromTag -eq "v0.0.0") {
+            $versionChangelog += "Initial release.$script:lineEnding$script:lineEnding"
+        } else {
+            $versionChangelog += "No significant changes detected since $FromTag.$script:lineEnding$script:lineEnding"
+        }
     }
 
     return ($versionChangelog.Trim() + $script:lineEnding)
@@ -906,21 +1014,22 @@ function New-Changelog {
     $tags = Get-GitTags
     $changelog = ""
 
+    # Make sure tags is always an array
+    if ($null -eq $tags) {
+        $tags = @()
+    } elseif ($tags -isnot [array]) {
+        $tags = @($tags)
+    }
+
     # Check if we have any tags at all
-    $hasTags = $null -ne $tags -and
-              ($tags -is [array] -and $tags.Count -gt 0) -or
-              ($tags -is [string] -and $tags.Trim() -ne "")
+    $hasTags = $tags.Count -gt 0
 
     # For first release, there's no previous tag to compare against
     $previousTag = 'v0.0.0'
 
     # If we have tags, find the most recent one to compare against
     if ($hasTags) {
-        $previousTag = if ($tags -is [array]) {
-            $tags[0]  # Most recent tag
-        } else {
-            $tags  # Single tag
-        }
+        $previousTag = $tags[0]  # Most recent tag
     }
 
     # Always add entry for current/new version (comparing current commit to previous tag or initial state)
@@ -980,7 +1089,7 @@ function New-Changelog {
     [System.IO.File]::WriteAllText($latestPath, $latestVersionNotes, [System.Text.UTF8Encoding]::new($false)) | Write-InformationStream -Tags "New-Changelog"
     Write-Information "Latest version changelog saved to: $latestPath" -Tags "New-Changelog"
 
-    $versionCount = if ($hasTags) { @($tags).Count + 1 } else { 1 }
+    $versionCount = if ($hasTags) { $tags.Count + 1 } else { 1 }
     Write-Information "Changelog generated with entries for $versionCount versions" -Tags "New-Changelog"
 }
 
@@ -1033,7 +1142,21 @@ function Update-ProjectMetadata {
 
         Write-Information "Generating changelog..." -Tags "Update-ProjectMetadata"
         # Generate both full changelog and latest version changelog
-        New-Changelog -Version $version -CommitHash $BuildConfiguration.ReleaseHash -LatestChangelogPath $BuildConfiguration.LatestChangelogFile | Write-InformationStream -Tags "Update-ProjectMetadata"
+        try {
+            New-Changelog -Version $version -CommitHash $BuildConfiguration.ReleaseHash -LatestChangelogPath $BuildConfiguration.LatestChangelogFile | Write-InformationStream -Tags "Update-ProjectMetadata"
+        }
+        catch {
+            $errorMessage = $_.ToString()
+            Write-Information "Failed to generate complete changelog: $errorMessage" -Tags "Update-ProjectMetadata"
+            Write-Information "Creating minimal changelog instead..." -Tags "Update-ProjectMetadata"
+            
+            # Create a minimal changelog
+            $minimalChangelog = "## v$version$($script:lineEnding)$($script:lineEnding)"
+            $minimalChangelog += "Initial release or repository with no prior history.$($script:lineEnding)$($script:lineEnding)"
+            
+            [System.IO.File]::WriteAllText("CHANGELOG.md", $minimalChangelog, [System.Text.UTF8Encoding]::new($false)) | Write-InformationStream -Tags "Update-ProjectMetadata"
+            [System.IO.File]::WriteAllText($BuildConfiguration.LatestChangelogPath, $minimalChangelog, [System.Text.UTF8Encoding]::new($false)) | Write-InformationStream -Tags "Update-ProjectMetadata"
+        }
 
         # Create AUTHORS.md if authors are provided
         if ($Authors.Count -gt 0) {
