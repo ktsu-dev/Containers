@@ -4,12 +4,6 @@
 
 internal class RingBuffer<T>
 {
-#if NET9_0_OR_GREATER
-	public static Lock Lock = new();
-#else
-	public static object Lock = new();
-#endif
-
 	public T[] buffer;
 	public int back;
 	public int front;
@@ -18,54 +12,33 @@ internal class RingBuffer<T>
 
 	public RingBuffer(int _length)
 	{
-		lock (Lock)
+		length = _length;
+		capacity = (int)RingBuffer<T>.NextPower2((uint)_length);
+		buffer = new T[capacity];
+		back = capacity - 1;
+		front = back - length;
+		while (front < 0)
 		{
-			length = _length;
-			capacity = (int)RingBuffer<T>.NextPower2((uint)_length);
-			buffer = new T[capacity];
-			back = capacity - 1;
-			front = back - length;
-			while (front < 0)
-			{
-				front += capacity;
-			}
+			front += capacity;
 		}
 	}
 
 	public void PushBack(T o)
 	{
-		lock (Lock)
-		{
-			back = (back + 1) & (capacity - 1);
-			front = (front + 1) & (capacity - 1);
-			buffer[back] = o;
-		}
+		back = (back + 1) & (capacity - 1);
+		front = (front + 1) & (capacity - 1);
+		buffer[back] = o;
 	}
 
 	public T At(int index)
 	{
-		lock (Lock)
-		{
-			var idx = (front + index) & (capacity - 1);
-			return buffer[idx];
-		}
+		var idx = (front + index) & (capacity - 1);
+		return buffer[idx];
 	}
 
-	public T Front()
-	{
-		lock (Lock)
-		{
-			return buffer[front];
-		}
-	}
+	public T Front() => buffer[front];
 
-	public T Back()
-	{
-		lock (Lock)
-		{
-			return buffer[back];
-		}
-	}
+	public T Back() => buffer[back];
 
 	private static uint NextPower2(uint v)
 	{
@@ -81,32 +54,29 @@ internal class RingBuffer<T>
 
 	public void Resize(int _length)
 	{
-		lock (Lock)
+		capacity = (int)RingBuffer<T>.NextPower2((uint)_length);
+		length = _length;
+		if (buffer.Length != capacity)
 		{
-			capacity = (int)RingBuffer<T>.NextPower2((uint)_length);
-			length = _length;
-			if (buffer.Length != capacity)
+			var newBuffer = new T[capacity];
+			float resample = 0;
+			if (buffer.Length > 0)
 			{
-				var newBuffer = new T[capacity];
-				float resample = 0;
-				if (buffer.Length > 0)
+				resample = newBuffer.Length / (float)buffer.Length;
+				for (var i = 0; i < newBuffer.Length; ++i)
 				{
-					resample = newBuffer.Length / (float)buffer.Length;
-					for (var i = 0; i < newBuffer.Length; ++i)
-					{
-						var oldIndex = (int)Math.Round(i / resample);
-						oldIndex = Math.Min(oldIndex, buffer.Length - 1);
-						newBuffer[i] = buffer[oldIndex];
-					}
+					var oldIndex = (int)Math.Round(i / resample);
+					oldIndex = Math.Min(oldIndex, buffer.Length - 1);
+					newBuffer[i] = buffer[oldIndex];
 				}
+			}
 
-				buffer = newBuffer;
-				back = (int)(back * resample);
-				front = back - length;
-				while (front < 0)
-				{
-					front += capacity;
-				}
+			buffer = newBuffer;
+			back = (int)(back * resample);
+			front = back - length;
+			while (front < 0)
+			{
+				front += capacity;
 			}
 		}
 	}
