@@ -269,7 +269,7 @@ function Get-VersionType {
     }
 
     # Check if we have any commits at all
-    if ($messages.Count -eq 0) {
+    if (@($messages).Count -eq 0) {
         return [PSCustomObject]@{
             Type = "skip"
             Reason = "No commits found in the specified range"
@@ -280,7 +280,7 @@ function Get-VersionType {
     $skipCiPattern = '\[skip ci\]|\[ci skip\]'
     $skipCiCommits = $messages | Where-Object { $_ -match $skipCiPattern }
     
-    if ($skipCiCommits.Count -eq $messages.Count -and $messages.Count -gt 0) {
+    if (@($skipCiCommits).Count -eq @($messages).Count -and @($messages).Count -gt 0) {
         return [PSCustomObject]@{
             Type = "skip"
             Reason = "All commits contain [skip ci] tag, skipping release"
@@ -390,13 +390,13 @@ function Get-VersionInfoFromGit {
         $tags = @($tags)
     }
     
-    Write-Information "Found $($tags.Count) tag(s)" -Tags "Get-VersionInfoFromGit"
+    Write-Information "Found $(@($tags).Count) tag(s)" -Tags "Get-VersionInfoFromGit"
 
     # Get the last tag and its commit
     $usingFallbackTag = $false
     $lastTag = ""
 
-    if ($tags.Count -eq 0) {
+    if (@($tags).Count -eq 0) {
         $lastTag = "v$InitialVersion-pre.0"
         $usingFallbackTag = $true
         Write-Information "No tags found. Using fallback: $lastTag" -Tags "Get-VersionInfoFromGit"
@@ -429,7 +429,7 @@ function Get-VersionInfoFromGit {
 
     # Get the first commit in repo for fallback
     $firstCommit = "git rev-list HEAD" | Invoke-ExpressionWithLogging -Tags "Get-VersionInfoFromGit"
-    if ($firstCommit -is [array] -and $firstCommit.Count -gt 0) {
+    if ($firstCommit -is [array] -and @($firstCommit).Count -gt 0) {
         $firstCommit = $firstCommit[-1]
     }
     Write-Information "First commit: $firstCommit" -Tags "Get-VersionInfoFromGit"
@@ -1224,7 +1224,7 @@ function Update-ProjectMetadata {
         }
 
         # Create AUTHORS.md if authors are provided
-        if ($Authors.Count -gt 0) {
+        if (@($Authors).Count -gt 0) {
             Write-Information "Generating authors file..." -Tags "Update-ProjectMetadata"
             $authorsContent = "# Project Authors$script:lineEnding$script:lineEnding"
             foreach ($author in $Authors) {
