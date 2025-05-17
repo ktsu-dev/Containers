@@ -23,6 +23,7 @@ using System.Diagnostics.CodeAnalysis;
 ///   <item>Resizing the buffer (which clears existing elements)</item>
 ///   <item>Resampling the buffer (interpolating or decimating elements)</item>
 ///   <item>Enumeration through all elements</item>
+///   <item>Clearing the buffer to remove all elements</item>
 /// </list>
 /// </remarks>
 /// <typeparam name="T">The type of elements stored in the buffer.</typeparam>
@@ -253,4 +254,17 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 	/// </summary>
 	/// <returns>An enumerator for the buffer.</returns>
 	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+	/// <summary>
+	/// Removes all elements from the buffer without changing its capacity.
+	/// </summary>
+	/// <remarks>
+	/// After calling <see cref="Clear"/>, <see cref="Count"/> will be zero and the buffer will be empty, but the capacity remains unchanged.
+	/// </remarks>
+	public void Clear()
+	{
+		BackIndex = 0;
+		FrontIndex = 0;
+		Count = 0;
+	}
 }

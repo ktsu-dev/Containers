@@ -98,6 +98,17 @@ var sum = buffer.Sum();
 var doubled = buffer.Select(x => x * 2).ToList();
 ```
 
+### Clearing the Buffer
+
+You can clear all elements from a `RingBuffer<T>` without changing its capacity using the `Clear` method:
+
+```csharp
+var buffer = new RingBuffer<int>(3);
+buffer.PushBack(1);
+buffer.PushBack(2);
+buffer.Clear(); // buffer is now empty, Count == 0
+```
+
 ## Performance Focus
 
 The library emphasizes performance through several optimization techniques:

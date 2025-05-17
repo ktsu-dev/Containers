@@ -232,4 +232,31 @@ public class RingBufferTests
 		Assert.AreEqual(20, buffer.At(2));
 		Assert.AreEqual(30, buffer.At(4));
 	}
+
+	[TestMethod]
+	public void Clear_EmptiesBufferAndResetsCount()
+	{
+		var buffer = new RingBuffer<int>(3);
+		buffer.PushBack(1);
+		buffer.PushBack(2);
+		buffer.PushBack(3);
+		Assert.AreEqual(3, buffer.Count);
+		buffer.Clear();
+		Assert.AreEqual(0, buffer.Count);
+		Assert.ThrowsException<ArgumentOutOfRangeException>(() => buffer.At(0));
+		Assert.ThrowsException<InvalidOperationException>(() => buffer.Front());
+		Assert.ThrowsException<InvalidOperationException>(() => buffer.Back());
+	}
+
+	[TestMethod]
+	public void Clear_AllowsReuseAfterClearing()
+	{
+		var buffer = new RingBuffer<int>(2);
+		buffer.PushBack(5);
+		buffer.PushBack(6);
+		buffer.Clear();
+		buffer.PushBack(7);
+		Assert.AreEqual(1, buffer.Count);
+		Assert.AreEqual(7, buffer.At(0));
+	}
 }
