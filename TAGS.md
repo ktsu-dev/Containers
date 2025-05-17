@@ -1,0 +1,1 @@
+ringbuffer;circular buffer;fixed-size;container;collection;data structure;.NET 8;.NET 9;high-performance;modern;C#;ktsu;overwrite;FIFO;queue;buffer;front;back;resize;resample;prefill;power-of-two;interpolate;decimate
