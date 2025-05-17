@@ -230,12 +230,14 @@ function Get-VersionType {
         - Minor (1.0.0 → 1.1.0): Non-breaking public API changes (additions, modifications, removals)
         - Patch (1.0.0 → 1.0.1): Bug fixes and changes that don't modify the public API
         - Prerelease (1.0.0 → 1.0.1-pre.1): Small changes or no significant changes
+        - Skip: Only [skip ci] commits or no significant changes requiring a version bump
 
         Version bump determination follows these rules in order:
         1. Explicit tags in commit messages: [major], [minor], [patch], [pre]
         2. Public API changes detection via regex patterns (triggers minor bump)
         3. Code changes that don't modify public API (triggers patch bump)
         4. Default to prerelease bump for minimal changes
+        5. If only [skip ci] commits are found, suggest skipping the release
     .PARAMETER Range
         The git commit range to analyze (e.g., "v1.0.0...HEAD" or a specific commit range)
     .OUTPUTS
@@ -258,6 +260,32 @@ function Get-VersionType {
 
     # First check for explicit version markers in commit messages
     $messages = "git log --format=format:%s `"$Range`"" | Invoke-ExpressionWithLogging -Tags "Get-VersionType"
+    
+    # Ensure messages is always an array
+    if ($null -eq $messages) {
+        $messages = @()
+    } elseif ($messages -isnot [array]) {
+        $messages = @($messages)
+    }
+
+    # Check if we have any commits at all
+    if ($messages.Count -eq 0) {
+        return [PSCustomObject]@{
+            Type = "skip"
+            Reason = "No commits found in the specified range"
+        }
+    }
+
+    # Check if all commits are skip ci commits
+    $skipCiPattern = '\[skip ci\]|\[ci skip\]'
+    $skipCiCommits = $messages | Where-Object { $_ -match $skipCiPattern }
+    
+    if ($skipCiCommits.Count -eq $messages.Count -and $messages.Count -gt 0) {
+        return [PSCustomObject]@{
+            Type = "skip"
+            Reason = "All commits contain [skip ci] tag, skipping release"
+        }
+    }
 
     foreach ($message in $messages) {
         if ($message.Contains('[major]')) {
@@ -424,6 +452,43 @@ function Get-VersionInfoFromGit {
     $incrementInfo = Get-VersionType -Range $commitRange
     $incrementType = $incrementInfo.Type
     $incrementReason = $incrementInfo.Reason
+
+    # If type is "skip", return the current version without bumping
+    if ($incrementType -eq "skip") {
+        Write-Information "Version increment type: $incrementType" -Tags "Get-VersionInfoFromGit"
+        Write-Information "Reason: $incrementReason" -Tags "Get-VersionInfoFromGit"
+        
+        # Use the same version, don't increment
+        $newVersion = $lastVersion
+
+        return [PSCustomObject]@{
+            Success = $true
+            Error = ""
+            Data = [PSCustomObject]@{
+                Version = $newVersion
+                Major = $lastMajor
+                Minor = $lastMinor
+                Patch = $lastPatch
+                IsPrerelease = $wasPrerelease
+                PrereleaseNumber = $lastPrereleaseNum
+                PrereleaseLabel = if ($wasPrerelease) { ($lastVersion -split '-')[1].Split('.')[0] } else { "pre" }
+                LastTag = $lastTag
+                LastVersion = $lastVersion
+                LastVersionMajor = $lastMajor
+                LastVersionMinor = $lastMinor
+                LastVersionPatch = $lastPatch
+                WasPrerelease = $wasPrerelease
+                LastVersionPrereleaseNumber = $lastPrereleaseNum
+                VersionIncrement = $incrementType
+                IncrementReason = $incrementReason
+                FirstCommit = $firstCommit
+                LastCommit = $CommitHash
+                LastTagCommit = $lastTagCommit
+                UsingFallbackTag = $usingFallbackTag
+                CommitRange = $commitRange
+            }
+        }
+    }
 
     # Initialize new version with current values
     $newMajor = $lastMajor
@@ -2064,6 +2129,24 @@ function Invoke-CIPipeline {
                 Success = $false
                 Error = "Failed to update metadata: $($metadata.Error)"
                 StackTrace = $_.ScriptStackTrace
+            }
+        }
+
+        # Get the version increment info to check if we should skip the release
+        Write-Information "Checking for significant changes..." -Tags "Invoke-CIPipeline"
+        $versionInfo = Get-VersionInfoFromGit -CommitHash $BuildConfiguration.ReleaseHash
+        
+        if ($versionInfo.Data.VersionIncrement -eq "skip") {
+            Write-Information "Skipping release: $($versionInfo.Data.IncrementReason)" -Tags "Invoke-CIPipeline"
+            return [PSCustomObject]@{
+                Success = $true
+                Error = ""
+                Data = [PSCustomObject]@{
+                    Version = $metadata.Data.Version
+                    ReleaseHash = $metadata.Data.ReleaseHash
+                    SkippedRelease = $true
+                    SkipReason = $versionInfo.Data.IncrementReason
+                }
             }
         }
 
