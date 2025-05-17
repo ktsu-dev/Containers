@@ -2,13 +2,16 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
-namespace ktsu.Collections;
+namespace ktsu.Containers;
+
+using System.Collections;
 
 /// <summary>
 /// Represents a fixed-size circular buffer (ring buffer) for storing elements of type <typeparamref name="T"/>.
 /// </summary>
 /// <typeparam name="T">The type of elements stored in the buffer.</typeparam>
-public class RingBuffer<T>
+[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "RingBuffer is a known collection name")]
+public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyList<T>
 {
 	/// <summary>
 	/// Gets or sets the internal buffer array.
@@ -36,9 +39,16 @@ public class RingBuffer<T>
 	private int Length { get; set; }
 
 	/// <summary>
-	/// Gets or sets the number of valid elements in the buffer.
+	/// Gets the number of valid elements in the buffer.
 	/// </summary>
-	private int Count { get; set; } // Track number of valid elements
+	public int Count { get; private set; } // Track number of valid elements
+
+	/// <summary>
+	/// Gets the element at the specified index in the buffer.
+	/// </summary>
+	/// <param name="index">The index of the element to get.</param>
+	/// <returns>The element at the specified index.</returns>
+	public T this[int index] => At(index);
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="RingBuffer{T}"/> class with the specified length.
@@ -191,4 +201,22 @@ public class RingBuffer<T>
 			PushBack(oldBuffer[oldIndex]);
 		}
 	}
+
+	/// <summary>
+	/// Returns an enumerator that iterates through the buffer.
+	/// </summary>
+	/// <returns>An enumerator for the buffer.</returns>
+	public IEnumerator<T> GetEnumerator()
+	{
+		for (var i = 0; i < Count; i++)
+		{
+			yield return At(i);
+		}
+	}
+
+	/// <summary>
+	/// Returns an enumerator that iterates through the buffer.
+	/// </summary>
+	/// <returns>An enumerator for the buffer.</returns>
+	IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

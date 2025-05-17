@@ -2,10 +2,7 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
-namespace ktsu.Collections.Tests;
-
-using ktsu.Collections;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+namespace ktsu.Containers.Tests;
 
 [TestClass]
 public class RingBufferTests
