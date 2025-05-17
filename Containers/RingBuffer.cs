@@ -9,6 +9,21 @@ using System.Collections;
 /// <summary>
 /// Represents a fixed-size circular buffer (ring buffer) for storing elements of type <typeparamref name="T"/>.
 /// </summary>
+/// <remarks>
+/// A ring buffer is a data structure that uses a single, fixed-size buffer as if it were connected end-to-end.
+/// This implementation uses a power-of-two size to optimize the modulo operations needed for wraparound, 
+/// replacing division with more efficient bitwise operations.
+/// 
+/// When the buffer reaches its capacity, adding more elements will overwrite the oldest elements.
+/// 
+/// This implementation supports:
+/// <list type="bullet">
+///   <item>Accessing elements by index, front, or back</item>
+///   <item>Resizing the buffer (which clears existing elements)</item>
+///   <item>Resampling the buffer (interpolating or decimating elements)</item>
+///   <item>Enumeration through all elements</item>
+/// </list>
+/// </remarks>
 /// <typeparam name="T">The type of elements stored in the buffer.</typeparam>
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "RingBuffer is a known collection name")]
 public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyList<T>
@@ -16,6 +31,10 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 	/// <summary>
 	/// Gets or sets the internal buffer array.
 	/// </summary>
+	/// <remarks>
+	/// The internal buffer size is always a power of two, which allows for efficient modulo operations
+	/// using bitwise AND when wrapping around the buffer.
+	/// </remarks>
 	private T[] Buffer { get; set; } = [];
 
 	/// <summary>
@@ -109,6 +128,10 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 	/// <summary>
 	/// Adds an element to the back of the buffer, overwriting the oldest element if the buffer is full.
 	/// </summary>
+	/// <remarks>
+	/// This operation has O(1) time complexity. When the buffer reaches its capacity,
+	/// the oldest element is overwritten, and the front index is adjusted accordingly.
+	/// </remarks>
 	/// <param name="o">The element to add.</param>
 	public void PushBack(T o)
 	{
@@ -179,6 +202,16 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 	/// <summary>
 	/// Resamples the buffer to a new length, interpolating or decimating the contents as needed.
 	/// </summary>
+	/// <remarks>
+	/// The resampling process preserves the data pattern by applying simple linear interpolation. 
+	/// If the new length is smaller than the old length, data is decimated (some values are dropped).
+	/// If the new length is larger, data is interpolated (new values are created between existing ones).
+	/// 
+	/// This is useful when you need to change the buffer size while preserving the overall pattern of the data.
+	/// For example, resampling time-series data when changing the sampling rate.
+	///
+	/// If the buffer is empty, this method will resize the buffer without adding any elements.
+	/// </remarks>
 	/// <param name="length">The new length of the buffer.</param>
 	public void Resample(int length)
 	{
