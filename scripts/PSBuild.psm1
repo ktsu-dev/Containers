@@ -342,7 +342,13 @@ function Get-VersionInfoFromGit {
 
     # Get all tags
     $tags = Get-GitTags
-    Write-Information "Found $($tags.Count) tag(s)" -Tags "Get-VersionInfoFromGit"
+    
+    # Fix: Check if $tags is valid before trying to access Count property
+    if ($null -ne $tags -and $tags -is [array]) {
+        Write-Information "Found $($tags.Count) tag(s)" -Tags "Get-VersionInfoFromGit"
+    } else {
+        Write-Information "No tags found, returning default v$InitialVersion-pre.0" -Tags "Get-VersionInfoFromGit"
+    }
 
     # Get the last tag and its commit
     $usingFallbackTag = $false
