@@ -2,45 +2,117 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
-internal class RingBuffer<T>
-{
-	public T[] buffer;
-	public int back;
-	public int front;
-	public int capacity;
-	public int length;
+namespace ktsu.Collections;
 
-	public RingBuffer(int _length)
+/// <summary>
+/// Represents a fixed-size circular buffer (ring buffer) for storing elements of type <typeparamref name="T"/>.
+/// </summary>
+/// <typeparam name="T">The type of elements stored in the buffer.</typeparam>
+public class RingBuffer<T>
+{
+	/// <summary>
+	/// Gets or sets the internal buffer array.
+	/// </summary>
+	private T[] Buffer { get; set; } = [];
+
+	/// <summary>
+	/// Gets or sets the index of the most recently added element.
+	/// </summary>
+	private int BackIndex { get; set; }
+
+	/// <summary>
+	/// Gets or sets the index of the oldest element in the buffer.
+	/// </summary>
+	private int FrontIndex { get; set; }
+
+	/// <summary>
+	/// Gets or sets the capacity of the buffer (always a power of two).
+	/// </summary>
+	private int Capacity { get; set; }
+
+	/// <summary>
+	/// Gets or sets the logical length of the buffer (number of elements to store).
+	/// </summary>
+	private int Length { get; set; }
+
+	/// <summary>
+	/// Gets or sets the number of valid elements in the buffer.
+	/// </summary>
+	private int Count { get; set; } // Track number of valid elements
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="RingBuffer{T}"/> class with the specified length.
+	/// </summary>
+	/// <param name="length">The number of elements the buffer should store.</param>
+	public RingBuffer(int length) => AllocateBuffer(length);
+
+	/// <summary>
+	/// Allocates and initializes the internal buffer with the specified length.
+	/// </summary>
+	/// <param name="length">The number of elements to allocate space for.</param>
+	private void AllocateBuffer(int length)
 	{
-		length = _length;
-		capacity = (int)RingBuffer<T>.NextPower2((uint)_length);
-		buffer = new T[capacity];
-		back = capacity - 1;
-		front = back - length;
-		while (front < 0)
-		{
-			front += capacity;
-		}
+		Length = length;
+		Capacity = NextPower2(Length);
+		Buffer = new T[Capacity];
+		BackIndex = 0;
+		FrontIndex = 0;
+		Count = 0;
 	}
 
+	/// <summary>
+	/// Adds an element to the back of the buffer, overwriting the oldest element if the buffer is full.
+	/// </summary>
+	/// <param name="o">The element to add.</param>
 	public void PushBack(T o)
 	{
-		back = (back + 1) & (capacity - 1);
-		front = (front + 1) & (capacity - 1);
-		buffer[back] = o;
+		Buffer[BackIndex] = o;
+		if (Count == Length)
+		{
+			FrontIndex = (FrontIndex + 1) & (Capacity - 1); // Overwrite oldest
+		}
+		else
+		{
+			Count++;
+		}
+
+		BackIndex = (BackIndex + 1) & (Capacity - 1);
 	}
 
+	/// <summary>
+	/// Gets the element at the specified logical index in the buffer.
+	/// </summary>
+	/// <param name="index">The logical index of the element to retrieve.</param>
+	/// <returns>The element at the specified index.</returns>
 	public T At(int index)
 	{
-		var idx = (front + index) & (capacity - 1);
-		return buffer[idx];
+		if (index < 0 || index >= Count)
+		{
+			throw new ArgumentOutOfRangeException(nameof(index));
+		}
+
+		var idx = (FrontIndex + index) & (Capacity - 1);
+		return Buffer[idx];
 	}
 
-	public T Front() => buffer[front];
+	/// <summary>
+	/// Gets the element at the front of the buffer (the oldest element).
+	/// </summary>
+	/// <returns>The front element.</returns>
+	public T Front() => Count == 0 ? throw new InvalidOperationException("Buffer is empty") : Buffer[FrontIndex];
 
-	public T Back() => buffer[back];
+	/// <summary>
+	/// Gets the element at the back of the buffer (the most recently added element).
+	/// </summary>
+	/// <returns>The back element.</returns>
+	public T Back() => Count == 0 ? throw new InvalidOperationException("Buffer is empty") : Buffer[(BackIndex - 1 + Capacity) & (Capacity - 1)];
 
-	private static uint NextPower2(uint v)
+	/// <summary>
+	/// Calculates the next power of two greater than or equal to the specified value.
+	/// </summary>
+	/// <param name="v">The value to round up.</param>
+	/// <returns>The next power of two.</returns>
+	private static int NextPower2(int v)
 	{
 		v--;
 		v |= v >> 1;
@@ -52,32 +124,35 @@ internal class RingBuffer<T>
 		return v;
 	}
 
-	public void Resize(int _length)
-	{
-		capacity = (int)RingBuffer<T>.NextPower2((uint)_length);
-		length = _length;
-		if (buffer.Length != capacity)
-		{
-			var newBuffer = new T[capacity];
-			float resample = 0;
-			if (buffer.Length > 0)
-			{
-				resample = newBuffer.Length / (float)buffer.Length;
-				for (var i = 0; i < newBuffer.Length; ++i)
-				{
-					var oldIndex = (int)Math.Round(i / resample);
-					oldIndex = Math.Min(oldIndex, buffer.Length - 1);
-					newBuffer[i] = buffer[oldIndex];
-				}
-			}
+	/// <summary>
+	/// Resizes the buffer to the specified length, discarding all current contents.
+	/// </summary>
+	/// <param name="length">The new length of the buffer.</param>
+	public void Resize(int length) => AllocateBuffer(length);
 
-			buffer = newBuffer;
-			back = (int)(back * resample);
-			front = back - length;
-			while (front < 0)
-			{
-				front += capacity;
-			}
+	/// <summary>
+	/// Resamples the buffer to a new length, interpolating or decimating the contents as needed.
+	/// </summary>
+	/// <param name="length">The new length of the buffer.</param>
+	public void Resample(int length)
+	{
+		var oldBuffer = new T[Count];
+		for (var i = 0; i < Count; i++)
+		{
+			oldBuffer[i] = At(i);
+		}
+
+		AllocateBuffer(length);
+
+		if (oldBuffer.Length == 0)
+		{
+			return;
+		}
+
+		for (var i = 0; i < Length; i++)
+		{
+			var oldIndex = (int)Math.Round(i * (oldBuffer.Length - 1) / (double)Math.Max(Length - 1, 1));
+			PushBack(oldBuffer[oldIndex]);
 		}
 	}
 }
