@@ -47,6 +47,42 @@ public class RingBuffer<T>
 	public RingBuffer(int length) => AllocateBuffer(length);
 
 	/// <summary>
+	/// Initializes a new instance of the <see cref="RingBuffer{T}"/> class with the specified items and length.
+	/// If more items are provided than the buffer length, only the most recent items are kept.
+	/// </summary>
+	/// <param name="items">The items to prefill the buffer with.</param>
+	/// <param name="length">The number of elements the buffer should store.</param>
+	public RingBuffer(IEnumerable<T> items, int length) : this(length)
+	{
+		ArgumentNullException.ThrowIfNull(items);
+
+		// Buffer only the last 'length' items if overfilled
+		var queue = new Queue<T>(items);
+		while (queue.Count > length)
+		{
+			queue.Dequeue();
+		}
+
+		foreach (var item in queue)
+		{
+			PushBack(item);
+		}
+	}
+
+	/// <summary>
+	/// Initializes a new instance of the <see cref="RingBuffer{T}"/> class, prefilled with copies of a single value.
+	/// </summary>
+	/// <param name="value">The value to prefill the buffer with.</param>
+	/// <param name="length">The number of elements the buffer should store.</param>
+	public RingBuffer(T value, int length) : this(length)
+	{
+		for (var i = 0; i < length; i++)
+		{
+			PushBack(value);
+		}
+	}
+
+	/// <summary>
 	/// Allocates and initializes the internal buffer with the specified length.
 	/// </summary>
 	/// <param name="length">The number of elements to allocate space for.</param>
