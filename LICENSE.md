@@ -1,6 +1,6 @@
 MIT License
 
-https://github.com/ktsu-dev/ktsu-dev/Containers
+https://github.com/ktsu-dev/Containers
 
 Copyright (c) 2023-2025 ktsu-dev
 
