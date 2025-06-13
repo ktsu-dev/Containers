@@ -3,9 +3,6 @@
 // Licensed under the MIT license.
 
 namespace ktsu.Containers.Tests;
-
-using System.Collections;
-
 [TestClass]
 public class ContiguousMapTests
 {
@@ -45,7 +42,7 @@ public class ContiguousMapTests
 
 		// Act
 		ContiguousMap<int, string> map = [];
-		foreach (var item in items)
+		foreach (KeyValuePair<int, string> item in items)
 		{
 			map.TryAdd(item.Key, item.Value);
 		}
@@ -289,7 +286,7 @@ public class ContiguousMapTests
 		map.Add(2, "two");
 
 		// Act
-		var keys = map.Keys.ToHashSet();
+		HashSet<int> keys = [.. map.Keys];
 
 		// Assert
 		Assert.AreEqual(4, keys.Count);
@@ -310,7 +307,7 @@ public class ContiguousMapTests
 		map.Add(2, "two");
 
 		// Act
-		var values = map.Values.ToHashSet();
+		HashSet<string> values = [.. map.Values];
 
 		// Assert
 		Assert.AreEqual(4, values.Count);

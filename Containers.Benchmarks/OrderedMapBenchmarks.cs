@@ -30,9 +30,9 @@ public class OrderedMapBenchmarks
 	[GlobalSetup]
 	public void Setup()
 	{
-		keys = Enumerable.Range(1, ElementCount).OrderBy(x => random.Next()).ToArray();
-		values = keys.Select(k => $"value{k}").ToArray();
-		keyValuePairs = keys.Zip(values, (k, v) => new KeyValuePair<int, string>(k, v)).ToArray();
+		keys = [.. Enumerable.Range(1, ElementCount).OrderBy(x => random.Next())];
+		values = [.. keys.Select(k => $"value{k}")];
+		keyValuePairs = [.. keys.Zip(values, (k, v) => new KeyValuePair<int, string>(k, v))];
 	}
 
 	/// <summary>
@@ -41,7 +41,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public OrderedMap<int, string> BuildOrderedMap()
 	{
-		var map = new OrderedMap<int, string>();
+		OrderedMap<int, string> map = new OrderedMap<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			map.Add(keys[i], values[i]);
@@ -55,7 +55,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public Dictionary<int, string> BuildDictionary()
 	{
-		var dict = new Dictionary<int, string>();
+		Dictionary<int, string> dict = new Dictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			dict.Add(keys[i], values[i]);
@@ -69,7 +69,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public SortedDictionary<int, string> BuildSortedDictionary()
 	{
-		var sortedDict = new SortedDictionary<int, string>();
+		SortedDictionary<int, string> sortedDict = new SortedDictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			sortedDict.Add(keys[i], values[i]);
@@ -83,7 +83,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public OrderedMap<int, string> BuildOrderedMapFromDictionary()
 	{
-		var dict = new Dictionary<int, string>();
+		Dictionary<int, string> dict = new Dictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			dict.Add(keys[i], values[i]);
@@ -97,7 +97,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public string LookupOrderedMap()
 	{
-		var map = new OrderedMap<int, string>();
+		OrderedMap<int, string> map = new OrderedMap<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			map.Add(keys[i], values[i]);
@@ -117,7 +117,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public string LookupDictionary()
 	{
-		var dict = new Dictionary<int, string>();
+		Dictionary<int, string> dict = new Dictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			dict.Add(keys[i], values[i]);
@@ -137,7 +137,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public string LookupSortedDictionary()
 	{
-		var sortedDict = new SortedDictionary<int, string>();
+		SortedDictionary<int, string> sortedDict = new SortedDictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			sortedDict.Add(keys[i], values[i]);
@@ -157,7 +157,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public int TryGetValueOrderedMap()
 	{
-		var map = new OrderedMap<int, string>();
+		OrderedMap<int, string> map = new OrderedMap<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			map.Add(keys[i], values[i]);
@@ -180,7 +180,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public int TryGetValueDictionary()
 	{
-		var dict = new Dictionary<int, string>();
+		Dictionary<int, string> dict = new Dictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			dict.Add(keys[i], values[i]);
@@ -203,7 +203,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public int TryGetValueSortedDictionary()
 	{
-		var sortedDict = new SortedDictionary<int, string>();
+		SortedDictionary<int, string> sortedDict = new SortedDictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			sortedDict.Add(keys[i], values[i]);
@@ -226,7 +226,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public int ContainsKeyOrderedMap()
 	{
-		var map = new OrderedMap<int, string>();
+		OrderedMap<int, string> map = new OrderedMap<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			map.Add(keys[i], values[i]);
@@ -249,7 +249,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public int ContainsKeyDictionary()
 	{
-		var dict = new Dictionary<int, string>();
+		Dictionary<int, string> dict = new Dictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			dict.Add(keys[i], values[i]);
@@ -272,7 +272,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public int ContainsKeySortedDictionary()
 	{
-		var sortedDict = new SortedDictionary<int, string>();
+		SortedDictionary<int, string> sortedDict = new SortedDictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			sortedDict.Add(keys[i], values[i]);
@@ -295,7 +295,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public int RemoveOrderedMap()
 	{
-		var map = new OrderedMap<int, string>();
+		OrderedMap<int, string> map = new OrderedMap<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			map.Add(keys[i], values[i]);
@@ -318,7 +318,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public int RemoveDictionary()
 	{
-		var dict = new Dictionary<int, string>();
+		Dictionary<int, string> dict = new Dictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			dict.Add(keys[i], values[i]);
@@ -341,7 +341,7 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public int RemoveSortedDictionary()
 	{
-		var sortedDict = new SortedDictionary<int, string>();
+		SortedDictionary<int, string> sortedDict = new SortedDictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			sortedDict.Add(keys[i], values[i]);
@@ -364,14 +364,14 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public int EnumerateOrderedMap()
 	{
-		var map = new OrderedMap<int, string>();
+		OrderedMap<int, string> map = new OrderedMap<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			map.Add(keys[i], values[i]);
 		}
 
 		int count = 0;
-		foreach (var kvp in map)
+		foreach (KeyValuePair<int, string> kvp in map)
 		{
 			count++;
 		}
@@ -384,14 +384,14 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public int EnumerateDictionary()
 	{
-		var dict = new Dictionary<int, string>();
+		Dictionary<int, string> dict = new Dictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			dict.Add(keys[i], values[i]);
 		}
 
 		int count = 0;
-		foreach (var kvp in dict)
+		foreach (KeyValuePair<int, string> kvp in dict)
 		{
 			count++;
 		}
@@ -404,14 +404,14 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public int EnumerateSortedDictionary()
 	{
-		var sortedDict = new SortedDictionary<int, string>();
+		SortedDictionary<int, string> sortedDict = new SortedDictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			sortedDict.Add(keys[i], values[i]);
 		}
 
 		int count = 0;
-		foreach (var kvp in sortedDict)
+		foreach (KeyValuePair<int, string> kvp in sortedDict)
 		{
 			count++;
 		}
@@ -424,13 +424,13 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public int[] KeysOrderedMap()
 	{
-		var map = new OrderedMap<int, string>();
+		OrderedMap<int, string> map = new OrderedMap<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			map.Add(keys[i], values[i]);
 		}
 
-		return map.Keys.ToArray();
+		return [.. map.Keys];
 	}
 
 	/// <summary>
@@ -439,13 +439,13 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public int[] KeysDictionary()
 	{
-		var dict = new Dictionary<int, string>();
+		Dictionary<int, string> dict = new Dictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			dict.Add(keys[i], values[i]);
 		}
 
-		return dict.Keys.ToArray();
+		return [.. dict.Keys];
 	}
 
 	/// <summary>
@@ -454,13 +454,13 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public int[] KeysSortedDictionary()
 	{
-		var sortedDict = new SortedDictionary<int, string>();
+		SortedDictionary<int, string> sortedDict = new SortedDictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			sortedDict.Add(keys[i], values[i]);
 		}
 
-		return sortedDict.Keys.ToArray();
+		return [.. sortedDict.Keys];
 	}
 
 	/// <summary>
@@ -469,13 +469,13 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public string[] ValuesOrderedMap()
 	{
-		var map = new OrderedMap<int, string>();
+		OrderedMap<int, string> map = new OrderedMap<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			map.Add(keys[i], values[i]);
 		}
 
-		return map.Values.ToArray();
+		return [.. map.Values];
 	}
 
 	/// <summary>
@@ -484,13 +484,13 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public string[] ValuesDictionary()
 	{
-		var dict = new Dictionary<int, string>();
+		Dictionary<int, string> dict = new Dictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			dict.Add(keys[i], values[i]);
 		}
 
-		return dict.Values.ToArray();
+		return [.. dict.Values];
 	}
 
 	/// <summary>
@@ -499,12 +499,12 @@ public class OrderedMapBenchmarks
 	[Benchmark]
 	public string[] ValuesSortedDictionary()
 	{
-		var sortedDict = new SortedDictionary<int, string>();
+		SortedDictionary<int, string> sortedDict = new SortedDictionary<int, string>();
 		for (int i = 0; i < keys.Length; i++)
 		{
 			sortedDict.Add(keys[i], values[i]);
 		}
 
-		return sortedDict.Values.ToArray();
+		return [.. sortedDict.Values];
 	}
 }

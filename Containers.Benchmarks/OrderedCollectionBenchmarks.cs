@@ -2,10 +2,9 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
+namespace ktsu.Containers.Benchmarks;
 using BenchmarkDotNet.Attributes;
 using ktsu.Containers;
-
-namespace ktsu.Containers.Benchmarks;
 
 /// <summary>
 /// Benchmarks for OrderedCollection performance compared to built-in collections.
@@ -55,11 +54,7 @@ public class OrderedCollectionBenchmarks
 	[Benchmark]
 	public OrderedCollection<int> OrderedCollection_Add()
 	{
-		OrderedCollection<int> collection = new();
-		foreach (int item in testData)
-		{
-			collection.Add(item);
-		}
+		OrderedCollection<int> collection = [.. testData];
 		return collection;
 	}
 
@@ -98,7 +93,7 @@ public class OrderedCollectionBenchmarks
 	[Benchmark]
 	public int OrderedCollection_Contains()
 	{
-		OrderedCollection<int> collection = new(testData);
+		OrderedCollection<int> collection = [.. testData];
 		int found = 0;
 		foreach (int item in searchData)
 		{
@@ -158,7 +153,7 @@ public class OrderedCollectionBenchmarks
 	[Benchmark]
 	public int OrderedCollection_Enumerate()
 	{
-		OrderedCollection<int> collection = new(testData);
+		OrderedCollection<int> collection = [.. testData];
 		int sum = 0;
 		foreach (int item in collection)
 		{
@@ -189,7 +184,7 @@ public class OrderedCollectionBenchmarks
 	[Benchmark]
 	public OrderedCollection<int> OrderedCollection_Remove()
 	{
-		OrderedCollection<int> collection = new(testData);
+		OrderedCollection<int> collection = [.. testData];
 
 		// Remove every 10th element
 		for (int i = 0; i < testData.Length; i += 10)
@@ -224,7 +219,7 @@ public class OrderedCollectionBenchmarks
 	[Benchmark]
 	public OrderedCollection<int> OrderedCollection_MixedOperations()
 	{
-		OrderedCollection<int> collection = new();
+		OrderedCollection<int> collection = [];
 
 		// Add half the elements
 		for (int i = 0; i < testData.Length / 2; i++)

@@ -2,10 +2,9 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
+namespace ktsu.Containers.Benchmarks;
 using BenchmarkDotNet.Attributes;
 using ktsu.Containers;
-
-namespace ktsu.Containers.Benchmarks;
 
 /// <summary>
 /// Benchmarks for InsertionOrderMap performance compared to built-in collections.
@@ -57,7 +56,7 @@ public class InsertionOrderMapBenchmarks
 	[Benchmark]
 	public InsertionOrderMap<int, string> InsertionOrderMap_Add()
 	{
-		InsertionOrderMap<int, string> map = new();
+		InsertionOrderMap<int, string> map = [];
 		foreach (KeyValuePair<int, string> item in testData)
 		{
 			map.TryAdd(item.Key, item.Value);
@@ -99,7 +98,7 @@ public class InsertionOrderMapBenchmarks
 	[Benchmark]
 	public int InsertionOrderMap_ContainsKey()
 	{
-		InsertionOrderMap<int, string> map = new();
+		InsertionOrderMap<int, string> map = [];
 		foreach (KeyValuePair<int, string> item in testData)
 		{
 			map.TryAdd(item.Key, item.Value);
@@ -168,7 +167,7 @@ public class InsertionOrderMapBenchmarks
 	[Benchmark]
 	public int InsertionOrderMap_Enumerate()
 	{
-		InsertionOrderMap<int, string> map = new();
+		InsertionOrderMap<int, string> map = [];
 		foreach (KeyValuePair<int, string> item in testData)
 		{
 			map.TryAdd(item.Key, item.Value);
@@ -208,14 +207,14 @@ public class InsertionOrderMapBenchmarks
 	[Benchmark]
 	public InsertionOrderMap<int, string> InsertionOrderMap_Remove()
 	{
-		InsertionOrderMap<int, string> map = new();
+		InsertionOrderMap<int, string> map = [];
 		foreach (KeyValuePair<int, string> item in testData)
 		{
 			map.TryAdd(item.Key, item.Value);
 		}
 
 		// Remove every 10th unique key
-		int[] keysToRemove = map.Keys.Where((_, index) => index % 10 == 0).ToArray();
+		int[] keysToRemove = [.. map.Keys.Where((_, index) => index % 10 == 0)];
 		foreach (int key in keysToRemove)
 		{
 			map.Remove(key);
@@ -237,7 +236,7 @@ public class InsertionOrderMapBenchmarks
 		}
 
 		// Remove every 10th unique key
-		int[] keysToRemove = dict.Keys.Where((_, index) => index % 10 == 0).ToArray();
+		int[] keysToRemove = [.. dict.Keys.Where((_, index) => index % 10 == 0)];
 		foreach (int key in keysToRemove)
 		{
 			dict.Remove(key);
@@ -252,7 +251,7 @@ public class InsertionOrderMapBenchmarks
 	[Benchmark]
 	public InsertionOrderMap<int, string> InsertionOrderMap_MixedOperations()
 	{
-		InsertionOrderMap<int, string> map = new();
+		InsertionOrderMap<int, string> map = [];
 
 		// Add elements
 		foreach (KeyValuePair<int, string> item in testData[..^100])
@@ -261,7 +260,7 @@ public class InsertionOrderMapBenchmarks
 		}
 
 		// Remove some elements
-		int[] keysToRemove = map.Keys.Take(10).ToArray();
+		int[] keysToRemove = [.. map.Keys.Take(10)];
 		foreach (int key in keysToRemove)
 		{
 			map.Remove(key);
@@ -291,7 +290,7 @@ public class InsertionOrderMapBenchmarks
 		}
 
 		// Remove some elements
-		int[] keysToRemove = dict.Keys.Take(10).ToArray();
+		int[] keysToRemove = [.. dict.Keys.Take(10)];
 		foreach (int key in keysToRemove)
 		{
 			dict.Remove(key);

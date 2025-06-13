@@ -3,9 +3,6 @@
 // Licensed under the MIT license.
 
 namespace ktsu.Containers.Tests;
-
-using System.Collections;
-
 [TestClass]
 public class InsertionOrderMapTests
 {
@@ -292,7 +289,7 @@ public class InsertionOrderMapTests
 		map.Add(2, "two");
 
 		// Act
-		int[] keys = map.Keys.ToArray();
+		int[] keys = [.. map.Keys];
 
 		// Assert
 		int[] expectedOrder = [3, 1, 4, 2];
@@ -310,7 +307,7 @@ public class InsertionOrderMapTests
 		map.Add(2, "two");
 
 		// Act
-		string[] values = map.Values.ToArray();
+		string[] values = [.. map.Values];
 
 		// Assert
 		string[] expectedOrder = ["three", "one", "four", "two"];

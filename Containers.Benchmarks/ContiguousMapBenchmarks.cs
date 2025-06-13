@@ -2,10 +2,9 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
+namespace ktsu.Containers.Benchmarks;
 using BenchmarkDotNet.Attributes;
 using ktsu.Containers;
-
-namespace ktsu.Containers.Benchmarks;
 
 /// <summary>
 /// Benchmarks for ContiguousMap performance compared to built-in collections.
@@ -58,7 +57,7 @@ public class ContiguousMapBenchmarks
 	[Benchmark]
 	public ContiguousMap<int, string> ContiguousMap_Add()
 	{
-		ContiguousMap<int, string> map = new();
+		ContiguousMap<int, string> map = [];
 		foreach (KeyValuePair<int, string> item in testData)
 		{
 			map.TryAdd(item.Key, item.Value);
@@ -100,7 +99,7 @@ public class ContiguousMapBenchmarks
 	[Benchmark]
 	public int ContiguousMap_ContainsKey()
 	{
-		ContiguousMap<int, string> map = new();
+		ContiguousMap<int, string> map = [];
 		foreach (KeyValuePair<int, string> item in testData)
 		{
 			map.TryAdd(item.Key, item.Value);
@@ -169,7 +168,7 @@ public class ContiguousMapBenchmarks
 	[Benchmark]
 	public int ContiguousMap_Enumerate()
 	{
-		ContiguousMap<int, string> map = new();
+		ContiguousMap<int, string> map = [];
 		foreach (KeyValuePair<int, string> item in testData)
 		{
 			map.TryAdd(item.Key, item.Value);
@@ -209,7 +208,7 @@ public class ContiguousMapBenchmarks
 	[Benchmark]
 	public int ContiguousMap_SpanAccess()
 	{
-		ContiguousMap<int, string> map = new();
+		ContiguousMap<int, string> map = [];
 		foreach (KeyValuePair<int, string> item in testData)
 		{
 			map.TryAdd(item.Key, item.Value);
@@ -230,14 +229,14 @@ public class ContiguousMapBenchmarks
 	[Benchmark]
 	public ContiguousMap<int, string> ContiguousMap_Remove()
 	{
-		ContiguousMap<int, string> map = new();
+		ContiguousMap<int, string> map = [];
 		foreach (KeyValuePair<int, string> item in testData)
 		{
 			map.TryAdd(item.Key, item.Value);
 		}
 
 		// Remove every 10th unique key
-		int[] keysToRemove = map.Keys.Where((_, index) => index % 10 == 0).ToArray();
+		int[] keysToRemove = [.. map.Keys.Where((_, index) => index % 10 == 0)];
 		foreach (int key in keysToRemove)
 		{
 			map.Remove(key);
@@ -259,7 +258,7 @@ public class ContiguousMapBenchmarks
 		}
 
 		// Remove every 10th unique key
-		int[] keysToRemove = dict.Keys.Where((_, index) => index % 10 == 0).ToArray();
+		int[] keysToRemove = [.. dict.Keys.Where((_, index) => index % 10 == 0)];
 		foreach (int key in keysToRemove)
 		{
 			dict.Remove(key);
@@ -274,7 +273,7 @@ public class ContiguousMapBenchmarks
 	[Benchmark]
 	public long ContiguousMap_MemoryIntensiveOp()
 	{
-		ContiguousMap<int, string> map = new();
+		ContiguousMap<int, string> map = [];
 		foreach (KeyValuePair<int, string> item in testData)
 		{
 			map.TryAdd(item.Key, item.Value);
@@ -326,7 +325,7 @@ public class ContiguousMapBenchmarks
 	[Benchmark]
 	public int ContiguousMap_ValueRetrieval()
 	{
-		ContiguousMap<int, string> map = new();
+		ContiguousMap<int, string> map = [];
 		foreach (KeyValuePair<int, string> item in testData)
 		{
 			map.TryAdd(item.Key, item.Value);
@@ -372,7 +371,7 @@ public class ContiguousMapBenchmarks
 	[Benchmark]
 	public ContiguousMap<int, string> ContiguousMap_MixedOperations()
 	{
-		ContiguousMap<int, string> map = new();
+		ContiguousMap<int, string> map = [];
 
 		// Add elements
 		foreach (KeyValuePair<int, string> item in testData[..^100])
@@ -381,7 +380,7 @@ public class ContiguousMapBenchmarks
 		}
 
 		// Remove some elements
-		int[] keysToRemove = map.Keys.Take(10).ToArray();
+		int[] keysToRemove = [.. map.Keys.Take(10)];
 		foreach (int key in keysToRemove)
 		{
 			map.Remove(key);
@@ -411,7 +410,7 @@ public class ContiguousMapBenchmarks
 		}
 
 		// Remove some elements
-		int[] keysToRemove = dict.Keys.Take(10).ToArray();
+		int[] keysToRemove = [.. dict.Keys.Take(10)];
 		foreach (int key in keysToRemove)
 		{
 			dict.Remove(key);

@@ -19,7 +19,7 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Constructor_DefaultConstructor_EmptyMap()
 	{
-		var map = new OrderedMap<int, string>();
+		OrderedMap<int, string> map = [];
 		Assert.AreEqual(0, map.Count);
 		Assert.IsFalse(map.IsReadOnly);
 	}
@@ -30,12 +30,13 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Constructor_WithComparer_UsesCustomComparer()
 	{
-		var reverseComparer = Comparer<int>.Create((x, y) => y.CompareTo(x));
-		var map = new OrderedMap<int, string>(reverseComparer);
-
-		map.Add(1, "one");
-		map.Add(2, "two");
-		map.Add(3, "three");
+		Comparer<int> reverseComparer = Comparer<int>.Create((x, y) => y.CompareTo(x));
+		OrderedMap<int, string> map = new(reverseComparer)
+		{
+			{ 1, "one" },
+			{ 2, "two" },
+			{ 3, "three" }
+		};
 
 		string[] expectedOrder = ["three", "two", "one"];
 		CollectionAssert.AreEqual(expectedOrder, map.Values.ToArray());
@@ -47,7 +48,7 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Constructor_WithCapacity_EmptyMapWithCapacity()
 	{
-		var map = new OrderedMap<int, string>(10);
+		OrderedMap<int, string> map = new(10);
 		Assert.AreEqual(0, map.Count);
 	}
 
@@ -57,14 +58,14 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Constructor_FromDictionary_CopiesAndSortsElements()
 	{
-		var dictionary = new Dictionary<int, string>
+		Dictionary<int, string> dictionary = new()
 		{
 			[3] = "three",
 			[1] = "one",
 			[2] = "two"
 		};
 
-		var map = new OrderedMap<int, string>(dictionary);
+		OrderedMap<int, string> map = new(dictionary);
 
 		Assert.AreEqual(3, map.Count);
 		int[] expectedKeys = [1, 2, 3];
@@ -79,11 +80,12 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Add_MultipleElements_MaintainsSortedOrder()
 	{
-		var map = new OrderedMap<int, string>();
-
-		map.Add(3, "three");
-		map.Add(1, "one");
-		map.Add(2, "two");
+		OrderedMap<int, string> map = new()
+		{
+			{ 3, "three" },
+			{ 1, "one" },
+			{ 2, "two" }
+		};
 
 		int[] expectedKeys = [1, 2, 3];
 		string[] expectedValues = ["one", "two", "three"];
@@ -97,8 +99,10 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Add_DuplicateKey_ThrowsArgumentException()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(1, "one");
+		OrderedMap<int, string> map = new()
+		{
+			{ 1, "one" }
+		};
 
 		Assert.ThrowsException<ArgumentException>(() => map.Add(1, "another one"));
 	}
@@ -109,7 +113,7 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Add_NullKey_ThrowsArgumentNullException()
 	{
-		var map = new OrderedMap<string, int>();
+		OrderedMap<string, int> map = [];
 
 		Assert.ThrowsException<ArgumentNullException>(() => map.Add(null!, 1));
 	}
@@ -120,9 +124,11 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Indexer_Get_ReturnsCorrectValue()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(1, "one");
-		map.Add(2, "two");
+		OrderedMap<int, string> map = new()
+		{
+			{ 1, "one" },
+			{ 2, "two" }
+		};
 
 		Assert.AreEqual("one", map[1]);
 		Assert.AreEqual("two", map[2]);
@@ -134,7 +140,7 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Indexer_GetNonExistentKey_ThrowsKeyNotFoundException()
 	{
-		var map = new OrderedMap<int, string>();
+		OrderedMap<int, string> map = [];
 
 		Assert.ThrowsException<KeyNotFoundException>(() => _ = map[1]);
 	}
@@ -145,8 +151,10 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Indexer_SetExistingKey_UpdatesValue()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(1, "one");
+		OrderedMap<int, string> map = new()
+		{
+			{ 1, "one" }
+		};
 
 		map[1] = "ONE";
 
@@ -160,11 +168,12 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Indexer_SetNewKey_AddsKeyValuePair()
 	{
-		var map = new OrderedMap<int, string>();
-
-		map[1] = "one";
-		map[3] = "three";
-		map[2] = "two";
+		OrderedMap<int, string> map = new()
+		{
+			[1] = "one",
+			[3] = "three",
+			[2] = "two"
+		};
 
 		Assert.AreEqual(3, map.Count);
 		int[] expectedKeys = [1, 2, 3];
@@ -177,8 +186,10 @@ public class OrderedMapTests
 	[TestMethod]
 	public void ContainsKey_ExistingKey_ReturnsTrue()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(1, "one");
+		OrderedMap<int, string> map = new()
+		{
+			{ 1, "one" }
+		};
 
 		Assert.IsTrue(map.ContainsKey(1));
 	}
@@ -189,8 +200,10 @@ public class OrderedMapTests
 	[TestMethod]
 	public void ContainsKey_NonExistingKey_ReturnsFalse()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(1, "one");
+		OrderedMap<int, string> map = new()
+		{
+			{ 1, "one" }
+		};
 
 		Assert.IsFalse(map.ContainsKey(2));
 	}
@@ -201,8 +214,10 @@ public class OrderedMapTests
 	[TestMethod]
 	public void TryGetValue_ExistingKey_ReturnsTrueAndValue()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(1, "one");
+		OrderedMap<int, string> map = new()
+		{
+			{ 1, "one" }
+		};
 
 		bool found = map.TryGetValue(1, out string? value);
 
@@ -216,7 +231,7 @@ public class OrderedMapTests
 	[TestMethod]
 	public void TryGetValue_NonExistingKey_ReturnsFalseAndDefault()
 	{
-		var map = new OrderedMap<int, string>();
+		OrderedMap<int, string> map = [];
 
 		bool found = map.TryGetValue(1, out string? value);
 
@@ -230,10 +245,12 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Remove_ExistingKey_RemovesKeyAndReturnsTrue()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(1, "one");
-		map.Add(2, "two");
-		map.Add(3, "three");
+		OrderedMap<int, string> map = new()
+		{
+			{ 1, "one" },
+			{ 2, "two" },
+			{ 3, "three" }
+		};
 
 		bool removed = map.Remove(2);
 
@@ -250,8 +267,10 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Remove_NonExistingKey_ReturnsFalse()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(1, "one");
+		OrderedMap<int, string> map = new()
+		{
+			{ 1, "one" }
+		};
 
 		bool removed = map.Remove(2);
 
@@ -265,9 +284,11 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Clear_RemovesAllElements()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(1, "one");
-		map.Add(2, "two");
+		OrderedMap<int, string> map = new()
+		{
+			{ 1, "one" },
+			{ 2, "two" }
+		};
 
 		map.Clear();
 
@@ -282,12 +303,14 @@ public class OrderedMapTests
 	[TestMethod]
 	public void GetEnumerator_ReturnsElementsInSortedOrder()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(3, "three");
-		map.Add(1, "one");
-		map.Add(2, "two");
+		OrderedMap<int, string> map = new()
+		{
+			{ 3, "three" },
+			{ 1, "one" },
+			{ 2, "two" }
+		};
 
-		var pairs = map.ToArray();
+		KeyValuePair<int, string>[] pairs = [.. map];
 
 		Assert.AreEqual(3, pairs.Length);
 		Assert.AreEqual(new KeyValuePair<int, string>(1, "one"), pairs[0]);
@@ -301,10 +324,12 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Keys_ReturnsSortedKeys()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(3, "three");
-		map.Add(1, "one");
-		map.Add(2, "two");
+		OrderedMap<int, string> map = new()
+		{
+			{ 3, "three" },
+			{ 1, "one" },
+			{ 2, "two" }
+		};
 
 		int[] expectedKeys = [1, 2, 3];
 		CollectionAssert.AreEqual(expectedKeys, map.Keys.ToArray());
@@ -316,10 +341,12 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Values_ReturnsValuesInKeyOrder()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(3, "three");
-		map.Add(1, "one");
-		map.Add(2, "two");
+		OrderedMap<int, string> map = new()
+		{
+			{ 3, "three" },
+			{ 1, "one" },
+			{ 2, "two" }
+		};
 
 		string[] expectedValues = ["one", "two", "three"];
 		CollectionAssert.AreEqual(expectedValues, map.Values.ToArray());
@@ -331,9 +358,11 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Contains_KeyValuePair_WorksCorrectly()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(1, "one");
-		map.Add(2, "two");
+		OrderedMap<int, string> map = new()
+		{
+			{ 1, "one" },
+			{ 2, "two" }
+		};
 
 		Assert.IsTrue(map.Contains(new KeyValuePair<int, string>(1, "one")));
 		Assert.IsFalse(map.Contains(new KeyValuePair<int, string>(1, "ONE")));
@@ -346,11 +375,13 @@ public class OrderedMapTests
 	[TestMethod]
 	public void CopyTo_CopiesElementsCorrectly()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(2, "two");
-		map.Add(1, "one");
+		OrderedMap<int, string> map = new()
+		{
+			{ 2, "two" },
+			{ 1, "one" }
+		};
 
-		var array = new KeyValuePair<int, string>[3];
+		KeyValuePair<int, string>[] array = new KeyValuePair<int, string>[3];
 		map.CopyTo(array, 1);
 
 		Assert.AreEqual(default, array[0]);
@@ -364,9 +395,11 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Remove_KeyValuePair_WorksCorrectly()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(1, "one");
-		map.Add(2, "two");
+		OrderedMap<int, string> map = new()
+		{
+			{ 1, "one" },
+			{ 2, "two" }
+		};
 
 		bool removed1 = map.Remove(new KeyValuePair<int, string>(1, "one"));
 		bool removed2 = map.Remove(new KeyValuePair<int, string>(2, "TWO"));
@@ -383,11 +416,13 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Clone_CreatesShallowCopy()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(1, "one");
-		map.Add(2, "two");
+		OrderedMap<int, string> map = new()
+		{
+			{ 1, "one" },
+			{ 2, "two" }
+		};
 
-		var clone = map.Clone();
+		OrderedMap<int, string> clone = map.Clone();
 
 		Assert.AreEqual(map.Count, clone.Count);
 		CollectionAssert.AreEqual(map.Keys.ToArray(), clone.Keys.ToArray());
@@ -404,13 +439,15 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Keys_IsReadOnly()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(1, "one");
+		OrderedMap<int, string> map = new()
+		{
+			{ 1, "one" }
+		};
 
 		Assert.IsTrue(map.Keys.IsReadOnly);
 		Assert.ThrowsException<NotSupportedException>(() => map.Keys.Add(2));
 		Assert.ThrowsException<NotSupportedException>(() => map.Keys.Remove(1));
-		Assert.ThrowsException<NotSupportedException>(() => map.Keys.Clear());
+		Assert.ThrowsException<NotSupportedException>(map.Keys.Clear);
 	}
 
 	/// <summary>
@@ -419,13 +456,15 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Values_IsReadOnly()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(1, "one");
+		OrderedMap<int, string> map = new()
+		{
+			{ 1, "one" }
+		};
 
 		Assert.IsTrue(map.Values.IsReadOnly);
 		Assert.ThrowsException<NotSupportedException>(() => map.Values.Add("two"));
 		Assert.ThrowsException<NotSupportedException>(() => map.Values.Remove("one"));
-		Assert.ThrowsException<NotSupportedException>(() => map.Values.Clear());
+		Assert.ThrowsException<NotSupportedException>(map.Values.Clear);
 	}
 
 	/// <summary>
@@ -470,12 +509,14 @@ public class OrderedMapTests
 	[TestMethod]
 	public void IEnumerable_GetEnumerator_WorksCorrectly()
 	{
-		var map = new OrderedMap<int, string>();
-		map.Add(2, "two");
-		map.Add(1, "one");
+		OrderedMap<int, string> map = new()
+		{
+			{ 2, "two" },
+			{ 1, "one" }
+		};
 
-		var enumerable = (IEnumerable)map;
-		var enumerator = enumerable.GetEnumerator();
+		IEnumerable enumerable = map;
+		IEnumerator enumerator = enumerable.GetEnumerator();
 
 		Assert.IsTrue(enumerator.MoveNext());
 		Assert.AreEqual(new KeyValuePair<int, string>(1, "one"), enumerator.Current);
@@ -492,9 +533,9 @@ public class OrderedMapTests
 	[TestMethod]
 	public void LargeCollection_MaintainsOrder()
 	{
-		var map = new OrderedMap<int, string>();
-		var random = new Random(42);
-		var numbers = Enumerable.Range(1, 1000).OrderBy(x => random.Next()).ToArray();
+		OrderedMap<int, string> map = [];
+		Random random = new(42);
+		int[] numbers = [.. Enumerable.Range(1, 1000).OrderBy(x => random.Next())];
 
 		foreach (int number in numbers)
 		{
@@ -504,7 +545,7 @@ public class OrderedMapTests
 		Assert.AreEqual(1000, map.Count);
 
 		// Verify all elements are in sorted order
-		var keys = map.Keys.ToArray();
+		int[] keys = [.. map.Keys];
 		for (int i = 0; i < keys.Length; i++)
 		{
 			Assert.AreEqual(i + 1, keys[i]);

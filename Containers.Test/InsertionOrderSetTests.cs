@@ -3,9 +3,6 @@
 // Licensed under the MIT license.
 
 namespace ktsu.Containers.Tests;
-
-using System.Collections;
-
 [TestClass]
 public class InsertionOrderSetTests
 {
@@ -185,6 +182,7 @@ public class InsertionOrderSetTests
 		Assert.AreEqual(2, array[4]); // Fourth inserted
 		Assert.AreEqual(0, array[5]); // Unchanged
 	}
+	private static readonly int[] expected = new int[] { 3, 1, 4, 2 };
 
 	[TestMethod]
 	public void GetEnumerator_IteratesInInsertionOrder()
@@ -200,7 +198,7 @@ public class InsertionOrderSetTests
 		}
 
 		// Assert
-		CollectionAssert.AreEqual(new int[] { 3, 1, 4, 2 }, enumerated); // No duplicates, insertion order
+		CollectionAssert.AreEqual(expected, enumerated); // No duplicates, insertion order
 	}
 
 	[TestMethod]

@@ -2,10 +2,9 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
+namespace ktsu.Containers.Benchmarks;
 using BenchmarkDotNet.Attributes;
 using ktsu.Containers;
-
-namespace ktsu.Containers.Benchmarks;
 
 /// <summary>
 /// Specialized performance analysis benchmarks focusing on scalability, edge cases, and advanced scenarios.
@@ -102,11 +101,7 @@ public class PerformanceAnalysisBenchmarks
 	public OrderedCollection<int> OrderedCollectionScalability()
 	{
 		int[] data = GetCurrentDataset();
-		OrderedCollection<int> collection = new();
-		foreach (int item in data)
-		{
-			collection.Add(item);
-		}
+		OrderedCollection<int> collection = [.. data];
 		return collection;
 	}
 
@@ -117,11 +112,7 @@ public class PerformanceAnalysisBenchmarks
 	public OrderedSet<int> OrderedSetScalability()
 	{
 		int[] data = GetCurrentDataset();
-		OrderedSet<int> set = new();
-		foreach (int item in data)
-		{
-			set.Add(item);
-		}
+		OrderedSet<int> set = [.. data];
 		return set;
 	}
 
@@ -162,7 +153,7 @@ public class PerformanceAnalysisBenchmarks
 	[Benchmark]
 	public OrderedCollection<int> OrderedCollectionWorstCaseInsertion()
 	{
-		OrderedCollection<int> collection = new();
+		OrderedCollection<int> collection = [];
 		// Insert in reverse order to always insert at the beginning
 		for (int i = 1000; i >= 0; i--)
 		{
@@ -193,7 +184,7 @@ public class PerformanceAnalysisBenchmarks
 	[Benchmark]
 	public int OrderedCollectionWorstCaseSearch()
 	{
-		OrderedCollection<int> collection = new(sortedData.Take(1000));
+		OrderedCollection<int> collection = [.. sortedData.Take(1000)];
 		int notFound = 0;
 
 		// Search for items that don't exist (worst case for binary search)
@@ -217,7 +208,7 @@ public class PerformanceAnalysisBenchmarks
 	[Benchmark]
 	public OrderedCollection<int> OrderedCollectionMemoryPressure()
 	{
-		OrderedCollection<int> collection = new();
+		OrderedCollection<int> collection = [];
 
 		// Simulate rapid growth and shrinkage
 		for (int cycle = 0; cycle < 10; cycle++)
@@ -268,8 +259,8 @@ public class PerformanceAnalysisBenchmarks
 	[Benchmark]
 	public bool EmptyCollectionOperations()
 	{
-		OrderedCollection<int> collection = new();
-		OrderedSet<int> set = new();
+		OrderedCollection<int> collection = [];
+		OrderedSet<int> set = [];
 		RingBuffer<int> buffer = new(10);
 
 		// Test operations on empty collections
@@ -309,7 +300,7 @@ public class PerformanceAnalysisBenchmarks
 	[Benchmark]
 	public OrderedSet<int> DuplicateElementHandling()
 	{
-		OrderedSet<int> set = new();
+		OrderedSet<int> set = [];
 
 		// Add the same element many times
 		for (int i = 0; i < 1000; i++)
@@ -399,7 +390,7 @@ public class PerformanceAnalysisBenchmarks
 	[Benchmark]
 	public int PriorityQueueSimulationOrderedCollection()
 	{
-		OrderedCollection<int> priorityQueue = new();
+		OrderedCollection<int> priorityQueue = [];
 		int processed = 0;
 
 		// Simulate priority queue operations
@@ -426,9 +417,9 @@ public class PerformanceAnalysisBenchmarks
 	[Benchmark]
 	public OrderedSet<int> BatchOperationsEfficiency()
 	{
-		OrderedSet<int> set = new();
-		int[] batch1 = Enumerable.Range(0, 500).ToArray();
-		int[] batch2 = Enumerable.Range(250, 500).ToArray(); // Overlapping batch
+		OrderedSet<int> set = [];
+		int[] batch1 = [.. Enumerable.Range(0, 500)];
+		int[] batch2 = [.. Enumerable.Range(250, 500)]; // Overlapping batch
 
 		// Add first batch
 		foreach (int item in batch1)
@@ -443,7 +434,7 @@ public class PerformanceAnalysisBenchmarks
 		}
 
 		// Perform set operations
-		int[] batch3 = Enumerable.Range(400, 300).ToArray();
+		int[] batch3 = [.. Enumerable.Range(400, 300)];
 		set.UnionWith(batch3);
 
 		return set;
@@ -455,11 +446,11 @@ public class PerformanceAnalysisBenchmarks
 	[Benchmark]
 	public int SafeIterationDuringModification()
 	{
-		OrderedCollection<int> collection = new(Enumerable.Range(0, 1000));
+		OrderedCollection<int> collection = [.. Enumerable.Range(0, 1000)];
 		int sum = 0;
 
 		// Create a snapshot for safe iteration while modifying original
-		OrderedCollection<int> snapshot = new(collection);
+		OrderedCollection<int> snapshot = [.. collection];
 
 		int index = 0;
 		foreach (int item in snapshot)

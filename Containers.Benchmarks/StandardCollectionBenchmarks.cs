@@ -2,10 +2,9 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
+namespace ktsu.Containers.Benchmarks;
 using System.Collections.Concurrent;
 using BenchmarkDotNet.Attributes;
-
-namespace ktsu.Containers.Benchmarks;
 
 /// <summary>
 /// Baseline benchmarks for standard .NET collections to establish performance references.

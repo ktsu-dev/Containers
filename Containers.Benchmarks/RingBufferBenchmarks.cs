@@ -2,10 +2,9 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
+namespace ktsu.Containers.Benchmarks;
 using BenchmarkDotNet.Attributes;
 using ktsu.Containers;
-
-namespace ktsu.Containers.Benchmarks;
 
 /// <summary>
 /// Benchmarks for RingBuffer performance compared to built-in queue collections.
@@ -291,7 +290,10 @@ public class RingBufferBenchmarks
 		{
 			sum += item;
 			count++;
-			if (count >= 10) break;
+			if (count >= 10)
+			{
+				break;
+			}
 		}
 
 		// Add more elements with size limit

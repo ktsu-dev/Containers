@@ -46,11 +46,6 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	private T[] items;
 
 	/// <summary>
-	/// The number of elements currently stored in the collection.
-	/// </summary>
-	private int count;
-
-	/// <summary>
 	/// The default initial capacity for the collection.
 	/// </summary>
 	private const int DefaultCapacity = 4;
@@ -58,7 +53,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// <summary>
 	/// Gets the number of elements in the collection.
 	/// </summary>
-	public int Count => count;
+	public int Count { get; private set; }
 
 	/// <summary>
 	/// Gets the current capacity of the collection.
@@ -81,13 +76,13 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 		get
 		{
 			ArgumentOutOfRangeException.ThrowIfNegative(index);
-			ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, count);
+			ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
 			return items[index];
 		}
 		set
 		{
 			ArgumentOutOfRangeException.ThrowIfNegative(index);
-			ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, count);
+			ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
 			items[index] = value;
 		}
 	}
@@ -98,7 +93,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	public ContiguousCollection()
 	{
 		items = new T[DefaultCapacity];
-		count = 0;
+		Count = 0;
 	}
 
 	/// <summary>
@@ -111,7 +106,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 
 		items = capacity == 0 ? [] : new T[capacity];
-		count = 0;
+		Count = 0;
 	}
 
 	/// <summary>
@@ -128,12 +123,12 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 			int capacity = col.Count;
 			items = capacity == 0 ? [] : new T[capacity];
 			col.CopyTo(items, 0);
-			count = capacity;
+			Count = capacity;
 		}
 		else
 		{
 			items = new T[DefaultCapacity];
-			count = 0;
+			Count = 0;
 			foreach (T item in collection)
 			{
 				Add(item);
@@ -152,13 +147,13 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// </remarks>
 	public void Add(T item)
 	{
-		if (count == items.Length)
+		if (Count == items.Length)
 		{
 			Grow();
 		}
 
-		items[count] = item;
-		count++;
+		items[Count] = item;
+		Count++;
 	}
 
 	/// <summary>
@@ -169,9 +164,9 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 		if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
 		{
 			// Clear references to help GC
-			Array.Clear(items, 0, count);
+			Array.Clear(items, 0, Count);
 		}
-		count = 0;
+		Count = 0;
 	}
 
 	/// <summary>
@@ -198,9 +193,9 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 		ArgumentNullException.ThrowIfNull(array);
 		ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
 		ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(count, array.Length - arrayIndex);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
-		Array.Copy(items, 0, array, arrayIndex, count);
+		Array.Copy(items, 0, array, arrayIndex, Count);
 	}
 
 	/// <summary>
@@ -236,17 +231,17 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	public void RemoveAt(int index)
 	{
 		ArgumentOutOfRangeException.ThrowIfNegative(index);
-		ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, count);
+		ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
 
-		count--;
-		if (index < count)
+		Count--;
+		if (index < Count)
 		{
-			Array.Copy(items, index + 1, items, index, count - index);
+			Array.Copy(items, index + 1, items, index, Count - index);
 		}
 
 		if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
 		{
-			items[count] = default!;
+			items[Count] = default!;
 		}
 	}
 
@@ -259,7 +254,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// This operation has O(n) time complexity as it performs a linear search.
 	/// The contiguous memory layout provides optimal cache performance during the search.
 	/// </remarks>
-	public int IndexOf(T item) => Array.IndexOf(items, item, 0, count);
+	public int IndexOf(T item) => Array.IndexOf(items, item, 0, Count);
 
 	/// <summary>
 	/// Inserts an element at the specified index.
@@ -274,20 +269,20 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	public void Insert(int index, T item)
 	{
 		ArgumentOutOfRangeException.ThrowIfNegative(index);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(index, count);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(index, Count);
 
-		if (count == items.Length)
+		if (Count == items.Length)
 		{
 			Grow();
 		}
 
-		if (index < count)
+		if (index < Count)
 		{
-			Array.Copy(items, index, items, index + 1, count - index);
+			Array.Copy(items, index, items, index + 1, Count - index);
 		}
 
 		items[index] = item;
-		count++;
+		Count++;
 	}
 
 	/// <summary>
@@ -318,10 +313,10 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// </remarks>
 	public void TrimExcess()
 	{
-		if (count < items.Length * 0.9) // Only trim if there's significant unused space
+		if (Count < items.Length * 0.9) // Only trim if there's significant unused space
 		{
-			T[] newItems = count == 0 ? [] : new T[count];
-			Array.Copy(items, newItems, count);
+			T[] newItems = Count == 0 ? [] : new T[Count];
+			Array.Copy(items, newItems, Count);
 			items = newItems;
 		}
 	}
@@ -335,7 +330,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// </remarks>
 	public IEnumerator<T> GetEnumerator()
 	{
-		for (int i = 0; i < count; i++)
+		for (int i = 0; i < Count; i++)
 		{
 			yield return items[i];
 		}
@@ -353,9 +348,9 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// <returns>A new collection containing all elements from the original collection with contiguous memory layout.</returns>
 	public ContiguousCollection<T> Clone()
 	{
-		ContiguousCollection<T> clone = new(count);
-		Array.Copy(items, clone.items, count);
-		clone.count = count;
+		ContiguousCollection<T> clone = new(Count);
+		Array.Copy(items, clone.items, Count);
+		clone.Count = Count;
 		return clone;
 	}
 
@@ -370,11 +365,11 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	{
 		ArgumentOutOfRangeException.ThrowIfNegative(startIndex);
 		ArgumentOutOfRangeException.ThrowIfNegative(count);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(startIndex + count, this.count);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(startIndex + count, this.Count);
 
 		ContiguousCollection<T> result = new(count);
 		Array.Copy(items, startIndex, result.items, 0, count);
-		result.count = count;
+		result.Count = count;
 		return result;
 	}
 
@@ -386,7 +381,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// This method provides direct access to the contiguous memory, enabling high-performance
 	/// operations and interoperability with other APIs that work with spans.
 	/// </remarks>
-	public Span<T> AsSpan() => new(items, 0, count);
+	public Span<T> AsSpan() => new(items, 0, Count);
 
 	/// <summary>
 	/// Gets a read-only span representing the elements in the collection.
@@ -396,7 +391,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// This method provides direct read-only access to the contiguous memory, enabling high-performance
 	/// operations while preventing modifications.
 	/// </remarks>
-	public ReadOnlySpan<T> AsReadOnlySpan() => new(items, 0, count);
+	public ReadOnlySpan<T> AsReadOnlySpan() => new(items, 0, Count);
 
 	/// <summary>
 	/// Grows the collection's capacity.
@@ -411,7 +406,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 		}
 
 		T[] newItems = new T[newCapacity];
-		Array.Copy(items, newItems, count);
+		Array.Copy(items, newItems, Count);
 		items = newItems;
 	}
 }

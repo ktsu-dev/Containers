@@ -53,11 +53,6 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	private readonly HashSet<T> uniquenessSet;
 
 	/// <summary>
-	/// The number of elements currently stored in the set.
-	/// </summary>
-	private int count;
-
-	/// <summary>
 	/// The default initial capacity for the set.
 	/// </summary>
 	private const int DefaultCapacity = 4;
@@ -65,7 +60,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <summary>
 	/// Gets the number of elements in the set.
 	/// </summary>
-	public int Count => count;
+	public int Count { get; private set; }
 
 	/// <summary>
 	/// Gets the current capacity of the set.
@@ -84,7 +79,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	{
 		items = new T[DefaultCapacity];
 		uniquenessSet = [];
-		count = 0;
+		Count = 0;
 	}
 
 	/// <summary>
@@ -98,7 +93,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 
 		items = new T[DefaultCapacity];
 		uniquenessSet = new HashSet<T>(comparer);
-		count = 0;
+		Count = 0;
 	}
 
 	/// <summary>
@@ -112,7 +107,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 
 		items = capacity == 0 ? [] : new T[capacity];
 		uniquenessSet = new HashSet<T>(capacity);
-		count = 0;
+		Count = 0;
 	}
 
 	/// <summary>
@@ -129,7 +124,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 
 		items = capacity == 0 ? [] : new T[capacity];
 		uniquenessSet = new HashSet<T>(capacity, comparer);
-		count = 0;
+		Count = 0;
 	}
 
 	/// <summary>
@@ -143,7 +138,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 
 		items = new T[DefaultCapacity];
 		uniquenessSet = [];
-		count = 0;
+		Count = 0;
 
 		foreach (T item in collection)
 		{
@@ -164,7 +159,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 
 		items = new T[DefaultCapacity];
 		uniquenessSet = new HashSet<T>(comparer);
-		count = 0;
+		Count = 0;
 
 		foreach (T item in collection)
 		{
@@ -189,13 +184,13 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 			return false;
 		}
 
-		if (count == items.Length)
+		if (Count == items.Length)
 		{
 			Grow();
 		}
 
-		items[count] = item;
-		count++;
+		items[Count] = item;
+		Count++;
 		return true;
 	}
 
@@ -213,9 +208,9 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 		if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
 		{
 			// Clear references to help GC
-			Array.Clear(items, 0, count);
+			Array.Clear(items, 0, Count);
 		}
-		count = 0;
+		Count = 0;
 		uniquenessSet.Clear();
 	}
 
@@ -242,9 +237,9 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 		ArgumentNullException.ThrowIfNull(array);
 		ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
 		ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(count, array.Length - arrayIndex);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
-		Array.Copy(items, 0, array, arrayIndex, count);
+		Array.Copy(items, 0, array, arrayIndex, Count);
 	}
 
 	/// <summary>
@@ -266,18 +261,18 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 		}
 
 		// Find and remove from the array
-		int index = Array.IndexOf(items, item, 0, count);
+		int index = Array.IndexOf(items, item, 0, Count);
 		if (index >= 0)
 		{
-			count--;
-			if (index < count)
+			Count--;
+			if (index < Count)
 			{
-				Array.Copy(items, index + 1, items, index, count - index);
+				Array.Copy(items, index + 1, items, index, Count - index);
 			}
 
 			if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
 			{
-				items[count] = default!;
+				items[Count] = default!;
 			}
 		}
 
@@ -293,7 +288,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// </remarks>
 	public IEnumerator<T> GetEnumerator()
 	{
-		for (int i = 0; i < count; i++)
+		for (int i = 0; i < Count; i++)
 		{
 			yield return items[i];
 		}
@@ -332,7 +327,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
 
 		// Remove items that are not in the other collection
-		for (int i = count - 1; i >= 0; i--)
+		for (int i = Count - 1; i >= 0; i--)
 		{
 			T item = items[i];
 			if (!otherSet.Contains(item))
@@ -369,7 +364,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
 
 		// Remove items that are in both sets
-		for (int i = count - 1; i >= 0; i--)
+		for (int i = Count - 1; i >= 0; i--)
 		{
 			T item = items[i];
 			if (otherSet.Remove(item))
@@ -486,10 +481,10 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// </remarks>
 	public void TrimExcess()
 	{
-		if (count < items.Length * 0.9) // Only trim if there's significant unused space
+		if (Count < items.Length * 0.9) // Only trim if there's significant unused space
 		{
-			T[] newItems = count == 0 ? [] : new T[count];
-			Array.Copy(items, newItems, count);
+			T[] newItems = Count == 0 ? [] : new T[Count];
+			Array.Copy(items, newItems, Count);
 			items = newItems;
 		}
 	}
@@ -502,7 +497,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// This method provides direct access to the contiguous memory, enabling high-performance
 	/// operations and interoperability with other APIs that work with spans.
 	/// </remarks>
-	public Span<T> AsSpan() => new(items, 0, count);
+	public Span<T> AsSpan() => new(items, 0, Count);
 
 	/// <summary>
 	/// Gets a read-only span representing the elements in the set.
@@ -512,7 +507,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// This method provides direct read-only access to the contiguous memory, enabling high-performance
 	/// operations while preventing modifications.
 	/// </remarks>
-	public ReadOnlySpan<T> AsReadOnlySpan() => new(items, 0, count);
+	public ReadOnlySpan<T> AsReadOnlySpan() => new(items, 0, Count);
 
 	/// <summary>
 	/// Creates a shallow copy of the set.
@@ -520,10 +515,10 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <returns>A new set containing all elements from the original set with contiguous memory layout.</returns>
 	public ContiguousSet<T> Clone()
 	{
-		ContiguousSet<T> clone = new(count, uniquenessSet.Comparer);
-		Array.Copy(items, clone.items, count);
-		clone.count = count;
-		foreach (T item in items.AsSpan(0, count))
+		ContiguousSet<T> clone = new(Count, uniquenessSet.Comparer);
+		Array.Copy(items, clone.items, Count);
+		clone.Count = Count;
+		foreach (T item in items.AsSpan(0, Count))
 		{
 			clone.uniquenessSet.Add(item);
 		}
@@ -543,7 +538,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 		}
 
 		T[] newItems = new T[newCapacity];
-		Array.Copy(items, newItems, count);
+		Array.Copy(items, newItems, Count);
 		items = newItems;
 	}
 }

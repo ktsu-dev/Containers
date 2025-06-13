@@ -2,10 +2,9 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
+namespace ktsu.Containers.Benchmarks;
 using BenchmarkDotNet.Attributes;
 using ktsu.Containers;
-
-namespace ktsu.Containers.Benchmarks;
 
 /// <summary>
 /// Benchmarks for ContiguousCollection performance compared to built-in collections.
@@ -56,11 +55,7 @@ public class ContiguousCollectionBenchmarks
 	[Benchmark]
 	public ContiguousCollection<int> ContiguousCollection_Add()
 	{
-		ContiguousCollection<int> collection = new();
-		foreach (int item in testData)
-		{
-			collection.Add(item);
-		}
+		ContiguousCollection<int> collection = [.. testData];
 		return collection;
 	}
 
@@ -98,7 +93,7 @@ public class ContiguousCollectionBenchmarks
 	[Benchmark]
 	public int ContiguousCollection_Contains()
 	{
-		ContiguousCollection<int> collection = new(testData);
+		ContiguousCollection<int> collection = [.. testData];
 		int found = 0;
 		foreach (int item in searchData)
 		{
@@ -134,7 +129,7 @@ public class ContiguousCollectionBenchmarks
 	[Benchmark]
 	public int ContiguousCollection_Enumerate()
 	{
-		ContiguousCollection<int> collection = new(testData);
+		ContiguousCollection<int> collection = [.. testData];
 		int sum = 0;
 		foreach (int item in collection)
 		{
@@ -164,7 +159,7 @@ public class ContiguousCollectionBenchmarks
 	[Benchmark]
 	public int ContiguousCollection_IndexedAccess()
 	{
-		ContiguousCollection<int> collection = new(testData);
+		ContiguousCollection<int> collection = [.. testData];
 		int sum = 0;
 		for (int i = 0; i < collection.Count; i++)
 		{
@@ -194,7 +189,7 @@ public class ContiguousCollectionBenchmarks
 	[Benchmark]
 	public int ContiguousCollection_SpanAccess()
 	{
-		ContiguousCollection<int> collection = new(testData);
+		ContiguousCollection<int> collection = [.. testData];
 		ReadOnlySpan<int> span = collection.AsReadOnlySpan();
 		int sum = 0;
 		for (int i = 0; i < span.Length; i++)
@@ -210,7 +205,7 @@ public class ContiguousCollectionBenchmarks
 	[Benchmark]
 	public ContiguousCollection<int> ContiguousCollection_Remove()
 	{
-		ContiguousCollection<int> collection = new(testData);
+		ContiguousCollection<int> collection = [.. testData];
 
 		// Remove every 10th element
 		for (int i = 0; i < testData.Length; i += 10)
@@ -244,7 +239,7 @@ public class ContiguousCollectionBenchmarks
 	[Benchmark]
 	public long ContiguousCollection_MemoryIntensiveOp()
 	{
-		ContiguousCollection<int> collection = new(testData);
+		ContiguousCollection<int> collection = [.. testData];
 		long result = 0;
 
 		// Simulate cache-friendly sequential access pattern
@@ -286,13 +281,11 @@ public class ContiguousCollectionBenchmarks
 	[Benchmark]
 	public ContiguousCollection<int> ContiguousCollection_MixedOperations()
 	{
-		ContiguousCollection<int> collection = new();
-
-		// Add elements
-		foreach (int item in testData[..^100])
-		{
-			collection.Add(item);
-		}
+		ContiguousCollection<int> collection =
+		[
+			// Add elements
+			.. testData[..^100],
+		];
 
 		// Access elements (cache-friendly)
 		int sum = 0;

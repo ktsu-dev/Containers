@@ -38,16 +38,10 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null) : IDicti
 	/// <summary>
 	/// Represents a key-value pair stored in the map.
 	/// </summary>
-	private struct Entry
+	private struct Entry(TKey key, TValue value)
 	{
-		public TKey Key { get; set; }
-		public TValue Value { get; set; }
-
-		public Entry(TKey key, TValue value)
-		{
-			Key = key;
-			Value = value;
-		}
+		public TKey Key { get; set; } = key;
+		public TValue Value { get; set; } = value;
 	}
 
 	/// <summary>
@@ -86,12 +80,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null) : IDicti
 			ArgumentNullException.ThrowIfNull(key);
 
 			int index = BinarySearchByKey(key);
-			if (index < 0)
-			{
-				throw new KeyNotFoundException($"The key '{key}' was not found in the map.");
-			}
-
-			return items[index].Value;
+			return index < 0 ? throw new KeyNotFoundException($"The key '{key}' was not found in the map.") : items[index].Value;
 		}
 		set
 		{

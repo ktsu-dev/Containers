@@ -2,10 +2,9 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
+namespace ktsu.Containers.Benchmarks;
 using BenchmarkDotNet.Attributes;
 using ktsu.Containers;
-
-namespace ktsu.Containers.Benchmarks;
 
 /// <summary>
 /// Benchmarks for InsertionOrderSet performance compared to built-in collections.
@@ -55,11 +54,7 @@ public class InsertionOrderSetBenchmarks
 	[Benchmark]
 	public InsertionOrderSet<int> InsertionOrderSet_Add()
 	{
-		InsertionOrderSet<int> set = new();
-		foreach (int item in testData)
-		{
-			set.Add(item);
-		}
+		InsertionOrderSet<int> set = [.. testData];
 		return set;
 	}
 
@@ -97,7 +92,7 @@ public class InsertionOrderSetBenchmarks
 	[Benchmark]
 	public int InsertionOrderSet_Contains()
 	{
-		InsertionOrderSet<int> set = new(testData);
+		InsertionOrderSet<int> set = [.. testData];
 		int found = 0;
 		foreach (int item in searchData)
 		{
@@ -151,7 +146,7 @@ public class InsertionOrderSetBenchmarks
 	[Benchmark]
 	public int InsertionOrderSet_Enumerate()
 	{
-		InsertionOrderSet<int> set = new(testData);
+		InsertionOrderSet<int> set = [.. testData];
 		int sum = 0;
 		foreach (int item in set)
 		{
@@ -196,10 +191,10 @@ public class InsertionOrderSetBenchmarks
 	[Benchmark]
 	public InsertionOrderSet<int> InsertionOrderSet_Remove()
 	{
-		InsertionOrderSet<int> set = new(testData);
+		InsertionOrderSet<int> set = [.. testData];
 
 		// Remove every 10th unique element
-		int[] uniqueItems = set.ToArray();
+		int[] uniqueItems = [.. set];
 		for (int i = 0; i < uniqueItems.Length; i += 10)
 		{
 			set.Remove(uniqueItems[i]);
@@ -217,7 +212,7 @@ public class InsertionOrderSetBenchmarks
 		HashSet<int> set = [.. testData];
 
 		// Remove every 10th unique element
-		int[] uniqueItems = set.ToArray();
+		int[] uniqueItems = [.. set];
 		for (int i = 0; i < uniqueItems.Length; i += 10)
 		{
 			set.Remove(uniqueItems[i]);
@@ -232,16 +227,14 @@ public class InsertionOrderSetBenchmarks
 	[Benchmark]
 	public InsertionOrderSet<int> InsertionOrderSet_MixedOperations()
 	{
-		InsertionOrderSet<int> set = new();
-
-		// Add elements
-		foreach (int item in testData[..^100])
-		{
-			set.Add(item);
-		}
+		InsertionOrderSet<int> set =
+		[
+			// Add elements
+			.. testData[..^100],
+		];
 
 		// Remove some elements
-		int[] toRemove = set.Take(10).ToArray();
+		int[] toRemove = [.. set.Take(10)];
 		foreach (int item in toRemove)
 		{
 			set.Remove(item);
@@ -271,7 +264,7 @@ public class InsertionOrderSetBenchmarks
 		}
 
 		// Remove some elements
-		int[] toRemove = set.Take(10).ToArray();
+		int[] toRemove = [.. set.Take(10)];
 		foreach (int item in toRemove)
 		{
 			set.Remove(item);

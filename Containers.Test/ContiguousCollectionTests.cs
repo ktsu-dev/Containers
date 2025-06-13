@@ -3,9 +3,6 @@
 // Licensed under the MIT license.
 
 namespace ktsu.Containers.Tests;
-
-using System.Collections;
-
 [TestClass]
 public class ContiguousCollectionTests
 {
@@ -36,7 +33,7 @@ public class ContiguousCollectionTests
 	public void Constructor_WithZeroCapacity_CreatesEmptyCollection()
 	{
 		// Arrange & Act
-		ContiguousCollection<int> collection = new(0);
+		ContiguousCollection<int> collection = [];
 
 		// Assert
 		Assert.AreEqual(0, collection.Count);
@@ -71,7 +68,7 @@ public class ContiguousCollectionTests
 	public void Constructor_WithNullCollection_ThrowsArgumentNullException()
 	{
 		// Arrange, Act & Assert
-		Assert.ThrowsException<ArgumentNullException>(() => new ContiguousCollection<int>((IEnumerable<int>)null!));
+		Assert.ThrowsException<ArgumentNullException>(() => new ContiguousCollection<int>(null!));
 	}
 
 	[TestMethod]
@@ -112,12 +109,13 @@ public class ContiguousCollectionTests
 	public void Add_ExceedsCapacity_GrowsAutomatically()
 	{
 		// Arrange
-		ContiguousCollection<int> collection = new(2);
-
-		// Act
-		collection.Add(1);
-		collection.Add(2);
-		collection.Add(3); // Should trigger growth
+		ContiguousCollection<int> collection = new(2)
+		{
+			// Act
+			1,
+			2,
+			3 // Should trigger growth
+		};
 
 		// Assert
 		Assert.AreEqual(3, collection.Count);
@@ -329,6 +327,7 @@ public class ContiguousCollectionTests
 		Assert.AreEqual(2, array[4]);
 		Assert.AreEqual(0, array[5]); // Unchanged
 	}
+	private static readonly int[] expected = new int[] { 3, 1, 4, 2 };
 
 	[TestMethod]
 	public void GetEnumerator_IteratesInOrder()
@@ -344,7 +343,7 @@ public class ContiguousCollectionTests
 		}
 
 		// Assert
-		CollectionAssert.AreEqual(new int[] { 3, 1, 4, 2 }, enumerated);
+		CollectionAssert.AreEqual(expected, enumerated);
 	}
 
 	[TestMethod]
@@ -449,9 +448,11 @@ public class ContiguousCollectionTests
 	public void TrimExcess_ReducesCapacityToCount()
 	{
 		// Arrange
-		ContiguousCollection<int> collection = new(10);
-		collection.Add(1);
-		collection.Add(2);
+		ContiguousCollection<int> collection = new(10)
+		{
+			1,
+			2
+		};
 
 		// Act
 		collection.TrimExcess();

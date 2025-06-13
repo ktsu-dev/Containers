@@ -64,10 +64,7 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyCollection<T
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InsertionOrderCollection{T}"/> class.
 	/// </summary>
-	public InsertionOrderCollection()
-	{
-		items = [];
-	}
+	public InsertionOrderCollection() => items = [];
 
 	/// <summary>
 	/// Initializes a new instance of the <see cref="InsertionOrderCollection{T}"/> class with initial capacity.
@@ -88,7 +85,7 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyCollection<T
 	public InsertionOrderCollection(IEnumerable<T> collection)
 	{
 		ArgumentNullException.ThrowIfNull(collection);
-		items = new List<T>(collection);
+		items = [.. collection];
 	}
 
 	/// <summary>
@@ -99,10 +96,7 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyCollection<T
 	/// This operation has O(1) amortized time complexity.
 	/// The element is added at the end of the collection to maintain insertion order.
 	/// </remarks>
-	public void Add(T item)
-	{
-		items.Add(item);
-	}
+	public void Add(T item) => items.Add(item);
 
 	/// <summary>
 	/// Removes all elements from the collection.
@@ -117,10 +111,7 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyCollection<T
 	/// <remarks>
 	/// This operation has O(n) time complexity as it performs a linear search.
 	/// </remarks>
-	public bool Contains(T item)
-	{
-		return items.Contains(item);
-	}
+	public bool Contains(T item) => items.Contains(item);
 
 	/// <summary>
 	/// Copies the elements of the collection to an array, starting at the specified array index.
@@ -149,10 +140,7 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyCollection<T
 	/// This operation has O(n) time complexity as it performs a linear search
 	/// and may need to shift elements to maintain insertion order.
 	/// </remarks>
-	public bool Remove(T item)
-	{
-		return items.Remove(item);
-	}
+	public bool Remove(T item) => items.Remove(item);
 
 	/// <summary>
 	/// Removes the element at the specified index.
@@ -179,10 +167,7 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyCollection<T
 	/// <remarks>
 	/// This operation has O(n) time complexity as it performs a linear search.
 	/// </remarks>
-	public int IndexOf(T item)
-	{
-		return items.IndexOf(item);
-	}
+	public int IndexOf(T item) => items.IndexOf(item);
 
 	/// <summary>
 	/// Returns an enumerator that iterates through the collection in insertion order.
@@ -209,12 +194,12 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyCollection<T
 		ArgumentOutOfRangeException.ThrowIfNegative(count);
 		ArgumentOutOfRangeException.ThrowIfGreaterThan(startIndex + count, Count);
 
-		return new InsertionOrderCollection<T>(items.GetRange(startIndex, count));
+		return [.. items.GetRange(startIndex, count)];
 	}
 
 	/// <summary>
 	/// Creates a shallow copy of the collection.
 	/// </summary>
 	/// <returns>A new collection containing all elements from the original collection.</returns>
-	public InsertionOrderCollection<T> Clone() => new(items);
+	public InsertionOrderCollection<T> Clone() => [.. items];
 }

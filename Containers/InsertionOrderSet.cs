@@ -185,10 +185,7 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <remarks>
 	/// This operation has O(1) average time complexity.
 	/// </remarks>
-	public bool Contains(T item)
-	{
-		return uniquenessSet.Contains(item);
-	}
+	public bool Contains(T item) => uniquenessSet.Contains(item);
 
 	/// <summary>
 	/// Copies the elements of the set to an array, starting at the specified array index.

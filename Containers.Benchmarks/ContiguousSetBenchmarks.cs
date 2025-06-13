@@ -2,10 +2,9 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
+namespace ktsu.Containers.Benchmarks;
 using BenchmarkDotNet.Attributes;
 using ktsu.Containers;
-
-namespace ktsu.Containers.Benchmarks;
 
 /// <summary>
 /// Benchmarks for ContiguousSet performance compared to built-in collections.
@@ -56,11 +55,7 @@ public class ContiguousSetBenchmarks
 	[Benchmark]
 	public ContiguousSet<int> ContiguousSet_Add()
 	{
-		ContiguousSet<int> set = new();
-		foreach (int item in testData)
-		{
-			set.Add(item);
-		}
+		ContiguousSet<int> set = [.. testData];
 		return set;
 	}
 
@@ -98,7 +93,7 @@ public class ContiguousSetBenchmarks
 	[Benchmark]
 	public int ContiguousSet_Contains()
 	{
-		ContiguousSet<int> set = new(testData);
+		ContiguousSet<int> set = [.. testData];
 		int found = 0;
 		foreach (int item in searchData)
 		{
@@ -152,7 +147,7 @@ public class ContiguousSetBenchmarks
 	[Benchmark]
 	public int ContiguousSet_Enumerate()
 	{
-		ContiguousSet<int> set = new(testData);
+		ContiguousSet<int> set = [.. testData];
 		int sum = 0;
 		foreach (int item in set)
 		{
@@ -197,7 +192,7 @@ public class ContiguousSetBenchmarks
 	[Benchmark]
 	public int ContiguousSet_SpanAccess()
 	{
-		ContiguousSet<int> set = new(testData);
+		ContiguousSet<int> set = [.. testData];
 		ReadOnlySpan<int> span = set.AsReadOnlySpan();
 		int sum = 0;
 		for (int i = 0; i < span.Length; i++)
@@ -213,10 +208,10 @@ public class ContiguousSetBenchmarks
 	[Benchmark]
 	public ContiguousSet<int> ContiguousSet_Remove()
 	{
-		ContiguousSet<int> set = new(testData);
+		ContiguousSet<int> set = [.. testData];
 
 		// Remove every 10th unique element
-		int[] uniqueItems = set.ToArray();
+		int[] uniqueItems = [.. set];
 		for (int i = 0; i < uniqueItems.Length; i += 10)
 		{
 			set.Remove(uniqueItems[i]);
@@ -234,7 +229,7 @@ public class ContiguousSetBenchmarks
 		HashSet<int> set = [.. testData];
 
 		// Remove every 10th unique element
-		int[] uniqueItems = set.ToArray();
+		int[] uniqueItems = [.. set];
 		for (int i = 0; i < uniqueItems.Length; i += 10)
 		{
 			set.Remove(uniqueItems[i]);
@@ -249,7 +244,7 @@ public class ContiguousSetBenchmarks
 	[Benchmark]
 	public long ContiguousSet_MemoryIntensiveOp()
 	{
-		ContiguousSet<int> set = new(testData);
+		ContiguousSet<int> set = [.. testData];
 		long result = 0;
 
 		// Simulate cache-friendly sequential access pattern
@@ -295,7 +290,7 @@ public class ContiguousSetBenchmarks
 		ContiguousSet<int> set2 = new(testData[ElementCount / 4..]);
 
 		// Simulate union operation
-		ContiguousSet<int> result = new(set1);
+		ContiguousSet<int> result = [.. set1];
 		foreach (int item in set2)
 		{
 			result.Add(item);
@@ -324,16 +319,14 @@ public class ContiguousSetBenchmarks
 	[Benchmark]
 	public ContiguousSet<int> ContiguousSet_MixedOperations()
 	{
-		ContiguousSet<int> set = new();
-
-		// Add elements
-		foreach (int item in testData[..^100])
-		{
-			set.Add(item);
-		}
+		ContiguousSet<int> set =
+		[
+			// Add elements
+			.. testData[..^100],
+		];
 
 		// Remove some elements
-		int[] toRemove = set.Take(10).ToArray();
+		int[] toRemove = [.. set.Take(10)];
 		foreach (int item in toRemove)
 		{
 			set.Remove(item);
@@ -363,7 +356,7 @@ public class ContiguousSetBenchmarks
 		}
 
 		// Remove some elements
-		int[] toRemove = set.Take(10).ToArray();
+		int[] toRemove = [.. set.Take(10)];
 		foreach (int item in toRemove)
 		{
 			set.Remove(item);

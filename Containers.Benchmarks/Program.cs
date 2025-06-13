@@ -2,10 +2,8 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
-using BenchmarkDotNet.Running;
-using ktsu.Containers.Benchmarks;
-
 namespace ktsu.Containers.Benchmarks;
+using BenchmarkDotNet.Running;
 
 /// <summary>
 /// Main program entry point for running container benchmarks.

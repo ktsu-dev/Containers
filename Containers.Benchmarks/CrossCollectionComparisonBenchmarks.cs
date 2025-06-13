@@ -2,10 +2,9 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
+namespace ktsu.Containers.Benchmarks;
 using BenchmarkDotNet.Attributes;
 using ktsu.Containers;
-
-namespace ktsu.Containers.Benchmarks;
 
 /// <summary>
 /// Direct performance comparisons between ktsu.Containers implementations and standard .NET collections.
@@ -68,11 +67,7 @@ public class CrossCollectionComparisonBenchmarks
 	[Benchmark]
 	public OrderedCollection<int> BuildOrderedCollectionIncremental()
 	{
-		OrderedCollection<int> collection = new();
-		foreach (int item in testData)
-		{
-			collection.Add(item);
-		}
+		OrderedCollection<int> collection = [.. testData];
 		return collection;
 	}
 
@@ -107,7 +102,7 @@ public class CrossCollectionComparisonBenchmarks
 	[Benchmark]
 	public int SearchOrderedCollectionBinary()
 	{
-		OrderedCollection<int> collection = new(testData);
+		OrderedCollection<int> collection = [.. testData];
 		int found = 0;
 		foreach (int item in searchData)
 		{
@@ -148,11 +143,7 @@ public class CrossCollectionComparisonBenchmarks
 	[Benchmark]
 	public OrderedSet<int> BuildUniqueSetOrdered()
 	{
-		OrderedSet<int> set = new();
-		foreach (int item in testData)
-		{
-			set.Add(item);
-		}
+		OrderedSet<int> set = [.. testData];
 		return set;
 	}
 
@@ -190,8 +181,8 @@ public class CrossCollectionComparisonBenchmarks
 	[Benchmark]
 	public OrderedSet<int> SetUnionOrdered()
 	{
-		OrderedSet<int> set1 = new(testData);
-		OrderedSet<int> set2 = new(unionData);
+		OrderedSet<int> set1 = [.. testData];
+		OrderedSet<int> set2 = [.. unionData];
 		set1.UnionWith(set2);
 		return set1;
 	}
@@ -388,11 +379,7 @@ public class CrossCollectionComparisonBenchmarks
 	public OrderedCollection<int> DataProcessingWorkflowOrderedCollection()
 	{
 		// Build collection
-		OrderedCollection<int> collection = new();
-		foreach (int item in testData.Take(ElementCount / 2))
-		{
-			collection.Add(item);
-		}
+		OrderedCollection<int> collection = [.. testData.Take(ElementCount / 2)];
 
 		// Search operations
 		int found = 0;
@@ -507,7 +494,11 @@ public class CrossCollectionComparisonBenchmarks
 				int count = 0;
 				foreach (int value in cache)
 				{
-					if (count >= 10) break; // Only check first 10 items
+					if (count >= 10)
+					{
+						break; // Only check first 10 items
+					}
+
 					count++;
 				}
 			}

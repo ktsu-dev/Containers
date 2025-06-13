@@ -13,7 +13,7 @@ public class OrderedSetTests
 	[TestMethod]
 	public void Constructor_DefaultComparer_CreatesEmptySet()
 	{
-		OrderedSet<int> set = new();
+		OrderedSet<int> set = [];
 		Assert.AreEqual(0, set.Count);
 		Assert.IsFalse(set.IsReadOnly);
 	}
@@ -46,7 +46,7 @@ public class OrderedSetTests
 	public void Constructor_WithCollection_CreatesSetFromCollection()
 	{
 		int[] items = [3, 1, 4, 1, 5, 9, 2, 6];
-		OrderedSet<int> set = new(items);
+		OrderedSet<int> set = [.. items];
 
 		Assert.AreEqual(7, set.Count); // Duplicates removed
 		int[] expected = [1, 2, 3, 4, 5, 6, 9];
@@ -95,7 +95,7 @@ public class OrderedSetTests
 	[TestMethod]
 	public void Add_SingleElement_AddsAndMaintainsOrder()
 	{
-		OrderedSet<int> set = new();
+		OrderedSet<int> set = [];
 		bool added = set.Add(5);
 
 		Assert.IsTrue(added);
@@ -106,7 +106,7 @@ public class OrderedSetTests
 	[TestMethod]
 	public void Add_MultipleElements_MaintainsSortedOrder()
 	{
-		OrderedSet<int> set = new();
+		OrderedSet<int> set = [];
 		bool[] results = [set.Add(5), set.Add(2), set.Add(8), set.Add(1)];
 
 		Assert.IsTrue(results.All(r => r));
@@ -119,8 +119,7 @@ public class OrderedSetTests
 	[TestMethod]
 	public void Add_DuplicateElement_ReturnsFalseAndDoesNotAdd()
 	{
-		OrderedSet<int> set = new();
-		set.Add(5);
+		OrderedSet<int> set = [5];
 		bool addedDuplicate = set.Add(5);
 
 		Assert.IsFalse(addedDuplicate);
@@ -131,8 +130,10 @@ public class OrderedSetTests
 	public void Add_WithCustomComparer_UsesCaseInsensitiveComparison()
 	{
 		IComparer<string> comparer = StringComparer.OrdinalIgnoreCase;
-		OrderedSet<string> set = new(comparer);
-		set.Add("Apple");
+		OrderedSet<string> set = new(comparer)
+		{
+			"Apple"
+		};
 		bool addedDuplicate = set.Add("apple");
 
 		Assert.IsFalse(addedDuplicate);
@@ -168,7 +169,7 @@ public class OrderedSetTests
 	[TestMethod]
 	public void Contains_EmptySet_ReturnsFalse()
 	{
-		OrderedSet<int> set = new();
+		OrderedSet<int> set = [];
 		Assert.IsFalse(set.Contains(1));
 	}
 
@@ -236,7 +237,7 @@ public class OrderedSetTests
 	[TestMethod]
 	public void Remove_FromEmptySet_ReturnsFalse()
 	{
-		OrderedSet<int> set = new();
+		OrderedSet<int> set = [];
 		bool removed = set.Remove(1);
 
 		Assert.IsFalse(removed);
@@ -266,7 +267,7 @@ public class OrderedSetTests
 	[TestMethod]
 	public void BinarySearch_EmptySet_ReturnsMinusOne()
 	{
-		OrderedSet<int> set = new();
+		OrderedSet<int> set = [];
 		int index = set.BinarySearch(5);
 
 		Assert.AreEqual(-1, index);
@@ -604,7 +605,7 @@ public class OrderedSetTests
 	[TestMethod]
 	public void ICollectionAdd_CallsMainAddMethod()
 	{
-		OrderedSet<int> orderedSet = new();
+		OrderedSet<int> orderedSet = [];
 		ICollection<int> set = orderedSet;
 		set.Add(5);
 
@@ -615,7 +616,7 @@ public class OrderedSetTests
 	[TestMethod]
 	public void LargeDataSet_MaintainsPerformanceAndOrder()
 	{
-		OrderedSet<int> set = new();
+		OrderedSet<int> set = [];
 		Random random = new(42); // Fixed seed for reproducible tests
 
 		// Add 1000 random numbers
@@ -631,7 +632,7 @@ public class OrderedSetTests
 		}
 
 		// Verify sorted order
-		int[] result = set.ToArray();
+		int[] result = [.. set];
 		for (int i = 1; i < result.Length; i++)
 		{
 			Assert.IsTrue(result[i - 1] < result[i], "Elements should be in sorted order");
@@ -644,7 +645,7 @@ public class OrderedSetTests
 	[TestMethod]
 	public void StressTest_MultipleOperations()
 	{
-		OrderedSet<int> set = new();
+		OrderedSet<int> set = [];
 
 		// Add elements
 		for (int i = 0; i < 100; i++)
@@ -668,7 +669,7 @@ public class OrderedSetTests
 		}
 
 		// Verify sorted order
-		int[] result = set.ToArray();
+		int[] result = [.. set];
 		for (int i = 1; i < result.Length; i++)
 		{
 			Assert.IsTrue(result[i - 1] < result[i], "Elements should remain sorted");

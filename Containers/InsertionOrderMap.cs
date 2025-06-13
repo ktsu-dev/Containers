@@ -35,16 +35,10 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// <summary>
 	/// Represents a key-value pair stored in the map.
 	/// </summary>
-	private struct Entry
+	private struct Entry(TKey key, TValue value)
 	{
-		public TKey Key { get; set; }
-		public TValue Value { get; set; }
-
-		public Entry(TKey key, TValue value)
-		{
-			Key = key;
-			Value = value;
-		}
+		public TKey Key { get; set; } = key;
+		public TValue Value { get; set; } = value;
 	}
 
 	/// <summary>
@@ -80,12 +74,9 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 		{
 			ArgumentNullException.ThrowIfNull(key);
 
-			if (!keyToIndex.TryGetValue(key, out int index))
-			{
-				throw new KeyNotFoundException($"The key '{key}' was not found in the map.");
-			}
-
-			return items[index].Value;
+			return !keyToIndex.TryGetValue(key, out int index)
+				? throw new KeyNotFoundException($"The key '{key}' was not found in the map.")
+				: items[index].Value;
 		}
 		set
 		{
@@ -336,12 +327,7 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// <returns>true if the key-value pair is found; otherwise, false.</returns>
 	public bool Contains(KeyValuePair<TKey, TValue> item)
 	{
-		if (!keyToIndex.TryGetValue(item.Key, out int index))
-		{
-			return false;
-		}
-
-		return EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value);
+		return keyToIndex.TryGetValue(item.Key, out int index) && EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value);
 	}
 
 	/// <summary>
@@ -373,17 +359,9 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// <returns>true if the key-value pair was found and removed; otherwise, false.</returns>
 	public bool Remove(KeyValuePair<TKey, TValue> item)
 	{
-		if (!keyToIndex.TryGetValue(item.Key, out int index))
-		{
-			return false;
-		}
-
-		if (!EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value))
-		{
-			return false;
-		}
-
-		return Remove(item.Key);
+		return !keyToIndex.TryGetValue(item.Key, out int index)
+			? false
+			: EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value) && Remove(item.Key);
 	}
 
 	/// <summary>

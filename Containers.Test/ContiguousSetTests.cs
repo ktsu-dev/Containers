@@ -3,9 +3,6 @@
 // Licensed under the MIT license.
 
 namespace ktsu.Containers.Tests;
-
-using System.Collections;
-
 [TestClass]
 public class ContiguousSetTests
 {
@@ -185,7 +182,7 @@ public class ContiguousSetTests
 
 		// Assert
 		Assert.AreEqual(0, array[0]); // Unchanged
-		// Elements 1-4 should contain set elements (order may vary)
+									  // Elements 1-4 should contain set elements (order may vary)
 		Assert.AreEqual(0, array[5]); // Unchanged
 
 		// Verify all set elements are in the array

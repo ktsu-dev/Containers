@@ -2,10 +2,9 @@
 // All rights reserved.
 // Licensed under the MIT license.
 
+namespace ktsu.Containers.Benchmarks;
 using BenchmarkDotNet.Attributes;
 using ktsu.Containers;
-
-namespace ktsu.Containers.Benchmarks;
 
 /// <summary>
 /// Benchmarks for OrderedSet performance compared to built-in set collections.
@@ -65,11 +64,7 @@ public class OrderedSetBenchmarks
 	[Benchmark]
 	public OrderedSet<int> OrderedSet_Add()
 	{
-		OrderedSet<int> set = new();
-		foreach (int item in testData)
-		{
-			set.Add(item);
-		}
+		OrderedSet<int> set = [.. testData];
 		return set;
 	}
 
@@ -107,7 +102,7 @@ public class OrderedSetBenchmarks
 	[Benchmark]
 	public int OrderedSet_Contains()
 	{
-		OrderedSet<int> set = new(testData);
+		OrderedSet<int> set = [.. testData];
 		int found = 0;
 		foreach (int item in searchData)
 		{
@@ -161,7 +156,7 @@ public class OrderedSetBenchmarks
 	[Benchmark]
 	public int OrderedSet_Enumerate()
 	{
-		OrderedSet<int> set = new(testData);
+		OrderedSet<int> set = [.. testData];
 		int sum = 0;
 		foreach (int item in set)
 		{
@@ -206,7 +201,7 @@ public class OrderedSetBenchmarks
 	[Benchmark]
 	public OrderedSet<int> OrderedSet_Union()
 	{
-		OrderedSet<int> set = new(testData);
+		OrderedSet<int> set = [.. testData];
 		set.UnionWith(unionData);
 		return set;
 	}
@@ -239,7 +234,7 @@ public class OrderedSetBenchmarks
 	[Benchmark]
 	public OrderedSet<int> OrderedSet_Intersect()
 	{
-		OrderedSet<int> set = new(testData);
+		OrderedSet<int> set = [.. testData];
 		set.IntersectWith(unionData);
 		return set;
 	}
@@ -272,7 +267,7 @@ public class OrderedSetBenchmarks
 	[Benchmark]
 	public OrderedSet<int> OrderedSet_Remove()
 	{
-		OrderedSet<int> set = new(testData);
+		OrderedSet<int> set = [.. testData];
 
 		// Remove every 10th element
 		for (int i = 0; i < testData.Length; i += 10)
@@ -323,7 +318,7 @@ public class OrderedSetBenchmarks
 	[Benchmark]
 	public OrderedSet<int> OrderedSet_MixedOperations()
 	{
-		OrderedSet<int> set = new();
+		OrderedSet<int> set = [];
 
 		// Add half the elements
 		for (int i = 0; i < testData.Length / 2; i++)

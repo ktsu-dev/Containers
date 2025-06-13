@@ -62,7 +62,7 @@ public class InsertionOrderCollectionTests
 	public void Constructor_WithNullCollection_ThrowsArgumentNullException()
 	{
 		// Arrange, Act & Assert
-		Assert.ThrowsException<ArgumentNullException>(() => new InsertionOrderCollection<int>((IEnumerable<int>)null!));
+		Assert.ThrowsException<ArgumentNullException>(() => new InsertionOrderCollection<int>(null!));
 	}
 
 	[TestMethod]
@@ -324,6 +324,7 @@ public class InsertionOrderCollectionTests
 		// Act & Assert
 		Assert.AreEqual(-1, collection.IndexOf(5));
 	}
+	private static readonly int[] expected = new int[] { 3, 1, 4, 2 };
 
 	[TestMethod]
 	public void GetEnumerator_IteratesInInsertionOrder()
@@ -339,7 +340,7 @@ public class InsertionOrderCollectionTests
 		}
 
 		// Assert
-		CollectionAssert.AreEqual(new int[] { 3, 1, 4, 2 }, enumerated);
+		CollectionAssert.AreEqual(expected, enumerated);
 	}
 
 	[TestMethod]

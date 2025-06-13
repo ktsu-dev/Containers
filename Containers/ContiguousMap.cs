@@ -46,27 +46,41 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// <summary>
 	/// Represents a key-value pair stored in the map.
 	/// </summary>
-	public readonly struct Entry
+	/// <remarks>
+	/// Initializes a new instance of the <see cref="Entry"/> struct.
+	/// </remarks>
+	/// <param name="key">The key of the entry.</param>
+	/// <param name="value">The value of the entry.</param>
+	public readonly struct Entry(TKey key, TValue value)
 	{
 		/// <summary>
 		/// Gets the key of the entry.
 		/// </summary>
-		public TKey Key { get; }
+		public TKey Key { get; } = key;
 
 		/// <summary>
 		/// Gets the value of the entry.
 		/// </summary>
-		public TValue Value { get; }
+		public TValue Value { get; } = value;
 
-		/// <summary>
-		/// Initializes a new instance of the <see cref="Entry"/> struct.
-		/// </summary>
-		/// <param name="key">The key of the entry.</param>
-		/// <param name="value">The value of the entry.</param>
-		public Entry(TKey key, TValue value)
+		public override bool Equals(object obj)
 		{
-			Key = key;
-			Value = value;
+			throw new NotImplementedException();
+		}
+
+		public override int GetHashCode()
+		{
+			throw new NotImplementedException();
+		}
+
+		public static bool operator ==(Entry left, Entry right)
+		{
+			return left.Equals(right);
+		}
+
+		public static bool operator !=(Entry left, Entry right)
+		{
+			return !(left == right);
 		}
 	}
 
@@ -81,11 +95,6 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	private readonly Dictionary<TKey, int> keyToIndex;
 
 	/// <summary>
-	/// The number of key-value pairs currently stored in the map.
-	/// </summary>
-	private int count;
-
-	/// <summary>
 	/// The default initial capacity for the map.
 	/// </summary>
 	private const int DefaultCapacity = 4;
@@ -93,7 +102,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// <summary>
 	/// Gets the number of key-value pairs in the map.
 	/// </summary>
-	public int Count => count;
+	public int Count { get; private set; }
 
 	/// <summary>
 	/// Gets the current capacity of the map.
@@ -118,12 +127,9 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 		{
 			ArgumentNullException.ThrowIfNull(key);
 
-			if (!keyToIndex.TryGetValue(key, out int index))
-			{
-				throw new KeyNotFoundException($"The key '{key}' was not found in the map.");
-			}
-
-			return items[index].Value;
+			return !keyToIndex.TryGetValue(key, out int index)
+				? throw new KeyNotFoundException($"The key '{key}' was not found in the map.")
+				: items[index].Value;
 		}
 		set
 		{
@@ -137,15 +143,15 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 			else
 			{
 				// Key doesn't exist, add new entry
-				if (count == items.Length)
+				if (Count == items.Length)
 				{
 					Grow();
 				}
 
-				index = count;
+				index = Count;
 				items[index] = new Entry(key, value);
 				keyToIndex[key] = index;
-				count++;
+				Count++;
 			}
 		}
 	}
@@ -177,7 +183,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	{
 		items = new Entry[DefaultCapacity];
 		keyToIndex = [];
-		count = 0;
+		Count = 0;
 	}
 
 	/// <summary>
@@ -191,7 +197,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 
 		items = new Entry[DefaultCapacity];
 		keyToIndex = new Dictionary<TKey, int>(comparer);
-		count = 0;
+		Count = 0;
 	}
 
 	/// <summary>
@@ -205,7 +211,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 
 		items = capacity == 0 ? [] : new Entry[capacity];
 		keyToIndex = new Dictionary<TKey, int>(capacity);
-		count = 0;
+		Count = 0;
 	}
 
 	/// <summary>
@@ -222,7 +228,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 
 		items = capacity == 0 ? [] : new Entry[capacity];
 		keyToIndex = new Dictionary<TKey, int>(capacity, comparer);
-		count = 0;
+		Count = 0;
 	}
 
 	/// <summary>
@@ -237,7 +243,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 		int capacity = dictionary.Count == 0 ? DefaultCapacity : dictionary.Count;
 		items = new Entry[capacity];
 		keyToIndex = [];
-		count = 0;
+		Count = 0;
 
 		foreach (KeyValuePair<TKey, TValue> pair in dictionary)
 		{
@@ -259,7 +265,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 		int capacity = dictionary.Count == 0 ? DefaultCapacity : dictionary.Count;
 		items = new Entry[capacity];
 		keyToIndex = new Dictionary<TKey, int>(comparer);
-		count = 0;
+		Count = 0;
 
 		foreach (KeyValuePair<TKey, TValue> pair in dictionary)
 		{
@@ -287,15 +293,15 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 			throw new ArgumentException($"An element with the key '{key}' already exists.", nameof(key));
 		}
 
-		if (count == items.Length)
+		if (Count == items.Length)
 		{
 			Grow();
 		}
 
-		int index = count;
+		int index = Count;
 		items[index] = new Entry(key, value);
 		keyToIndex[key] = index;
-		count++;
+		Count++;
 	}
 
 	/// <summary>
@@ -318,21 +324,21 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 		}
 
 		// Remove from the array by shifting elements
-		count--;
-		if (index < count)
+		Count--;
+		if (index < Count)
 		{
-			Array.Copy(items, index + 1, items, index, count - index);
+			Array.Copy(items, index + 1, items, index, Count - index);
 		}
 
 		if (RuntimeHelpers.IsReferenceOrContainsReferences<Entry>())
 		{
-			items[count] = default;
+			items[Count] = default;
 		}
 
 		keyToIndex.Remove(key);
 
 		// Update indices in the dictionary for all elements after the removed one
-		for (int i = index; i < count; i++)
+		for (int i = index; i < Count; i++)
 		{
 			TKey itemKey = items[i].Key;
 			keyToIndex[itemKey] = i;
@@ -395,9 +401,9 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 		if (RuntimeHelpers.IsReferenceOrContainsReferences<Entry>())
 		{
 			// Clear references to help GC
-			Array.Clear(items, 0, count);
+			Array.Clear(items, 0, Count);
 		}
-		count = 0;
+		Count = 0;
 		keyToIndex.Clear();
 	}
 
@@ -408,12 +414,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// <returns>true if the key-value pair is found; otherwise, false.</returns>
 	public bool Contains(KeyValuePair<TKey, TValue> item)
 	{
-		if (!keyToIndex.TryGetValue(item.Key, out int index))
-		{
-			return false;
-		}
-
-		return EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value);
+		return keyToIndex.TryGetValue(item.Key, out int index) && EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value);
 	}
 
 	/// <summary>
@@ -429,9 +430,9 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 		ArgumentNullException.ThrowIfNull(array);
 		ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
 		ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(count, array.Length - arrayIndex);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
-		for (int i = 0; i < count; i++)
+		for (int i = 0; i < Count; i++)
 		{
 			Entry entry = items[i];
 			array[arrayIndex + i] = new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
@@ -445,17 +446,9 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// <returns>true if the key-value pair was found and removed; otherwise, false.</returns>
 	public bool Remove(KeyValuePair<TKey, TValue> item)
 	{
-		if (!keyToIndex.TryGetValue(item.Key, out int index))
-		{
-			return false;
-		}
-
-		if (!EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value))
-		{
-			return false;
-		}
-
-		return Remove(item.Key);
+		return !keyToIndex.TryGetValue(item.Key, out int index)
+			? false
+			: EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value) && Remove(item.Key);
 	}
 
 	/// <summary>
@@ -467,7 +460,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// </remarks>
 	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
 	{
-		for (int i = 0; i < count; i++)
+		for (int i = 0; i < Count; i++)
 		{
 			Entry entry = items[i];
 			yield return new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
@@ -508,10 +501,10 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// </remarks>
 	public void TrimExcess()
 	{
-		if (count < items.Length * 0.9) // Only trim if there's significant unused space
+		if (Count < items.Length * 0.9) // Only trim if there's significant unused space
 		{
-			Entry[] newItems = count == 0 ? [] : new Entry[count];
-			Array.Copy(items, newItems, count);
+			Entry[] newItems = Count == 0 ? [] : new Entry[Count];
+			Array.Copy(items, newItems, Count);
 			items = newItems;
 		}
 	}
@@ -524,7 +517,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// This method provides direct access to the contiguous memory, enabling high-performance
 	/// operations and interoperability with other APIs that work with spans.
 	/// </remarks>
-	public Span<Entry> AsSpan() => new(items, 0, count);
+	public Span<Entry> AsSpan() => new(items, 0, Count);
 
 	/// <summary>
 	/// Gets a read-only span representing the entries in the map.
@@ -534,7 +527,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// This method provides direct read-only access to the contiguous memory, enabling high-performance
 	/// operations while preventing modifications.
 	/// </remarks>
-	public ReadOnlySpan<Entry> AsReadOnlySpan() => new(items, 0, count);
+	public ReadOnlySpan<Entry> AsReadOnlySpan() => new(items, 0, Count);
 
 	/// <summary>
 	/// Creates a shallow copy of the map.
@@ -542,10 +535,10 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// <returns>A new map containing all key-value pairs from the original map with contiguous memory layout.</returns>
 	public ContiguousMap<TKey, TValue> Clone()
 	{
-		ContiguousMap<TKey, TValue> clone = new(count, keyToIndex.Comparer);
-		Array.Copy(items, clone.items, count);
-		clone.count = count;
-		for (int i = 0; i < count; i++)
+		ContiguousMap<TKey, TValue> clone = new(Count, keyToIndex.Comparer);
+		Array.Copy(items, clone.items, Count);
+		clone.Count = Count;
+		for (int i = 0; i < Count; i++)
 		{
 			clone.keyToIndex[items[i].Key] = i;
 		}
@@ -565,7 +558,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 		}
 
 		Entry[] newItems = new Entry[newCapacity];
-		Array.Copy(items, newItems, count);
+		Array.Copy(items, newItems, Count);
 		items = newItems;
 	}
 
@@ -596,7 +589,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 			ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
 			ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
-			for (int i = 0; i < map.count; i++)
+			for (int i = 0; i < map.Count; i++)
 			{
 				array[arrayIndex + i] = map.items[i].Key;
 			}
@@ -604,7 +597,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 
 		public IEnumerator<TKey> GetEnumerator()
 		{
-			for (int i = 0; i < map.count; i++)
+			for (int i = 0; i < map.Count; i++)
 			{
 				yield return map.items[i].Key;
 			}
@@ -629,7 +622,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 
 		public bool Contains(TValue item)
 		{
-			for (int i = 0; i < map.count; i++)
+			for (int i = 0; i < map.Count; i++)
 			{
 				if (EqualityComparer<TValue>.Default.Equals(map.items[i].Value, item))
 				{
@@ -646,7 +639,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 			ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
 			ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
-			for (int i = 0; i < map.count; i++)
+			for (int i = 0; i < map.Count; i++)
 			{
 				array[arrayIndex + i] = map.items[i].Value;
 			}
@@ -654,7 +647,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 
 		public IEnumerator<TValue> GetEnumerator()
 		{
-			for (int i = 0; i < map.count; i++)
+			for (int i = 0; i < map.Count; i++)
 			{
 				yield return map.items[i].Value;
 			}
