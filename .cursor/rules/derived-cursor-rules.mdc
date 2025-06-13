@@ -294,3 +294,7 @@ This comprehensive benchmarking approach ensures that ktsu.Containers delivers r
    - Unique elements in contiguous memory layout
 - generic map guaranteed to allocate in contiguous memory
    - Key-value pairs stored contiguously for optimal memory access patterns
+- Contiguous Memory Collections: Collections optimized for cache efficiency
+   - Generic collection guaranteed to allocate in contiguous memory
+   - Generic set guaranteed to allocate in contiguous memory
+   - Generic map guaranteed to allocate in contiguous memory
