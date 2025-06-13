@@ -182,7 +182,7 @@ public class InsertionOrderSetTests
 		Assert.AreEqual(2, array[4]); // Fourth inserted
 		Assert.AreEqual(0, array[5]); // Unchanged
 	}
-	private static readonly int[] expected = new int[] { 3, 1, 4, 2 };
+	private static readonly int[] expected = [3, 1, 4, 2];
 
 	[TestMethod]
 	public void GetEnumerator_IteratesInInsertionOrder()

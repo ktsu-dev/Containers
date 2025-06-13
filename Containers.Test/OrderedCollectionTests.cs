@@ -55,7 +55,7 @@ public class OrderedCollectionTests
 	public void Constructor_WithNegativeCapacity_ThrowsArgumentOutOfRangeException()
 	{
 		// Arrange, Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => new OrderedCollection<int>(-1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new OrderedCollection<int>(-1));
 	}
 
 	[TestMethod]
@@ -75,8 +75,8 @@ public class OrderedCollectionTests
 	public void Constructor_WithNullComparer_ThrowsArgumentNullException()
 	{
 		// Arrange, Act & Assert
-		Assert.ThrowsException<ArgumentNullException>(() => new OrderedCollection<int>((IComparer<int>)null!));
-		Assert.ThrowsException<ArgumentNullException>(() => new OrderedCollection<int>(10, null!));
+		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedCollection<int>((IComparer<int>)null!));
+		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedCollection<int>(10, null!));
 	}
 
 	[TestMethod]
@@ -104,8 +104,8 @@ public class OrderedCollectionTests
 	public void Constructor_WithNullCollection_ThrowsArgumentNullException()
 	{
 		// Arrange, Act & Assert
-		Assert.ThrowsException<ArgumentNullException>(() => new OrderedCollection<int>((IEnumerable<int>)null!));
-		Assert.ThrowsException<ArgumentNullException>(() => new OrderedCollection<int>(null!, Comparer<int>.Default));
+		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedCollection<int>((IEnumerable<int>)null!));
+		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedCollection<int>(null!, Comparer<int>.Default));
 	}
 
 	[TestMethod]
@@ -257,7 +257,7 @@ public class OrderedCollectionTests
 		OrderedCollection<int> collection = new([1, 2, 3]);
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentNullException>(() => collection.CopyTo(null!, 0));
+		Assert.ThrowsExactly<ArgumentNullException>(() => collection.CopyTo(null!, 0));
 	}
 
 	[TestMethod]
@@ -268,7 +268,7 @@ public class OrderedCollectionTests
 		int[] array = new int[5];
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.CopyTo(array, -1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.CopyTo(array, -1));
 	}
 
 	[TestMethod]
@@ -279,7 +279,7 @@ public class OrderedCollectionTests
 		int[] array = new int[3];
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentException>(() => collection.CopyTo(array, 0));
+		Assert.ThrowsExactly<ArgumentException>(() => collection.CopyTo(array, 0));
 	}
 
 	[TestMethod]
@@ -338,9 +338,9 @@ public class OrderedCollectionTests
 		OrderedCollection<int> collection = new([1, 2, 3]);
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.RemoveAt(-1));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.RemoveAt(3));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.RemoveAt(10));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.RemoveAt(-1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.RemoveAt(3));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.RemoveAt(10));
 	}
 
 	[TestMethod]
@@ -363,9 +363,9 @@ public class OrderedCollectionTests
 		OrderedCollection<int> collection = new([1, 2, 3]);
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection[-1]);
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection[3]);
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection[10]);
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection[-1]);
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection[3]);
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection[10]);
 	}
 
 	[TestMethod]
@@ -478,8 +478,8 @@ public class OrderedCollectionTests
 		OrderedCollection<int> collection = new([1, 2, 3]);
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.GetRange(-1, 2));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.GetRange(3, 1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.GetRange(-1, 2));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.GetRange(3, 1));
 	}
 
 	[TestMethod]
@@ -489,8 +489,8 @@ public class OrderedCollectionTests
 		OrderedCollection<int> collection = new([1, 2, 3]);
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.GetRange(0, -1));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.GetRange(1, 3));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.GetRange(0, -1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.GetRange(1, 3));
 	}
 
 	[TestMethod]
@@ -550,8 +550,8 @@ public class OrderedCollectionTests
 	public void Constructor_WithNonComparableType_WithoutComparer_ThrowsArgumentException()
 	{
 		// Arrange & Act & Assert
-		Assert.ThrowsException<ArgumentException>(() => new OrderedCollection<object>());
-		Assert.ThrowsException<ArgumentException>(() => new OrderedCollection<object>(10));
-		Assert.ThrowsException<ArgumentException>(() => new OrderedCollection<object>([]));
+		Assert.ThrowsExactly<ArgumentException>(() => new OrderedCollection<object>());
+		Assert.ThrowsExactly<ArgumentException>(() => new OrderedCollection<object>(10));
+		Assert.ThrowsExactly<ArgumentException>(() => new OrderedCollection<object>([]));
 	}
 }

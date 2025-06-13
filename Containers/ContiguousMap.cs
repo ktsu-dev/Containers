@@ -51,7 +51,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// </remarks>
 	/// <param name="key">The key of the entry.</param>
 	/// <param name="value">The value of the entry.</param>
-	public readonly struct Entry(TKey key, TValue value)
+	public readonly struct Entry(TKey key, TValue value) : IEquatable<Entry>
 	{
 		/// <summary>
 		/// Gets the key of the entry.
@@ -63,25 +63,46 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 		/// </summary>
 		public TValue Value { get; } = value;
 
-		public override bool Equals(object obj)
-		{
-			throw new NotImplementedException();
-		}
+		/// <summary>
+		/// Determines whether the specified object is equal to the current entry.
+		/// </summary>
+		/// <param name="obj">The object to compare with the current entry.</param>
+		/// <returns>true if the specified object is equal to the current entry; otherwise, false.</returns>
+		public override bool Equals(object? obj) =>
+			obj is Entry other &&
+			EqualityComparer<TKey>.Default.Equals(Key, other.Key) &&
+			EqualityComparer<TValue>.Default.Equals(Value, other.Value);
 
-		public override int GetHashCode()
-		{
-			throw new NotImplementedException();
-		}
+		/// <summary>
+		/// Returns the hash code for this entry.
+		/// </summary>
+		/// <returns>A 32-bit signed integer hash code.</returns>
+		public override int GetHashCode() => HashCode.Combine(Key, Value);
 
-		public static bool operator ==(Entry left, Entry right)
-		{
-			return left.Equals(right);
-		}
+		/// <summary>
+		/// Determines whether the current entry is equal to another entry.
+		/// </summary>
+		/// <param name="other">An entry to compare with this entry.</param>
+		/// <returns>true if the current entry is equal to the other parameter; otherwise, false.</returns>
+		public bool Equals(Entry other) =>
+			EqualityComparer<TKey>.Default.Equals(Key, other.Key) &&
+			EqualityComparer<TValue>.Default.Equals(Value, other.Value);
 
-		public static bool operator !=(Entry left, Entry right)
-		{
-			return !(left == right);
-		}
+		/// <summary>
+		/// Determines whether two entries are equal.
+		/// </summary>
+		/// <param name="left">The first entry to compare.</param>
+		/// <param name="right">The second entry to compare.</param>
+		/// <returns>true if the entries are equal; otherwise, false.</returns>
+		public static bool operator ==(Entry left, Entry right) => left.Equals(right);
+
+		/// <summary>
+		/// Determines whether two entries are not equal.
+		/// </summary>
+		/// <param name="left">The first entry to compare.</param>
+		/// <param name="right">The second entry to compare.</param>
+		/// <returns>true if the entries are not equal; otherwise, false.</returns>
+		public static bool operator !=(Entry left, Entry right) => !(left == right);
 	}
 
 	/// <summary>
@@ -412,10 +433,9 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// </summary>
 	/// <param name="item">The key-value pair to locate.</param>
 	/// <returns>true if the key-value pair is found; otherwise, false.</returns>
-	public bool Contains(KeyValuePair<TKey, TValue> item)
-	{
-		return keyToIndex.TryGetValue(item.Key, out int index) && EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value);
-	}
+	public bool Contains(KeyValuePair<TKey, TValue> item) =>
+		keyToIndex.TryGetValue(item.Key, out int index)
+		&& EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value);
 
 	/// <summary>
 	/// Copies the key-value pairs of the map to an array, starting at the specified array index.
@@ -444,12 +464,10 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// </summary>
 	/// <param name="item">The key-value pair to remove.</param>
 	/// <returns>true if the key-value pair was found and removed; otherwise, false.</returns>
-	public bool Remove(KeyValuePair<TKey, TValue> item)
-	{
-		return !keyToIndex.TryGetValue(item.Key, out int index)
-			? false
-			: EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value) && Remove(item.Key);
-	}
+	public bool Remove(KeyValuePair<TKey, TValue> item) =>
+		keyToIndex.TryGetValue(item.Key, out int index)
+		&& EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value)
+		&& Remove(item.Key);
 
 	/// <summary>
 	/// Returns an enumerator that iterates through the map.
@@ -528,6 +546,42 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// operations while preventing modifications.
 	/// </remarks>
 	public ReadOnlySpan<Entry> AsReadOnlySpan() => new(items, 0, Count);
+
+	/// <summary>
+	/// Gets a read-only span representing the keys in the map.
+	/// </summary>
+	/// <returns>A read-only span over the map's keys.</returns>
+	/// <remarks>
+	/// This method provides direct access to the keys from the contiguous memory, enabling high-performance
+	/// operations. The keys are extracted from the underlying Entry array.
+	/// </remarks>
+	public ReadOnlySpan<TKey> GetKeysSpan()
+	{
+		TKey[] keys = new TKey[Count];
+		for (int i = 0; i < Count; i++)
+		{
+			keys[i] = items[i].Key;
+		}
+		return keys.AsSpan();
+	}
+
+	/// <summary>
+	/// Gets a read-only span representing the values in the map.
+	/// </summary>
+	/// <returns>A read-only span over the map's values.</returns>
+	/// <remarks>
+	/// This method provides direct access to the values from the contiguous memory, enabling high-performance
+	/// operations. The values are extracted from the underlying Entry array.
+	/// </remarks>
+	public ReadOnlySpan<TValue> GetValuesSpan()
+	{
+		TValue[] values = new TValue[Count];
+		for (int i = 0; i < Count; i++)
+		{
+			values[i] = items[i].Value;
+		}
+		return values.AsSpan();
+	}
 
 	/// <summary>
 	/// Creates a shallow copy of the map.

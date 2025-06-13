@@ -78,7 +78,7 @@ public class ContiguousMapTests
 		map.Add(5, "five");
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentException>(() => map.Add(5, "another five"));
+		Assert.ThrowsExactly<ArgumentException>(() => map.Add(5, "another five"));
 	}
 
 	[TestMethod]
@@ -133,10 +133,11 @@ public class ContiguousMapTests
 		map.Add(1, "one");
 
 		// Act & Assert
-		Assert.ThrowsException<KeyNotFoundException>(() => map[2]);
+		Assert.ThrowsExactly<KeyNotFoundException>(() => map[2]);
 	}
 
 	[TestMethod]
+	[System.Diagnostics.CodeAnalysis.SuppressMessage("Major Bug", "S4143:Collection elements should not be replaced unconditionally", Justification = "<Pending>")]
 	public void Indexer_Set_UpdatesValue()
 	{
 		// Arrange

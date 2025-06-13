@@ -40,6 +40,11 @@ globs: *
 - Add parentheses for clarity in complex expressions.
 - Use `ArgumentOutOfRangeException.ThrowIfNegative()` instead of manually throwing a new `ArgumentOutOfRangeException` when validating arguments.
 - Use `ArgumentOutOfRangeException.ThrowIfNegativeOrEqual()` instead of manually throwing a new `ArgumentOutOfRangeException` when validating arguments.
+- Types that override `Equals` must implement `IEquatable<T>`.
+- When implementing `Equals` and `GetHashCode` methods in structs, ensure proper equality logic is used, including handling null values and using appropriate equality comparers.
+- When overriding `Equals`, implement the `IEquatable<T>` interface and add the strongly-typed `Equals(T)` method.
+- Ensure that the `GetHashCode()` method returns a proper hash code, using `HashCode.Combine()` for combining multiple values.
+- Add XML documentation for all public methods.
 
 ## TESTING
 - Write comprehensive unit tests for all code.
@@ -51,6 +56,11 @@ globs: *
 ## DEBUGGING
 - When encountering "The property 'Count' cannot be found on this object" errors in PowerShell scripts, wrap the variable in `@()` to ensure it's always treated as an array.
 - Ensure all error handling in `catch` blocks uses `$_` and not unset variables.
+- Methods that are not expected to throw exceptions must not throw exceptions. Address CA1065 errors by providing proper implementations for the methods instead of throwing `NotImplementedException`.
+- When implementing `Equals` and `GetHashCode` methods in structs, ensure proper equality logic is used, including handling null values and using appropriate equality comparers.
+- When overriding `Equals`, implement the `IEquatable<T>` interface and add the strongly-typed `Equals(T)` method.
+- Ensure that the `GetHashCode()` method returns a proper hash code, using `HashCode.Combine()` for combining multiple values.
+- Add XML documentation for all public methods.
 
 ## WORKFLOW & RELEASE RULES
 - Before each release, update the VERSION.md file.

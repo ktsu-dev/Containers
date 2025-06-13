@@ -44,7 +44,7 @@ public class ContiguousCollectionTests
 	public void Constructor_WithNegativeCapacity_ThrowsArgumentOutOfRangeException()
 	{
 		// Arrange, Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => new ContiguousCollection<int>(-1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new ContiguousCollection<int>(-1));
 	}
 
 	[TestMethod]
@@ -68,7 +68,7 @@ public class ContiguousCollectionTests
 	public void Constructor_WithNullCollection_ThrowsArgumentNullException()
 	{
 		// Arrange, Act & Assert
-		Assert.ThrowsException<ArgumentNullException>(() => new ContiguousCollection<int>(null!));
+		Assert.ThrowsExactly<ArgumentNullException>(() => new ContiguousCollection<int>(null!));
 	}
 
 	[TestMethod]
@@ -204,8 +204,8 @@ public class ContiguousCollectionTests
 		ContiguousCollection<int> collection = [.. new int[] { 1, 2, 3 }];
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection[-1]);
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection[3]);
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection[-1]);
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection[3]);
 	}
 
 	[TestMethod]
@@ -246,8 +246,8 @@ public class ContiguousCollectionTests
 		ContiguousCollection<int> collection = [.. new int[] { 1, 2, 3 }];
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.Insert(-1, 0));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.Insert(4, 0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.Insert(-1, 0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.Insert(4, 0));
 	}
 
 	[TestMethod]
@@ -305,8 +305,8 @@ public class ContiguousCollectionTests
 		ContiguousCollection<int> collection = [.. new int[] { 1, 2, 3 }];
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.RemoveAt(-1));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.RemoveAt(3));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.RemoveAt(-1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.RemoveAt(3));
 	}
 
 	[TestMethod]
@@ -327,7 +327,7 @@ public class ContiguousCollectionTests
 		Assert.AreEqual(2, array[4]);
 		Assert.AreEqual(0, array[5]); // Unchanged
 	}
-	private static readonly int[] expected = new int[] { 3, 1, 4, 2 };
+	private static readonly int[] expected = [3, 1, 4, 2];
 
 	[TestMethod]
 	public void GetEnumerator_IteratesInOrder()
@@ -403,10 +403,10 @@ public class ContiguousCollectionTests
 		ContiguousCollection<int> collection = [.. new int[] { 1, 2, 3 }];
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.GetRange(-1, 2));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.GetRange(4, 1));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.GetRange(1, -1));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.GetRange(1, 3));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.GetRange(-1, 2));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.GetRange(4, 1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.GetRange(1, -1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.GetRange(1, 3));
 	}
 
 	[TestMethod]

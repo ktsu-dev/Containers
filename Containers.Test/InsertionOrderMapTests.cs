@@ -77,7 +77,7 @@ public class InsertionOrderMapTests
 		map.Add(5, "five");
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentException>(() => map.Add(5, "another five"));
+		Assert.ThrowsExactly<ArgumentException>(() => map.Add(5, "another five"));
 	}
 
 	[TestMethod]
@@ -132,7 +132,7 @@ public class InsertionOrderMapTests
 		map.Add(1, "one");
 
 		// Act & Assert
-		Assert.ThrowsException<KeyNotFoundException>(() => map[2]);
+		Assert.ThrowsExactly<KeyNotFoundException>(() => map[2]);
 	}
 
 	[TestMethod]

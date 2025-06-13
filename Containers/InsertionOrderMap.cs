@@ -325,10 +325,7 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// </summary>
 	/// <param name="item">The key-value pair to locate.</param>
 	/// <returns>true if the key-value pair is found; otherwise, false.</returns>
-	public bool Contains(KeyValuePair<TKey, TValue> item)
-	{
-		return keyToIndex.TryGetValue(item.Key, out int index) && EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value);
-	}
+	public bool Contains(KeyValuePair<TKey, TValue> item) => keyToIndex.TryGetValue(item.Key, out int index) && EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value);
 
 	/// <summary>
 	/// Copies the key-value pairs of the map to an array, starting at the specified array index.
@@ -357,12 +354,7 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// </summary>
 	/// <param name="item">The key-value pair to remove.</param>
 	/// <returns>true if the key-value pair was found and removed; otherwise, false.</returns>
-	public bool Remove(KeyValuePair<TKey, TValue> item)
-	{
-		return !keyToIndex.TryGetValue(item.Key, out int index)
-			? false
-			: EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value) && Remove(item.Key);
-	}
+	public bool Remove(KeyValuePair<TKey, TValue> item) => keyToIndex.TryGetValue(item.Key, out int index) && EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value) && Remove(item.Key);
 
 	/// <summary>
 	/// Returns an enumerator that iterates through the map in insertion order.

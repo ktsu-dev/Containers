@@ -34,7 +34,7 @@ public class InsertionOrderCollectionTests
 	public void Constructor_WithNegativeCapacity_ThrowsArgumentOutOfRangeException()
 	{
 		// Arrange, Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => new InsertionOrderCollection<int>(-1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new InsertionOrderCollection<int>(-1));
 	}
 
 	[TestMethod]
@@ -62,7 +62,7 @@ public class InsertionOrderCollectionTests
 	public void Constructor_WithNullCollection_ThrowsArgumentNullException()
 	{
 		// Arrange, Act & Assert
-		Assert.ThrowsException<ArgumentNullException>(() => new InsertionOrderCollection<int>(null!));
+		Assert.ThrowsExactly<ArgumentNullException>(() => new InsertionOrderCollection<int>(null!));
 	}
 
 	[TestMethod]
@@ -194,7 +194,7 @@ public class InsertionOrderCollectionTests
 		InsertionOrderCollection<int> collection = [.. new int[] { 1, 2, 3 }];
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentNullException>(() => collection.CopyTo(null!, 0));
+		Assert.ThrowsExactly<ArgumentNullException>(() => collection.CopyTo(null!, 0));
 	}
 
 	[TestMethod]
@@ -205,7 +205,7 @@ public class InsertionOrderCollectionTests
 		int[] array = new int[5];
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.CopyTo(array, -1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.CopyTo(array, -1));
 	}
 
 	[TestMethod]
@@ -216,7 +216,7 @@ public class InsertionOrderCollectionTests
 		int[] array = new int[3];
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.CopyTo(array, 0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.CopyTo(array, 0));
 	}
 
 	[TestMethod]
@@ -274,8 +274,8 @@ public class InsertionOrderCollectionTests
 		InsertionOrderCollection<int> collection = [.. new int[] { 1, 2, 3 }];
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.RemoveAt(-1));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.RemoveAt(3));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.RemoveAt(-1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.RemoveAt(3));
 	}
 
 	[TestMethod]
@@ -298,8 +298,8 @@ public class InsertionOrderCollectionTests
 		InsertionOrderCollection<int> collection = [.. new int[] { 1, 2, 3 }];
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection[-1]);
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection[3]);
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection[-1]);
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection[3]);
 	}
 
 	[TestMethod]
@@ -324,7 +324,7 @@ public class InsertionOrderCollectionTests
 		// Act & Assert
 		Assert.AreEqual(-1, collection.IndexOf(5));
 	}
-	private static readonly int[] expected = new int[] { 3, 1, 4, 2 };
+	private static readonly int[] expected = [3, 1, 4, 2];
 
 	[TestMethod]
 	public void GetEnumerator_IteratesInInsertionOrder()
@@ -388,8 +388,8 @@ public class InsertionOrderCollectionTests
 		InsertionOrderCollection<int> collection = [.. new int[] { 1, 2, 3 }];
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.GetRange(-1, 2));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.GetRange(4, 1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.GetRange(-1, 2));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.GetRange(4, 1));
 	}
 
 	[TestMethod]
@@ -399,8 +399,8 @@ public class InsertionOrderCollectionTests
 		InsertionOrderCollection<int> collection = [.. new int[] { 1, 2, 3 }];
 
 		// Act & Assert
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.GetRange(1, -1));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => collection.GetRange(1, 3));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.GetRange(1, -1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.GetRange(1, 3));
 	}
 
 	[TestMethod]

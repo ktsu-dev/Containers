@@ -61,35 +61,31 @@ public class OrderedSetTests
 
 		Assert.AreEqual(3, set.Count); // "apple" and "Apple" are treated as same
 		string[] expected = ["apple", "BANANA", "cherry"];
-		CollectionAssert.AreEqual(expected, [.. set]);
+		CollectionAssert.AreEqual(expected, set.ToArray());
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentException))]
 	public void Constructor_NonComparableTypeWithoutComparer_ThrowsArgumentException()
 	{
-		_ = new OrderedSet<object>();
+		Assert.ThrowsExactly<ArgumentException>(() => _ = new OrderedSet<object>());
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentNullException))]
 	public void Constructor_NullComparer_ThrowsArgumentNullException()
 	{
-		_ = new OrderedSet<int>(null!);
+		Assert.ThrowsExactly<ArgumentNullException>(() => _ = new OrderedSet<int>((IComparer<int>)null!));
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentOutOfRangeException))]
 	public void Constructor_NegativeCapacity_ThrowsArgumentOutOfRangeException()
 	{
-		_ = new OrderedSet<int>(-1);
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => _ = new OrderedSet<int>(-1));
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentNullException))]
 	public void Constructor_NullCollection_ThrowsArgumentNullException()
 	{
-		_ = new OrderedSet<int>((IEnumerable<int>)null!);
+		Assert.ThrowsExactly<ArgumentNullException>(() => _ = new OrderedSet<int>((IEnumerable<int>)null!));
 	}
 
 	[TestMethod]
@@ -181,33 +177,30 @@ public class OrderedSetTests
 		set.CopyTo(array, 0);
 
 		int[] expected = [1, 3, 4, 5, 0]; // Note: only 4 unique elements
-		CollectionAssert.AreEqual([1, 3, 4, 5], array[0..4]);
+		CollectionAssert.AreEqual(expected, array[0..4]);
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentNullException))]
 	public void CopyTo_NullArray_ThrowsArgumentNullException()
 	{
 		OrderedSet<int> set = new([1, 2, 3]);
-		set.CopyTo(null!, 0);
+		Assert.ThrowsExactly<ArgumentNullException>(() => set.CopyTo(null!, 0));
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentOutOfRangeException))]
 	public void CopyTo_NegativeArrayIndex_ThrowsArgumentOutOfRangeException()
 	{
 		OrderedSet<int> set = new([1, 2, 3]);
 		int[] array = new int[5];
-		set.CopyTo(array, -1);
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => set.CopyTo(array, -1));
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentException))]
 	public void CopyTo_InsufficientSpace_ThrowsArgumentException()
 	{
 		OrderedSet<int> set = new([1, 2, 3]);
 		int[] array = new int[2];
-		set.CopyTo(array, 0);
+		Assert.ThrowsExactly<ArgumentException>(() => set.CopyTo(array, 0));
 	}
 
 	[TestMethod]
@@ -331,11 +324,10 @@ public class OrderedSetTests
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentNullException))]
 	public void UnionWith_NullCollection_ThrowsArgumentNullException()
 	{
 		OrderedSet<int> set = new([1, 2, 3]);
-		set.UnionWith(null!);
+		Assert.ThrowsExactly<ArgumentNullException>(() => set.UnionWith(null!));
 	}
 
 	[TestMethod]
@@ -363,11 +355,10 @@ public class OrderedSetTests
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentNullException))]
 	public void IntersectWith_NullCollection_ThrowsArgumentNullException()
 	{
 		OrderedSet<int> set = new([1, 2, 3]);
-		set.IntersectWith(null!);
+		Assert.ThrowsExactly<ArgumentNullException>(() => set.IntersectWith(null!));
 	}
 
 	[TestMethod]
@@ -384,11 +375,10 @@ public class OrderedSetTests
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentNullException))]
 	public void ExceptWith_NullCollection_ThrowsArgumentNullException()
 	{
 		OrderedSet<int> set = new([1, 2, 3]);
-		set.ExceptWith(null!);
+		Assert.ThrowsExactly<ArgumentNullException>(() => set.ExceptWith(null!));
 	}
 
 	[TestMethod]
@@ -405,11 +395,10 @@ public class OrderedSetTests
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentNullException))]
 	public void SymmetricExceptWith_NullCollection_ThrowsArgumentNullException()
 	{
 		OrderedSet<int> set = new([1, 2, 3]);
-		set.SymmetricExceptWith(null!);
+		Assert.ThrowsExactly<ArgumentNullException>(() => set.SymmetricExceptWith(null!));
 	}
 
 	[TestMethod]
@@ -440,11 +429,10 @@ public class OrderedSetTests
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentNullException))]
 	public void IsSubsetOf_NullCollection_ThrowsArgumentNullException()
 	{
 		OrderedSet<int> set = new([1, 2, 3]);
-		set.IsSubsetOf(null!);
+		Assert.ThrowsExactly<ArgumentNullException>(() => set.IsSubsetOf(null!));
 	}
 
 	[TestMethod]
@@ -466,11 +454,10 @@ public class OrderedSetTests
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentNullException))]
 	public void IsSupersetOf_NullCollection_ThrowsArgumentNullException()
 	{
 		OrderedSet<int> set = new([1, 2, 3]);
-		set.IsSupersetOf(null!);
+		Assert.ThrowsExactly<ArgumentNullException>(() => set.IsSupersetOf(null!));
 	}
 
 	[TestMethod]
@@ -492,11 +479,10 @@ public class OrderedSetTests
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentNullException))]
 	public void IsProperSubsetOf_NullCollection_ThrowsArgumentNullException()
 	{
 		OrderedSet<int> set = new([1, 2, 3]);
-		set.IsProperSubsetOf(null!);
+		Assert.ThrowsExactly<ArgumentNullException>(() => set.IsProperSubsetOf(null!));
 	}
 
 	[TestMethod]
@@ -518,11 +504,10 @@ public class OrderedSetTests
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentNullException))]
 	public void IsProperSupersetOf_NullCollection_ThrowsArgumentNullException()
 	{
 		OrderedSet<int> set = new([1, 2, 3]);
-		set.IsProperSupersetOf(null!);
+		Assert.ThrowsExactly<ArgumentNullException>(() => set.IsProperSupersetOf(null!));
 	}
 
 	[TestMethod]
@@ -544,11 +529,10 @@ public class OrderedSetTests
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentNullException))]
 	public void Overlaps_NullCollection_ThrowsArgumentNullException()
 	{
 		OrderedSet<int> set = new([1, 2, 3]);
-		set.Overlaps(null!);
+		Assert.ThrowsExactly<ArgumentNullException>(() => set.Overlaps(null!));
 	}
 
 	[TestMethod]
@@ -579,11 +563,10 @@ public class OrderedSetTests
 	}
 
 	[TestMethod]
-	[ExpectedException(typeof(ArgumentNullException))]
 	public void SetEquals_NullCollection_ThrowsArgumentNullException()
 	{
 		OrderedSet<int> set = new([1, 2, 3]);
-		set.SetEquals(null!);
+		Assert.ThrowsExactly<ArgumentNullException>(() => set.SetEquals(null!));
 	}
 
 	[TestMethod]

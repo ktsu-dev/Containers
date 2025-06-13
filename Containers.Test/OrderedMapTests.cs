@@ -65,7 +65,7 @@ public class OrderedMapTests
 			[2] = "two"
 		};
 
-		OrderedMap<int, string> map = new(dictionary);
+		OrderedMap<int, string> map = [.. dictionary];
 
 		Assert.AreEqual(3, map.Count);
 		int[] expectedKeys = [1, 2, 3];
@@ -104,7 +104,7 @@ public class OrderedMapTests
 			{ 1, "one" }
 		};
 
-		Assert.ThrowsException<ArgumentException>(() => map.Add(1, "another one"));
+		Assert.ThrowsExactly<ArgumentException>(() => map.Add(1, "another one"));
 	}
 
 	/// <summary>
@@ -115,7 +115,7 @@ public class OrderedMapTests
 	{
 		OrderedMap<string, int> map = [];
 
-		Assert.ThrowsException<ArgumentNullException>(() => map.Add(null!, 1));
+		Assert.ThrowsExactly<ArgumentNullException>(() => map.Add(null!, 1));
 	}
 
 	/// <summary>
@@ -142,7 +142,7 @@ public class OrderedMapTests
 	{
 		OrderedMap<int, string> map = [];
 
-		Assert.ThrowsException<KeyNotFoundException>(() => _ = map[1]);
+		Assert.ThrowsExactly<KeyNotFoundException>(() => _ = map[1]);
 	}
 
 	/// <summary>
@@ -445,9 +445,9 @@ public class OrderedMapTests
 		};
 
 		Assert.IsTrue(map.Keys.IsReadOnly);
-		Assert.ThrowsException<NotSupportedException>(() => map.Keys.Add(2));
-		Assert.ThrowsException<NotSupportedException>(() => map.Keys.Remove(1));
-		Assert.ThrowsException<NotSupportedException>(map.Keys.Clear);
+		Assert.ThrowsExactly<NotSupportedException>(() => map.Keys.Add(2));
+		Assert.ThrowsExactly<NotSupportedException>(() => map.Keys.Remove(1));
+		Assert.ThrowsExactly<NotSupportedException>(map.Keys.Clear);
 	}
 
 	/// <summary>
@@ -462,9 +462,9 @@ public class OrderedMapTests
 		};
 
 		Assert.IsTrue(map.Values.IsReadOnly);
-		Assert.ThrowsException<NotSupportedException>(() => map.Values.Add("two"));
-		Assert.ThrowsException<NotSupportedException>(() => map.Values.Remove("one"));
-		Assert.ThrowsException<NotSupportedException>(map.Values.Clear);
+		Assert.ThrowsExactly<NotSupportedException>(() => map.Values.Add("two"));
+		Assert.ThrowsExactly<NotSupportedException>(() => map.Values.Remove("one"));
+		Assert.ThrowsExactly<NotSupportedException>(map.Values.Clear);
 	}
 
 	/// <summary>
@@ -473,7 +473,7 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Constructor_NonComparableType_ThrowsArgumentException()
 	{
-		Assert.ThrowsException<ArgumentException>(() => new OrderedMap<object, string>());
+		Assert.ThrowsExactly<ArgumentException>(() => new OrderedMap<object, string>());
 	}
 
 	/// <summary>
@@ -482,7 +482,7 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Constructor_NullComparer_ThrowsArgumentNullException()
 	{
-		Assert.ThrowsException<ArgumentNullException>(() => new OrderedMap<int, string>((IComparer<int>)null!));
+		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedMap<int, string>((IComparer<int>)null!));
 	}
 
 	/// <summary>
@@ -491,7 +491,7 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Constructor_NegativeCapacity_ThrowsArgumentOutOfRangeException()
 	{
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => new OrderedMap<int, string>(-1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new OrderedMap<int, string>(-1));
 	}
 
 	/// <summary>
@@ -500,7 +500,7 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Constructor_NullDictionary_ThrowsArgumentNullException()
 	{
-		Assert.ThrowsException<ArgumentNullException>(() => new OrderedMap<int, string>((IDictionary<int, string>)null!));
+		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedMap<int, string>((IDictionary<int, string>)null!));
 	}
 
 	/// <summary>

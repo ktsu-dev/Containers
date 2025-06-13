@@ -365,7 +365,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	{
 		ArgumentOutOfRangeException.ThrowIfNegative(startIndex);
 		ArgumentOutOfRangeException.ThrowIfNegative(count);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(startIndex + count, this.Count);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(startIndex + count, Count);
 
 		ContiguousCollection<T> result = new(count);
 		Array.Copy(items, startIndex, result.items, 0, count);

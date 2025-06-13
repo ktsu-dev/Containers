@@ -11,10 +11,10 @@ public class RingBufferTests
 	public void Constructor_InitializesCorrectly()
 	{
 		RingBuffer<int> buffer = new(4);
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => buffer.At(0));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => buffer.At(1));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => buffer.At(2));
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => buffer.At(3));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => buffer.At(0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => buffer.At(1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => buffer.At(2));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => buffer.At(3));
 	}
 
 	[TestMethod]
@@ -115,8 +115,8 @@ public class RingBufferTests
 	public void EmptyBuffer_ThrowsOnFrontAndBack()
 	{
 		RingBuffer<int> buffer = new(3);
-		Assert.ThrowsException<InvalidOperationException>(() => buffer.Front());
-		Assert.ThrowsException<InvalidOperationException>(() => buffer.Back());
+		Assert.ThrowsExactly<InvalidOperationException>(() => buffer.Front());
+		Assert.ThrowsExactly<InvalidOperationException>(() => buffer.Back());
 	}
 
 	[TestMethod]
@@ -196,7 +196,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void EnumerableConstructor_WithNullItems_ThrowsArgumentNullException()
 	{
-		Assert.ThrowsException<ArgumentNullException>(() => new RingBuffer<int>(null!, 3));
+		Assert.ThrowsExactly<ArgumentNullException>(() => new RingBuffer<int>(null!, 3));
 	}
 
 	[TestMethod]
@@ -243,9 +243,9 @@ public class RingBufferTests
 		Assert.AreEqual(3, buffer.Count);
 		buffer.Clear();
 		Assert.AreEqual(0, buffer.Count);
-		Assert.ThrowsException<ArgumentOutOfRangeException>(() => buffer.At(0));
-		Assert.ThrowsException<InvalidOperationException>(() => buffer.Front());
-		Assert.ThrowsException<InvalidOperationException>(() => buffer.Back());
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => buffer.At(0));
+		Assert.ThrowsExactly<InvalidOperationException>(() => buffer.Front());
+		Assert.ThrowsExactly<InvalidOperationException>(() => buffer.Back());
 	}
 
 	[TestMethod]

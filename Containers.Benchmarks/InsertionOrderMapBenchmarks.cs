@@ -105,12 +105,9 @@ public class InsertionOrderMapBenchmarks
 		}
 
 		int found = 0;
-		foreach (int key in searchKeys)
+		foreach (int key in searchKeys.Where(map.ContainsKey))
 		{
-			if (map.ContainsKey(key))
-			{
-				found++;
-			}
+			found++;
 		}
 		return found;
 	}
@@ -128,12 +125,9 @@ public class InsertionOrderMapBenchmarks
 		}
 
 		int found = 0;
-		foreach (int key in searchKeys)
+		foreach (int key in searchKeys.Where(dict.ContainsKey))
 		{
-			if (dict.ContainsKey(key))
-			{
-				found++;
-			}
+			found++;
 		}
 		return found;
 	}
@@ -151,12 +145,9 @@ public class InsertionOrderMapBenchmarks
 		}
 
 		int found = 0;
-		foreach (int key in searchKeys)
+		foreach (int key in searchKeys.Where(sortedDict.ContainsKey))
 		{
-			if (sortedDict.ContainsKey(key))
-			{
-				found++;
-			}
+			found++;
 		}
 		return found;
 	}

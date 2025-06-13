@@ -50,7 +50,7 @@ public class ContiguousSetTests
 	public void Constructor_WithNullCollection_ThrowsArgumentNullException()
 	{
 		// Arrange, Act & Assert
-		Assert.ThrowsException<ArgumentNullException>(() => new ContiguousSet<int>((IEnumerable<int>)null!));
+		Assert.ThrowsExactly<ArgumentNullException>(() => new ContiguousSet<int>((IEnumerable<int>)null!));
 	}
 
 	[TestMethod]
