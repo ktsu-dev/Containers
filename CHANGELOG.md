@@ -2,6 +2,7 @@
 
 Changes since v1.0.2:
 
+- Enhance ktsu.Containers with new benchmarks and tests ([@matt-edmondson](https://github.com/matt-edmondson))
 - Add new collection types and update documentation ([@matt-edmondson](https://github.com/matt-edmondson))
 - Refactor RingBuffer to improve efficiency and documentation ([@matt-edmondson](https://github.com/matt-edmondson))
 - Add OrderedMap and its benchmarks to ktsu.Containers ([@matt-edmondson](https://github.com/matt-edmondson))
