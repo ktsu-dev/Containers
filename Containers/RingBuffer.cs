@@ -6,6 +6,7 @@ namespace ktsu.Containers;
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 /// <summary>
 /// Represents a fixed-size circular buffer (ring buffer) for storing elements of type <typeparamref name="T"/>.
@@ -88,13 +89,15 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 		ArgumentNullException.ThrowIfNull(items);
 
 		// Buffer only the last 'length' items if overfilled
-		Queue<T> queue = new(items); //TODO: should this be an array and then do a skip().Enumerate() instead?
-		while (queue.Count > length)
+		// Convert to array for efficient access and use Skip() to take only the last 'length' items
+		T[] itemsArray = [.. items];
+		if (itemsArray.Length > length)
 		{
-			queue.Dequeue();
+			// Take only the last 'length' items
+			itemsArray = [.. itemsArray.Skip(itemsArray.Length - length)];
 		}
 
-		foreach (T item in queue)
+		foreach (T item in itemsArray)
 		{
 			PushBack(item);
 		}
@@ -133,6 +136,11 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 	/// <remarks>
 	/// This operation has O(1) time complexity. When the buffer reaches its capacity,
 	/// the oldest element is overwritten, and the front index is adjusted accordingly.
+	///
+	/// The wrapping logic uses bitwise AND with (Capacity - 1) which is equivalent to modulo
+	/// operation when Capacity is a power of two. This is much faster than using the % operator.
+	/// For example, if Capacity = 8 (binary 1000), then (Capacity - 1) = 7 (binary 0111).
+	/// Any index &amp; 0111 will wrap values 0-7 back to 0-7, effectively implementing wraparound.
 	/// </remarks>
 	/// <param name="o">The element to add.</param>
 	public void PushBack(T o)
@@ -140,14 +148,16 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 		Buffer[BackIndex] = o;
 		if (Count == Length)
 		{
-			FrontIndex = (FrontIndex + 1) & (Capacity - 1); // TODO: document the wrapping logic
+			// Advance front index with wraparound using bitwise AND for efficiency
+			FrontIndex = (FrontIndex + 1) & (Capacity - 1);
 		}
 		else
 		{
 			Count++;
 		}
 
-		BackIndex = (BackIndex + 1) & (Capacity - 1); // TODO: document the wrapping logic
+		// Advance back index with wraparound using bitwise AND for efficiency
+		BackIndex = (BackIndex + 1) & (Capacity - 1);
 	}
 
 	/// <summary>
@@ -162,7 +172,8 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 			throw new ArgumentOutOfRangeException(nameof(index));
 		}
 
-		int idx = (FrontIndex + index) & (Capacity - 1); // TODO: document the wrapping logic
+		// Calculate actual buffer index with wraparound using bitwise AND for efficiency
+		int idx = (FrontIndex + index) & (Capacity - 1);
 		return Buffer[idx];
 	}
 
@@ -176,7 +187,7 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 	/// Gets the element at the back of the buffer (the most recently added element).
 	/// </summary>
 	/// <returns>The back element.</returns>
-	public T Back() => Count == 0 ? throw new InvalidOperationException("Buffer is empty") : Buffer[(BackIndex - 1 + Capacity) & (Capacity - 1)]; // TODO: document the wrapping logic
+	public T Back() => Count == 0 ? throw new InvalidOperationException("Buffer is empty") : Buffer[(BackIndex - 1 + Capacity) & (Capacity - 1)]; // Calculate previous index with wraparound using bitwise AND for efficiency
 
 	/// <summary>
 	/// Calculates the next power of two greater than or equal to the specified value.
