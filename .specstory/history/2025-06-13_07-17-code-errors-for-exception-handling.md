@@ -1163,7 +1163,170 @@ Read file: Containers.Benchmarks/ContiguousSetBenchmarks.cs
 
 ---
 
-I can see the issues! The problem is on lines 289 and 290 (which shoul
+I can see the issues! The problem is on lines 289 and 290 (which should be around the `ContiguousSet_SetOperations` method) where there are incorrect range operations. Looking at the code:
+
+1. Line 289: `testData[..ElementCount / 2]` - This is trying to divide a Range by an int
+2. Line 290: `testData[ElementCount / 4..]` - This has a similar issue
+
+The problem is that these lines are trying to use range syntax incorrectly. Let me fix these:
+
+---
+
+
+
+---
+
+I see there are still errors at lines 308-309. Let me check the `HashSet_SetOperations` method as well:
+
+---
+
+
+
+---
+
+I see we're getting style warnings about collection initialization. Let me run a build to check if the compilation errors are fixed first:
+
+---
+
+```bash
+dotnet build Containers.Benchmarks/Containers.Benchmarks.csproj --configuration Debug
+```
+
+```
+
+Restore complete (1.2s)
+  Containers succeeded (0.4s) → Containers\bin\Debug\net9.0\ktsu.Containers.dll
+  Containers.Benchmarks                                     TranslateAzureReposGitUrlsInSourceControlInformation (0.6s)
+```
+
+---
+
+Good! The compilation errors are fixed. Now let me run the full build to see if there are only style warnings left:
+
+---
+
+```bash
+dotnet build --configuration Debug --verbosity minimal
+```
+
+```
+  Containers.Benchmarks                                                                _CopyFilesMarkedCopyLocal (8.1s)
+
+
+
+  Containers.Benchmarks succeeded (9.8s) → Containers.Benchmarks\bin\Debug\net9.0\Containers.Benchmarks.dll
+
+Build succeeded in 13.1s
+
+C:\dev\ktsu-dev\Containers>q^D^C
+'q' is not recognized as an internal or external command,
+operable program or batch file.
+
+C:\dev\ktsu-dev\Containers>dotnet build --configuration Debug --verbosity minimal
+Restore complete (2.4s)
+  Containers succeeded (1.0s) → Containers\bin\Debug\net9.0\ktsu.Containers.dll
+  Containers.Benchmarks succeeded (0.3s) → Containers.Benchmarks\bin\Debug\net9.0\Containers.Benchmarks.dll
+  Containers.Test succeeded (0.4s) → Containers.Test\bin\Debug\net9.0\ktsu.Containers.Test.dll
+
+Build succeeded in 5.3s
+
+C:\dev\ktsu-dev\Containers>
+```
+
+---
+
+Perfect! 🎉 The build is now successful. Let me also run the tests to make sure everything is still working:
+
+---
+
+```bash
+dotnet test --configuration Debug --verbosity minimal
+```
+
+```
+
+Restore complete (2.3s)
+  Containers succeeded (0.7s) → Containers\bin\Debug\net9.0\ktsu.Containers.dll
+  Containers.Test succeeded (0.4s) → Containers.Test\bin\Debug\net9.0\ktsu.Containers.Test.dll
+  Containers.Test test succeeded (2.4s)
+
+Test summary: total: 328, failed: 0, succeeded: 328, skipped: 0, duration: 1.9s
+Build succeeded in 7.1s
+```
+
+---
+
+
+
+---
+
+Excellent! ✅ All issues have been successfully resolved.
+
+## Summary of Fixed Benchmark Compilation Errors
+
+I fixed the 6 compilation errors in `Containers.Benchmarks/ContiguousSetBenchmarks.cs`:
+
+### **Problem**: Incorrect Range Syntax with Division Operators
+
+The issues were on lines 289, 290, 308, and 309 where range operators (`..`) were incorrectly combined with division operations:
+
+**❌ Before (Incorrect):**
+```csharp
+// Lines 289-290 in ContiguousSet_SetOperations method
+ContiguousSet<int> set1 = new(testData[..ElementCount / 2]);
+ContiguousSet<int> set2 = new(testData[ElementCount / 4..]);
+
+// Lines 308-309 in HashSet_SetOperations method  
+HashSet<int> set1 = [.. testData[..ElementCount / 2]];
+HashSet<int> set2 = [.. testData[ElementCount / 4..]];
+```
+
+**✅ After (Fixed):**
+```csharp
+// Proper parentheses to ensure correct order of operations
+ContiguousSet<int> set1 = new(testData[..(ElementCount / 2)]);
+ContiguousSet<int> set2 = new(testData[(ElementCount / 4)..]];
+
+HashSet<int> set1 = [.. testData[..(ElementCount / 2)]];
+HashSet<int> set2 = [.. testData[(ElementCount / 4)..]];
+```
+
+### **Root Cause**: 
+The compiler was trying to apply division operators to `Range` types instead of the integer values. The fix was to add parentheses to ensure the arithmetic operations (`ElementCount / 2` and `ElementCount / 4`) are evaluated first, then used as range boundaries.
+
+### **Final Status**:
+✅ **All projects build successfully**  
+✅ **All 328 tests pass**  
+✅ **No compilation errors remaining**  
+✅ **Benchmarks project compiles correctly**
+
+The codebase is now fully functional with working benchmarks ready for performance testing!
+
+---
+
+_**User**_
+
+Unable to fix IDE0052. No associated code fix found.
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+I'll help you find and fix the IDE0052 error, which indicates there are unread private members (unused private fields, properties, or methods) in the codebase. Let me search for potential unused private members.
+
+---
+
+```bash
+dotnet build --configuration Debug --verbosity normal 2>&1 | findstr "IDE0052"
+```
+
+---
+
+
 
 ---
 

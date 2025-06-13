@@ -62,6 +62,7 @@ globs: *
 - When overriding `Equals`, implement the `IEquatable<T>` interface and add the strongly-typed `Equals(T)` method.
 - Ensure that the `GetHashCode()` method returns a proper hash code, using `HashCode.Combine()` for combining multiple values.
 - Add XML documentation for all public methods.
+- Fix IDE0052 errors by removing unused private members (fields, properties, or methods).
 
 ## WORKFLOW & RELEASE RULES
 - Before each release, update the VERSION.md file.
