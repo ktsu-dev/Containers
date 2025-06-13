@@ -12,11 +12,11 @@ using System.Diagnostics.CodeAnalysis;
 /// </summary>
 /// <remarks>
 /// A ring buffer is a data structure that uses a single, fixed-size buffer as if it were connected end-to-end.
-/// This implementation uses a power-of-two size to optimize the modulo operations needed for wraparound, 
+/// This implementation uses a power-of-two size to optimize the modulo operations needed for wraparound,
 /// replacing division with more efficient bitwise operations.
-/// 
+///
 /// When the buffer reaches its capacity, adding more elements will overwrite the oldest elements.
-/// 
+///
 /// This implementation supports:
 /// <list type="bullet">
 ///   <item>Accessing elements by index, front, or back</item>
@@ -88,13 +88,13 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 		ArgumentNullException.ThrowIfNull(items);
 
 		// Buffer only the last 'length' items if overfilled
-		var queue = new Queue<T>(items);
+		Queue<T> queue = new(items); //TODO: should this be an array and then do a skip().Enumerate() instead?
 		while (queue.Count > length)
 		{
 			queue.Dequeue();
 		}
 
-		foreach (var item in queue)
+		foreach (T item in queue)
 		{
 			PushBack(item);
 		}
@@ -107,7 +107,7 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 	/// <param name="length">The number of elements the buffer should store.</param>
 	public RingBuffer(T value, int length) : this(length)
 	{
-		for (var i = 0; i < length; i++)
+		for (int i = 0; i < length; i++)
 		{
 			PushBack(value);
 		}
@@ -140,14 +140,14 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 		Buffer[BackIndex] = o;
 		if (Count == Length)
 		{
-			FrontIndex = (FrontIndex + 1) & (Capacity - 1); // Overwrite oldest
+			FrontIndex = (FrontIndex + 1) & (Capacity - 1); // TODO: document the wrapping logic
 		}
 		else
 		{
 			Count++;
 		}
 
-		BackIndex = (BackIndex + 1) & (Capacity - 1);
+		BackIndex = (BackIndex + 1) & (Capacity - 1); // TODO: document the wrapping logic
 	}
 
 	/// <summary>
@@ -162,7 +162,7 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 			throw new ArgumentOutOfRangeException(nameof(index));
 		}
 
-		var idx = (FrontIndex + index) & (Capacity - 1);
+		int idx = (FrontIndex + index) & (Capacity - 1); // TODO: document the wrapping logic
 		return Buffer[idx];
 	}
 
@@ -176,7 +176,7 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 	/// Gets the element at the back of the buffer (the most recently added element).
 	/// </summary>
 	/// <returns>The back element.</returns>
-	public T Back() => Count == 0 ? throw new InvalidOperationException("Buffer is empty") : Buffer[(BackIndex - 1 + Capacity) & (Capacity - 1)];
+	public T Back() => Count == 0 ? throw new InvalidOperationException("Buffer is empty") : Buffer[(BackIndex - 1 + Capacity) & (Capacity - 1)]; // TODO: document the wrapping logic
 
 	/// <summary>
 	/// Calculates the next power of two greater than or equal to the specified value.
@@ -205,10 +205,10 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 	/// Resamples the buffer to a new length, interpolating or decimating the contents as needed.
 	/// </summary>
 	/// <remarks>
-	/// The resampling process preserves the data pattern by applying simple linear interpolation. 
+	/// The resampling process preserves the data pattern by applying simple linear interpolation.
 	/// If the new length is smaller than the old length, data is decimated (some values are dropped).
 	/// If the new length is larger, data is interpolated (new values are created between existing ones).
-	/// 
+	///
 	/// This is useful when you need to change the buffer size while preserving the overall pattern of the data.
 	/// For example, resampling time-series data when changing the sampling rate.
 	///
@@ -217,23 +217,36 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 	/// <param name="length">The new length of the buffer.</param>
 	public void Resample(int length)
 	{
-		var oldBuffer = new T[Count];
-		for (var i = 0; i < Count; i++)
+		// Save the current count of valid elements
+		int oldCount = Count;
+
+		// Create a temporary array to store the current valid elements
+		T[] oldData = new T[oldCount];
+		for (int i = 0; i < oldCount; i++)
 		{
-			oldBuffer[i] = At(i);
+			oldData[i] = At(i);
 		}
 
+		// Allocate new buffer with the new length
 		AllocateBuffer(length);
 
-		if (oldBuffer.Length == 0)
+		// If there were no elements in the old buffer, we're done
+		if (oldCount == 0)
 		{
 			return;
 		}
 
-		for (var i = 0; i < Length; i++)
+		// Resample the data into the new buffer
+		for (int i = 0; i < length; i++)
 		{
-			var oldIndex = (int)Math.Round(i * (oldBuffer.Length - 1) / (double)Math.Max(Length - 1, 1));
-			PushBack(oldBuffer[oldIndex]);
+			// Map the new index to the old data range
+			double oldIndex = i * (oldCount - 1) / (double)Math.Max(length - 1, 1);
+			int index = (int)Math.Round(oldIndex);
+
+			// Ensure we don't go out of bounds
+			index = Math.Min(index, oldCount - 1);
+
+			PushBack(oldData[index]);
 		}
 	}
 
@@ -243,7 +256,7 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 	/// <returns>An enumerator for the buffer.</returns>
 	public IEnumerator<T> GetEnumerator()
 	{
-		for (var i = 0; i < Count; i++)
+		for (int i = 0; i < Count; i++)
 		{
 			yield return At(i);
 		}

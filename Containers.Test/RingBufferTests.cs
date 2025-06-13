@@ -10,7 +10,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void Constructor_InitializesCorrectly()
 	{
-		var buffer = new RingBuffer<int>(4);
+		RingBuffer<int> buffer = new(4);
 		Assert.ThrowsException<ArgumentOutOfRangeException>(() => buffer.At(0));
 		Assert.ThrowsException<ArgumentOutOfRangeException>(() => buffer.At(1));
 		Assert.ThrowsException<ArgumentOutOfRangeException>(() => buffer.At(2));
@@ -20,7 +20,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void PushBack_OverwritesOldestElement()
 	{
-		var buffer = new RingBuffer<int>(3);
+		RingBuffer<int> buffer = new(3);
 		buffer.PushBack(1);
 		buffer.PushBack(2);
 		buffer.PushBack(3);
@@ -33,7 +33,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void FrontAndBack_ReturnCorrectElements()
 	{
-		var buffer = new RingBuffer<int>(3);
+		RingBuffer<int> buffer = new(3);
 		buffer.PushBack(10);
 		buffer.PushBack(20);
 		buffer.PushBack(30);
@@ -47,7 +47,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void Resize_ResetsBuffer()
 	{
-		var buffer = new RingBuffer<int>(3);
+		RingBuffer<int> buffer = new(3);
 		buffer.PushBack(1);
 		buffer.PushBack(2);
 		buffer.Resize(2);
@@ -60,7 +60,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void Resample_InterpolatesOrDecimates()
 	{
-		var buffer = new RingBuffer<int>(4);
+		RingBuffer<int> buffer = new(4);
 		buffer.PushBack(1);
 		buffer.PushBack(2);
 		buffer.PushBack(3);
@@ -76,7 +76,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void PrefillConstructor_FillsBufferCorrectly()
 	{
-		var buffer = new RingBuffer<int>([1, 2, 3], 3);
+		RingBuffer<int> buffer = new([1, 2, 3], 3);
 		Assert.AreEqual(1, buffer.At(0));
 		Assert.AreEqual(2, buffer.At(1));
 		Assert.AreEqual(3, buffer.At(2));
@@ -85,7 +85,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void PrefillConstructor_OverwritesOldestWhenOverfilled()
 	{
-		var buffer = new RingBuffer<int>([1, 2, 3, 4, 5], 3);
+		RingBuffer<int> buffer = new([1, 2, 3, 4, 5], 3);
 		Assert.AreEqual(3, buffer.At(0));
 		Assert.AreEqual(4, buffer.At(1));
 		Assert.AreEqual(5, buffer.At(2));
@@ -94,8 +94,8 @@ public class RingBufferTests
 	[TestMethod]
 	public void ValuePrefillConstructor_FillsWithZeros()
 	{
-		var buffer = new RingBuffer<int>(0, 5);
-		for (var i = 0; i < 5; i++)
+		RingBuffer<int> buffer = new(0, 5);
+		for (int i = 0; i < 5; i++)
 		{
 			Assert.AreEqual(0, buffer.At(i));
 		}
@@ -104,8 +104,8 @@ public class RingBufferTests
 	[TestMethod]
 	public void ValuePrefillConstructor_FillsWithCustomValue()
 	{
-		var buffer = new RingBuffer<string>("abc", 3);
-		for (var i = 0; i < 3; i++)
+		RingBuffer<string> buffer = new("abc", 3);
+		for (int i = 0; i < 3; i++)
 		{
 			Assert.AreEqual("abc", buffer.At(i));
 		}
@@ -114,7 +114,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void EmptyBuffer_ThrowsOnFrontAndBack()
 	{
-		var buffer = new RingBuffer<int>(3);
+		RingBuffer<int> buffer = new(3);
 		Assert.ThrowsException<InvalidOperationException>(() => buffer.Front());
 		Assert.ThrowsException<InvalidOperationException>(() => buffer.Back());
 	}
@@ -122,7 +122,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void Indexer_ReturnsCorrectValue()
 	{
-		var buffer = new RingBuffer<int>(3);
+		RingBuffer<int> buffer = new(3);
 		buffer.PushBack(1);
 		buffer.PushBack(2);
 		buffer.PushBack(3);
@@ -135,7 +135,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void Count_ReflectsActualElementCount()
 	{
-		var buffer = new RingBuffer<int>(5);
+		RingBuffer<int> buffer = new(5);
 		Assert.AreEqual(0, buffer.Count);
 
 		buffer.PushBack(1);
@@ -159,7 +159,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void Resample_EmptyBuffer_DoesNotThrow()
 	{
-		var buffer = new RingBuffer<int>(5);
+		RingBuffer<int> buffer = new(5);
 		buffer.Resample(10); // Should not throw
 		Assert.AreEqual(0, buffer.Count);
 	}
@@ -167,7 +167,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void Resize_LargerSize_StartsEmpty()
 	{
-		var buffer = new RingBuffer<int>(3);
+		RingBuffer<int> buffer = new(3);
 		buffer.PushBack(1);
 		buffer.PushBack(2);
 		buffer.PushBack(3);
@@ -180,11 +180,11 @@ public class RingBufferTests
 	[TestMethod]
 	public void Enumerate_YieldsElementsInCorrectOrder()
 	{
-		var values = new[] { 10, 20, 30 };
-		var buffer = new RingBuffer<int>(values, 3);
+		int[] values = [10, 20, 30];
+		RingBuffer<int> buffer = new(values, 3);
 
-		var index = 0;
-		foreach (var item in buffer)
+		int index = 0;
+		foreach (int item in buffer)
 		{
 			Assert.AreEqual(values[index], item);
 			index++;
@@ -202,10 +202,10 @@ public class RingBufferTests
 	[TestMethod]
 	public void PushBack_ManyElements_MaintainsCorrectOrder()
 	{
-		var buffer = new RingBuffer<int>(3);
+		RingBuffer<int> buffer = new(3);
 
 		// Add more elements than the buffer size to test wraparound behavior
-		for (var i = 1; i <= 10; i++)
+		for (int i = 1; i <= 10; i++)
 		{
 			buffer.PushBack(i);
 		}
@@ -219,7 +219,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void ResampleWithSpecificValues_CorrectlyInterpolates()
 	{
-		var buffer = new RingBuffer<int>(3);
+		RingBuffer<int> buffer = new(3);
 		buffer.PushBack(10);
 		buffer.PushBack(20);
 		buffer.PushBack(30);
@@ -236,7 +236,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void Clear_EmptiesBufferAndResetsCount()
 	{
-		var buffer = new RingBuffer<int>(3);
+		RingBuffer<int> buffer = new(3);
 		buffer.PushBack(1);
 		buffer.PushBack(2);
 		buffer.PushBack(3);
@@ -251,7 +251,7 @@ public class RingBufferTests
 	[TestMethod]
 	public void Clear_AllowsReuseAfterClearing()
 	{
-		var buffer = new RingBuffer<int>(2);
+		RingBuffer<int> buffer = new(2);
 		buffer.PushBack(5);
 		buffer.PushBack(6);
 		buffer.Clear();

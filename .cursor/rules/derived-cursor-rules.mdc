@@ -1,0 +1,68 @@
+---
+description: AI rules derived by SpecStory from the project AI interaction history
+globs: *
+---
+
+## HEADERS
+- The AI coding assistant must always obey the project rules contained in this file.
+- The AI coding assistant must ask clarifying questions to fully understand the user's intentions.
+- The AI coding assistant must explain complex code in plain language.
+- The AI coding assistant must use a conversational tone.
+- The AI coding assistant must always use inclusive language.
+
+## TECH STACK
+- C#
+- .NET 8
+- .NET 9
+- ktsu.Sdk.Lib/1.10.1
+- ktsu.Sdk.Test/1.10.1
+- Xunit
+- NuGet
+- MSTest.TestAdapter
+- MSTest.TestFramework
+
+## PROJECT DOCUMENTATION & CONTEXT SYSTEM
+- README.md: Provides a high-level overview of the project, its features, installation instructions, usage examples, and performance considerations. It should be comprehensive and easy to understand.
+- CHANGELOG.md: Documents all notable changes to the project, following the "Keep a Changelog" format and adhering to Semantic Versioning.
+- VERSION.md: Specifies the current version of the project.
+- DESCRIPTION.md: A one-line package description for UI list display.
+- TAGS.md: Contains semicolon delimited keywords for NuGet package discovery. The standard NuGet format uses space-separated words within each individual tag (like "ring buffer" instead of "ring-buffer") with semicolons as delimiters between different tags.
+- XML Documentation: Detailed XML comments should be added to all public classes, methods, and properties.
+
+## CODING STANDARDS
+- Use PascalCase for class names, method names, and property names.
+- Use space-separated words within each individual tag (like "ring buffer" instead of "ring-buffer") in TAGS.md.
+- When creating new applications, ensure the application name is in PascalCase and does not contain spaces.
+- Use explicit types instead of `var` keyword.
+- Simplify collection initialization using `[]` instead of `new List<T>()`.
+- Use expression body for simple methods.
+- Add parentheses for clarity in complex expressions.
+- Use `ArgumentOutOfRangeException.ThrowIfNegative()` instead of manually throwing a new `ArgumentOutOfRangeException` when validating arguments.
+- Use `ArgumentOutOfRangeException.ThrowIfNegativeOrEqual()` instead of manually throwing a new `ArgumentOutOfRangeException` when validating arguments.
+
+## TESTING
+- Write comprehensive unit tests for all code.
+- Use Xunit for testing.
+- Test edge cases and boundary conditions.
+- Ensure tests cover empty buffer behavior, indexer functionality, count property validation, enumeration testing, resample and resize edge cases, constructor parameter validation, and multi-element addition.
+- Use MSTest framework for tests.
+
+## DEBUGGING
+- When encountering "The property 'Count' cannot be found on this object" errors in PowerShell scripts, wrap the variable in `@()` to ensure it's always treated as an array.
+- Ensure all error handling in `catch` blocks uses `$_` and not unset variables.
+
+## WORKFLOW & RELEASE RULES
+- Before each release, update the VERSION.md file.
+- Create a new CHANGELOG.md file to document the improvements.
+- Run tests to ensure all test cases pass.
+- Run the dotnet format command to fix any formatting issues.
+- If the only commits in the release are skip ci commits, then don't actually release it.
+- If the version increment type is "skip", return early with a success status but skip the release process and include information about why the release was skipped in the return object.
+
+## TOOLS
+- PowerShell
+- Git
+- dotnet format
+
+## SCRIPTS
+- CreateKtsuApp.ps1: A PowerShell script to generate a new application with the same structure as the existing workspace. It takes an application name parameter (must be in PascalCase), creates the main project and test project directories, sets up project files, creates a solution file, adds metadata files, includes standard development files, copies existing scripts, creates sample class and test files, and initializes a git repository.
