@@ -1,155 +1,256 @@
 # ktsu.Containers
 
-A high-performance, modern C# container library for .NET 8 and .NET 9, featuring a fixed-size circular buffer (ring buffer) implementation.
+A high-performance collection library for .NET providing specialized container implementations with focus on performance, memory efficiency, and developer experience.
 
-## Overview
+## 🚀 Features
 
-The ktsu.Containers library focuses on providing specialized container types to fill gaps in the standard .NET collection libraries. Each container is designed with specific use cases in mind, balancing performance, memory efficiency, and ease of use.
+- **OrderedCollection<T>**: Maintains elements in sorted order with efficient binary search operations
+- **OrderedSet<T>**: Unique elements maintained in sorted order with full ISet<T> support
+- **RingBuffer<T>**: Fixed-size circular buffer optimized for streaming data scenarios
+- **Comprehensive Benchmarking**: World-class performance validation against .NET collections
 
-## Features
+## 📦 Collections
 
-- **RingBuffer<T>**: A fixed-size, power-of-two circular buffer for fast, efficient storage and retrieval.
-  - Overwrites oldest elements when full
-  - Access elements by logical index, front, or back
-  - Resizing and resampling support
-  - Prefill with a sequence or a single repeated value
-  - Implements `IEnumerable<T>`, `IReadOnlyCollection<T>`, and `IReadOnlyList<T>`
-- .NET 8 and .NET 9 support
-- MIT License
+### OrderedCollection<T>
+A collection that maintains elements in sorted order with efficient insertion and search operations.
 
-## Installation
+**Key Features:**
+- O(log n) insertion maintaining sort order
+- O(log n) search operations via binary search
+- Multiple constructors with capacity and comparer support
+- Implements ICollection<T>, IReadOnlyCollection<T>, IReadOnlyList<T>
 
-Add the NuGet package:
+**Best Use Cases:**
+- Incremental sorted data building
+- Frequent search operations on ordered data
+- Scenarios requiring both order and random access
 
-```bash
-dotnet add package ktsu.Containers
+### OrderedSet<T>
+A set implementation that maintains unique elements in sorted order.
+
+**Key Features:**
+- O(log n) Add/Remove/Contains operations
+- Full ISet<T> interface support (Union, Intersection, Except, etc.)
+- Sorted enumeration without additional sorting cost
+- Memory-efficient list-based implementation
+
+**Best Use Cases:**
+- Unique sorted collections
+- Set operations with maintained order
+- Mathematical set operations with sorted results
+
+### RingBuffer<T>
+A fixed-size circular buffer optimized for continuous data streams.
+
+**Key Features:**
+- O(1) insertion and access operations
+- Automatic wrapping when capacity is reached
+- Index-based access to buffer elements
+- Resizing and resampling capabilities
+- Power-of-two sizing for optimal performance
+
+**Best Use Cases:**
+- Streaming data processing
+- Fixed-size caches
+- Sliding window algorithms
+- Audio/signal processing buffers
+
+## 🏆 Performance & Benchmarking
+
+We've implemented a comprehensive benchmarking system using BenchmarkDotNet that validates our implementations against standard .NET collections.
+
+### Benchmark Categories
+
+#### 🎯 Container-Specific Benchmarks
+- **OrderedCollection vs List<T> + Sort vs SortedList<T>**
+- **OrderedSet vs HashSet<T> vs SortedSet<T>**
+- **RingBuffer vs Queue<T> vs List<T> with size limiting**
+
+#### 📊 Standard Collection Baselines
+Performance baselines for all major .NET collections:
+- List<T>, HashSet<T>, SortedSet<T>
+- Dictionary<TKey,TValue>, SortedDictionary<TKey,TValue>
+- Queue<T>, Stack<T>
+- ConcurrentDictionary<TKey,TValue>, ConcurrentQueue<T>
+
+#### 🔄 Cross-Collection Comparisons
+Direct comparisons for common scenarios:
+- Building ordered collections (incremental vs bulk)
+- Set operations across different implementations
+- Memory efficiency patterns
+- Real-world usage workflows
+
+#### 📈 Performance Analysis
+Advanced scenarios including:
+- Scalability testing (1K to 100K+ elements)
+- Edge cases and worst-case scenarios
+- Memory pressure analysis
+- Specialized use cases (sliding windows, priority queues)
+
+### Running Benchmarks
+
+#### Quick Start
+```powershell
+# Fast development feedback
+.\scripts\run-benchmarks.ps1 -Target Quick
+
+# Compare specific containers
+.\scripts\run-benchmarks.ps1 -Target OrderedSet -Export Html
+
+# Cross-collection analysis
+.\scripts\run-benchmarks.ps1 -Target CrossComparison -Export All
+
+# Full benchmark suite
+.\scripts\run-benchmarks.ps1 -Target All -Export Html
 ```
 
-## Usage Examples
+#### Available Targets
+| Target | Description |
+|--------|-------------|
+| `Quick` | Fast subset for development feedback |
+| `OrderedCollection` | OrderedCollection<T> vs alternatives |
+| `OrderedSet` | OrderedSet<T> vs alternatives |
+| `RingBuffer` | RingBuffer<T> vs alternatives |
+| `Standard` | Built-in .NET collection baselines |
+| `CrossComparison` | Direct cross-collection comparisons |
+| `PerformanceAnalysis` | Scalability and edge case analysis |
+| `All` | Complete benchmark suite |
 
-### Basic Usage
+#### Command Line Options
+```bash
+# Manual benchmark execution
+dotnet run --project Containers.Benchmarks --configuration Release
 
+# Filtered benchmarks
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*Add*"
+
+# Export results
+dotnet run --project Containers.Benchmarks --configuration Release -- --exporters html,csv,json
+```
+
+## 📋 Installation
+
+```xml
+<PackageReference Include="ktsu.Containers" Version="1.0.0" />
+```
+
+## 🔧 Usage Examples
+
+### OrderedCollection<T>
 ```csharp
-using ktsu.Containers;
+// Create and populate
+var collection = new OrderedCollection<int>();
+collection.Add(3);
+collection.Add(1);
+collection.Add(2);
+// Collection automatically maintains order: [1, 2, 3]
 
-// Create a ring buffer of length 3
+// Efficient search
+bool contains = collection.Contains(2); // O(log n) binary search
+
+// Access by index
+int first = collection[0]; // 1
+```
+
+### OrderedSet<T>
+```csharp
+// Create with initial data
+var set = new OrderedSet<int> { 3, 1, 4, 1, 5 };
+// Set contains unique elements in order: [1, 3, 4, 5]
+
+// Set operations
+var other = new OrderedSet<int> { 4, 5, 6 };
+set.UnionWith(other); // [1, 3, 4, 5, 6]
+```
+
+### RingBuffer<T>
+```csharp
+// Create fixed-size buffer
 var buffer = new RingBuffer<int>(3);
 buffer.PushBack(1);
 buffer.PushBack(2);
 buffer.PushBack(3);
-buffer.PushBack(4); // Overwrites 1
-Console.WriteLine(buffer.At(0)); // 2
-Console.WriteLine(buffer.Back()); // 4
+buffer.PushBack(4); // Overwrites first element
+// Buffer contains: [2, 3, 4]
+
+// Index access
+int latest = buffer[buffer.Count - 1]; // 4 (most recent)
 ```
 
-### Creating Pre-filled Buffers
+## 🛠️ Development
 
-```csharp
-// Prefill with a single value
-var zeros = new RingBuffer<int>(0, 5); // [0,0,0,0,0]
-
-// Prefill with a sequence
-var prefilled = new RingBuffer<int>(new[] { 1, 2, 3, 4, 5 }, 3); // [3,4,5]
+### Building
+```bash
+dotnet build
 ```
 
-### Accessing Elements
-
-```csharp
-var buffer = new RingBuffer<int>(new[] { 1, 2, 3 }, 3);
-
-// Access by index (via At method or indexer)
-int first = buffer.At(0); // 1
-int second = buffer[1];   // 2
-
-// Access first/last elements
-int oldest = buffer.Front(); // 1 
-int newest = buffer.Back();  // 3
+### Testing
+```bash
+dotnet test
 ```
 
-### Resizing and Resampling
+### Benchmarking
+```bash
+# Quick performance check
+.\scripts\run-benchmarks.ps1 -Target Quick
 
-```csharp
-var buffer = new RingBuffer<int>(new[] { 10, 20, 30 }, 3);
-
-// Resize (discards all elements)
-buffer.Resize(5);
-
-// Add new elements
-buffer.PushBack(100);
-buffer.PushBack(200);
-
-// Resample (interpolates values to the new size)
-buffer.Resample(4); // Will spread the elements across the new size
+# Comprehensive analysis
+.\scripts\run-benchmarks.ps1 -Target All -Export Html
 ```
 
-### Enumeration
+## 📊 Performance Characteristics
 
-```csharp
-var buffer = new RingBuffer<int>(new[] { 1, 2, 3, 4, 5 }, 5);
+### OrderedCollection<T>
+- ✅ **Excellent for**: Incremental sorted insertions, frequent searches
+- ⚠️ **Consider alternatives for**: Large bulk operations (List<T> + Sort may be faster)
+- 🎯 **Sweet spot**: 100-10,000 elements with mixed insert/search operations
 
-// Use in foreach loop
-foreach (var item in buffer)
-{
-    Console.WriteLine(item);
-}
+### OrderedSet<T>
+- ✅ **Excellent for**: Unique sorted collections, set operations with order
+- ⚠️ **Consider alternatives for**: Pure membership testing (HashSet<T> is faster)
+- 🎯 **Sweet spot**: Mathematical set operations requiring sorted results
 
-// Use LINQ
-var sum = buffer.Sum();
-var doubled = buffer.Select(x => x * 2).ToList();
-```
+### RingBuffer<T>
+- ✅ **Excellent for**: Streaming data, fixed-size caches, sliding windows
+- ⚠️ **Consider alternatives for**: Dynamic growth requirements
+- 🎯 **Sweet spot**: Continuous data streams with occasional random access
 
-### Clearing the Buffer
+## 🤝 Contributing
 
-You can clear all elements from a `RingBuffer<T>` without changing its capacity using the `Clear` method:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add comprehensive tests
+5. Run benchmarks to validate performance
+6. Submit a pull request
 
-```csharp
-var buffer = new RingBuffer<int>(3);
-buffer.PushBack(1);
-buffer.PushBack(2);
-buffer.Clear(); // buffer is now empty, Count == 0
-```
+### Adding New Containers
+When adding new containers:
+1. Implement the container in `Containers/`
+2. Add comprehensive tests in `Containers.Test/`
+3. Create benchmark comparisons in `Containers.Benchmarks/`
+4. Update documentation
 
-## Performance Focus
+## 📝 License
 
-The library emphasizes performance through several optimization techniques:
+Licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
 
-- **Power-of-two buffer sizes**: Replaces modulo operations with more efficient bitwise AND operations for buffer wrapping
-- **Minimal memory allocations**: Operations like PushBack have no allocations in the common case
-- **O(1) time complexity**: Key operations like access and insertion maintain constant time regardless of buffer size
-- **Zero-copy operations**: Where possible, data is accessed in-place without copying
+## 🏗️ Architecture
 
-The RingBuffer implementation is particularly efficient for scenarios that involve:
+The library is built with performance and reliability in mind:
 
-- Time-series data processing
-- Audio/video buffering
-- Signal processing
-- Rolling window calculations
-- Game state history for replay/undo functionality
-- Event and log management with fixed history
-- Any scenario requiring a fixed-size sliding window over a data stream
+- **Zero-allocation operations** where possible
+- **Power-of-two sizing** for optimal memory access patterns
+- **Binary search algorithms** for O(log n) performance
+- **Comprehensive test coverage** ensuring reliability
+- **Benchmark-driven development** validating performance claims
 
-## Advanced Usage
+## 🎯 Design Principles
 
-### Custom Types
+1. **Performance First**: Every operation is optimized for speed and memory efficiency
+2. **Standard Compliance**: Full compatibility with .NET collection interfaces
+3. **Predictable Behavior**: Clear performance characteristics and edge case handling
+4. **Developer Experience**: Intuitive APIs with comprehensive documentation
+5. **Validation**: Extensive testing and benchmarking ensures reliability
 
-The RingBuffer works with any .NET type:
-
-```csharp
-// With reference types
-var messageBuffer = new RingBuffer<string>("", 100);
-messageBuffer.PushBack("Hello");
-messageBuffer.PushBack("World");
-
-// With structs
-var pointBuffer = new RingBuffer<Point>(10);
-pointBuffer.PushBack(new Point(1, 2));
-pointBuffer.PushBack(new Point(3, 4));
-
-// With complex types
-var userBuffer = new RingBuffer<User>(5);
-userBuffer.PushBack(new User { Id = 1, Name = "Alice" });
-```
-
-## License
-
-MIT License. Copyright (c) ktsu.dev
+This library provides high-performance alternatives to standard .NET collections while maintaining familiar APIs and adding specialized functionality for common use cases.

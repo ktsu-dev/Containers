@@ -20,9 +20,10 @@ globs: *
 - NuGet
 - MSTest.TestAdapter
 - MSTest.TestFramework
+- BenchmarkDotNet
 
 ## PROJECT DOCUMENTATION & CONTEXT SYSTEM
-- README.md: Provides a high-level overview of the project, its features, installation instructions, usage examples, and performance considerations. It should be comprehensive and easy to understand.
+- README.md: Provides a high-level overview of the project, its features, installation instructions, usage examples, and performance considerations. It should be comprehensive and easy to understand. This file should be updated to include documentation and examples for the OrderedCollection and OrderedSet.
 - CHANGELOG.md: Documents all notable changes to the project, following the "Keep a Changelog" format and adhering to Semantic Versioning.
 - VERSION.md: Specifies the current version of the project.
 - DESCRIPTION.md: A one-line package description for UI list display.
@@ -42,10 +43,10 @@ globs: *
 
 ## TESTING
 - Write comprehensive unit tests for all code.
-- Use Xunit for testing.
+- Use MSTest framework for tests.
 - Test edge cases and boundary conditions.
 - Ensure tests cover empty buffer behavior, indexer functionality, count property validation, enumeration testing, resample and resize edge cases, constructor parameter validation, and multi-element addition.
-- Use MSTest framework for tests.
+- CollectionAssert.AreEqual should be used to assert collection equality in MSTest.
 
 ## DEBUGGING
 - When encountering "The property 'Count' cannot be found on this object" errors in PowerShell scripts, wrap the variable in `@()` to ensure it's always treated as an array.
@@ -66,3 +67,229 @@ globs: *
 
 ## SCRIPTS
 - CreateKtsuApp.ps1: A PowerShell script to generate a new application with the same structure as the existing workspace. It takes an application name parameter (must be in PascalCase), creates the main project and test project directories, sets up project files, creates a solution file, adds metadata files, includes standard development files, copies existing scripts, creates sample class and test files, and initializes a git repository.
+
+## BENCHMARKING
+- Use BenchmarkDotNet for performance benchmarking.
+- Create a dedicated benchmarking console application (`Containers.Benchmarks`).
+- Benchmark classes must be public.
+- Compare custom container implementations against built-in .NET collections.
+- Test core operations and realistic usage patterns.
+- Include `[Params]` for different data sizes to show scalability.
+- Use `[MemoryDiagnoser]` and `[SimpleJob]` attributes for each benchmark class.
+
+### Benchmarking Process
+This document outlines the comprehensive benchmarking methodology used to evaluate the performance of ktsu.Containers implementations compared to standard .NET collections.
+
+#### Goals
+1. **Performance Validation**: Ensure our custom implementations meet or exceed performance expectations
+2. **Regression Detection**: Catch performance degradations during development
+3. **Optimization Guidance**: Identify bottlenecks and optimization opportunities
+4. **Usage Guidance**: Help users choose the right container for their use case
+
+#### Principles
+- **Realistic Workloads**: Test patterns that reflect real-world usage
+- **Multiple Data Sizes**: Evaluate scalability across different collection sizes
+- **Statistical Rigor**: Use BenchmarkDotNet's statistical analysis for reliable results
+- **Memory Awareness**: Track both execution time and memory allocation
+- **Comparative Analysis**: Always benchmark against equivalent .NET collections
+
+#### Benchmark Categories
+1. **Container-Specific Benchmarks**:
+Each custom container has dedicated benchmarks comparing against the most relevant .NET collections:
+   - **OrderedCollection\<T>**: vs `List<T>` + manual sorting, vs `SortedList<TKey, TValue>`. Focus: Incremental insertion performance while maintaining order
+   - **OrderedSet\<T>**: vs `HashSet<T>` (unordered), vs `SortedSet<T>` (ordered). Focus: Unique element management with sorted enumeration
+   - **RingBuffer\<T>**: vs `Queue<T>` with size limiting, vs `List<T>` with circular behavior simulation. Focus: Fixed-size circular buffer operations
+2. **Standard .NET Collection Benchmarks**:
+Baseline performance measurements for built-in collections:
+   - Core operations (Add, Remove, Contains, Enumerate)
+   - Memory allocation patterns
+   - Scalability characteristics
+3. **Cross-Collection Comparison Benchmarks**:
+Direct comparisons across different collection types for common scenarios:
+   - Building collections from data
+   - Searching and filtering
+   - Bulk operations
+   - Memory efficiency
+
+#### Benchmark Design Patterns
+##### Data Size Parameters
+```csharp
+[Params(100, 1000, 10000)]
+public int ElementCount { get; set; }
+```
+- **Small (100)**: Micro-benchmark scale, good for overhead analysis
+- **Medium (1,000)**: Typical application scale
+- **Large (10,000)**: Stress testing and scalability validation
+
+##### Test Data Generation
+```csharp
+private readonly Random random = new(42); // Fixed seed for reproducibility
+```
+- **Deterministic**: Fixed seed ensures reproducible results
+- **Realistic Distribution**: Random data with controlled characteristics
+- **Edge Cases**: Include boundary conditions and worst-case scenarios
+
+#### Measurement Methodology
+##### BenchmarkDotNet Configuration
+```csharp
+[MemoryDiagnoser]    // Track memory allocations
+[SimpleJob]          // Standard job configuration
+```
+
+##### Key Metrics
+- **Mean Execution Time**: Primary performance indicator
+- **Memory Allocation**: Total managed memory allocated
+- **Standard Deviation**: Measurement consistency
+- **Confidence Intervals**: Statistical reliability
+
+##### Statistical Analysis
+- Multiple iterations for statistical significance
+- Outlier detection and handling
+- Confidence interval calculation
+- Distribution analysis (detecting multimodal distributions)
+
+#### Benchmark Implementation Standards
+##### Class Structure
+```csharp
+[MemoryDiagnoser]
+[SimpleJob]
+public class [Container]Benchmarks
+{
+    private readonly Random random = new(42);
+    private DataType[] testData = [];
+    
+    [Params(100, 1000, 10000)]
+    public int ElementCount { get; set; }
+    
+    [GlobalSetup]
+    public void Setup() { /* Data preparation */ }
+    
+    [Benchmark]
+    public ReturnType BenchmarkMethod() { /* Implementation */ }
+}
+```
+
+##### Naming Conventions
+- **Class Names**: `[Container]Benchmarks`
+- **Method Names**: `[Operation][Container]` (e.g., `AddOrderedCollection`)
+- **Clear and Descriptive**: Method names should clearly indicate what's being tested
+
+##### Return Values
+- **Always Return Results**: Prevents dead code elimination
+- **Meaningful Returns**: Return the collection or computed value
+- **Consistent Types**: Use same return types for comparable operations
+
+#### Running Benchmarks
+##### Quick Testing
+```bash
+# Fast feedback during development
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*Add*" --job short
+```
+
+##### Full Benchmark Suite
+```bash
+# Complete performance evaluation
+dotnet run --project Containers.Benchmarks --configuration Release
+```
+
+##### Targeted Analysis
+```bash
+# Specific container focus
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*OrderedSet*"
+```
+
+##### Result Export
+```bash
+# Generate reports for analysis
+dotnet run --project Containers.Benchmarks --configuration Release -- --exporters html,csv,json
+```
+
+#### Result Analysis
+##### Performance Comparison Framework
+1. Baseline Establishment: Standard .NET collection performance
+2. Relative Performance: Our implementations vs baselines
+3. Scalability Analysis: Performance across different data sizes
+4. Memory Efficiency: Allocation patterns and memory usage
+
+##### Key Questions to Answer
+- When to Use Our Containers: Identify sweet spots and use cases
+- Performance Trade-offs: Understand costs and benefits
+- Optimization Opportunities: Find areas for improvement
+- Regression Detection: Catch performance degradations
+
+##### Red Flags
+- Unexpected Scaling: Non-linear performance where linear expected
+- Memory Leaks: Increasing allocations without collection growth
+- Performance Regressions: Slower than previous versions
+- Worse Than Baseline: Significantly slower than .NET equivalents
+
+#### Continuous Integration
+##### Automated Benchmarking
+- Baseline Tracking: Store performance baselines for comparison
+- Regression Detection: Alert on significant performance changes
+- Performance Reports: Generate automated performance summaries
+
+##### Performance Gates
+- Threshold Monitoring: Set acceptable performance bounds
+- Build Integration: Include performance validation in CI/CD
+- Historical Tracking: Monitor performance trends over time
+
+#### Best Practices
+##### Benchmark Development
+1. Start Simple: Basic operations before complex scenarios
+2. Incremental Complexity: Build up to realistic usage patterns
+3. Document Expectations: Note expected performance characteristics
+4. Validate Results: Sanity-check benchmark outputs
+
+##### Performance Analysis
+1. Statistical Significance: Don't rely on single runs
+2. Multiple Metrics: Consider both time and memory
+3. Context Awareness: Understand what you're measuring
+4. Realistic Interpretation: Consider real-world usage patterns
+
+#### Maintenance
+1. Regular Updates: Keep benchmarks current with code changes
+2. Baseline Refresh: Update performance baselines periodically
+3. Coverage Expansion: Add benchmarks for new features
+4. Documentation Updates: Keep methodology documentation current
+
+#### Future Enhancements
+##### Advanced Scenarios
+- Concurrent Access: Multi-threaded performance testing
+- Large Scale: Benchmarks with millions of elements
+- Memory Pressure: Performance under memory constraints
+- Platform Variations: Cross-platform performance analysis
+
+##### Specialized Benchmarks
+- Cache Performance: CPU cache efficiency analysis
+- SIMD Optimization: Vector operation performance
+- Allocation Reduction: Zero-allocation operation benchmarks
+- Async Operations: Asynchronous operation performance
+
+This comprehensive benchmarking approach ensures that ktsu.Containers delivers reliable, high-performance implementations that users can trust for their critical applications.
+
+## TODO LIST
+- generic ordered set which keeps items in natural order or specified order
+   - A set that automatically sorts elements (no duplicates)
+   - Similar to our OrderedCollection but with unique elements only
+   - Should support custom comparers like OrderedCollection
+- generic ordered map which keeps items in natural order or specified order
+   - A dictionary/map that keeps key-value pairs sorted by key
+   - Keys should be kept in natural or specified order
+   - Similar to SortedDictionary but potentially with better performance
+- generic collection guaranteed to keep its insertion order
+   - Maintains the exact order items were added (unlike our sorting OrderedCollection)
+   - Similar to List<T> but potentially with different performance characteristics
+- generic set guaranteed to keep its insertion order
+   - Unique elements in insertion order (like LinkedHashSet in Java)
+   - No duplicates, but preserves the order elements were first added
+- generic map guaranteed to keep its insertion order
+   - Dictionary that maintains insertion order of keys (like LinkedHashMap in Java)
+   - Preserves the order key-value pairs were added
+- generic collection guaranteed to allocate in contiguous memory
+   - Elements stored in contiguous memory blocks for cache efficiency
+   - Potentially similar to spans or custom array-based collections
+- generic set guaranteed to allocate in contiguous memory
+   - Unique elements in contiguous memory layout
+- generic map guaranteed to allocate in contiguous memory
+   - Key-value pairs stored contiguously for optimal memory access patterns
