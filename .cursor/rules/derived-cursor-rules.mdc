@@ -99,6 +99,7 @@ Each custom container has dedicated benchmarks comparing against the most releva
    - **OrderedCollection\<T>**: vs `List<T>` + manual sorting, vs `SortedList<TKey, TValue>`. Focus: Incremental insertion performance while maintaining order
    - **OrderedSet\<T>**: vs `HashSet<T>` (unordered), vs `SortedSet<T>` (ordered). Focus: Unique element management with sorted enumeration
    - **RingBuffer\<T>**: vs `Queue<T>` with size limiting, vs `List<T>` with circular behavior simulation. Focus: Fixed-size circular buffer operations
+   - **OrderedMap\<TKey, TValue>**: Focus: Key-value pair management with sorted enumeration
 2. **Standard .NET Collection Benchmarks**:
 Baseline performance measurements for built-in collections:
    - Core operations (Add, Remove, Contains, Enumerate)
