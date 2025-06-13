@@ -286,8 +286,8 @@ public class ContiguousSetBenchmarks
 	[Benchmark]
 	public ContiguousSet<int> ContiguousSet_SetOperations()
 	{
-		ContiguousSet<int> set1 = new(testData[..ElementCount / 2]);
-		ContiguousSet<int> set2 = new(testData[ElementCount / 4..]);
+		ContiguousSet<int> set1 = [.. testData[..(ElementCount / 2)]];
+		ContiguousSet<int> set2 = [.. testData[(ElementCount / 4)..]];
 
 		// Simulate union operation
 		ContiguousSet<int> result = [.. set1];
@@ -305,8 +305,8 @@ public class ContiguousSetBenchmarks
 	[Benchmark]
 	public HashSet<int> HashSet_SetOperations()
 	{
-		HashSet<int> set1 = [.. testData[..ElementCount / 2]];
-		HashSet<int> set2 = [.. testData[ElementCount / 4..]];
+		HashSet<int> set1 = [.. testData[..(ElementCount / 2)]];
+		HashSet<int> set2 = [.. testData[(ElementCount / 4)..]];
 
 		// Use built-in union operation
 		set1.UnionWith(set2);

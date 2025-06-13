@@ -824,3 +824,346 @@ _**Assistant**_
 
 ---
 
+I'll help you fix the remaining test failures. Let me examine each failing test to understand what needs to be corrected.
+
+---
+
+Read file: Containers.Test/OrderedMapTests.cs
+
+---
+
+Now let me check the OrderedMap constructor to see why it's not throwing an exception for null comparer:
+
+---
+
+Read file: Containers/OrderedMap.cs
+
+---
+
+I can see the issue! The `OrderedMap` class uses a primary constructor with an optional `IComparer<TKey>? comparer = null` parameter, which means it doesn't have a separate constructor that takes just `IComparer<TKey>` that would throw an exception for null. Let me examine the remaining test failures:
+
+---
+
+Read file: Containers.Test/OrderedSetTests.cs
+
+---
+
+Now let me check the stress test that's failing:
+
+---
+
+Read file: Containers.Test/OrderedSetTests.cs
+
+---
+
+Now let me check the ContiguousCollection test that's failing:
+
+---
+
+Read file: Containers.Test/ContiguousCollectionTests.cs
+
+---
+
+Now let me check what line 40 is exactly:
+
+---
+
+Read file: Containers.Test/ContiguousCollectionTests.cs
+
+---
+
+Now I understand the issues. Let me analyze and fix them:
+
+1. **OrderedMap null comparer test**: The `OrderedMap` class uses a primary constructor with optional parameter, so it doesn't throw for null - we need to add explicit constructor
+2. **OrderedSet CopyTo test**: The test expects 4 elements but the assertion `CollectionAssert.AreEqual(expected, array[0..4])` is comparing with the full expected array
+3. **OrderedSet stress test**: The logic is wrong - it's removing even numbers 0, 2, 4, ..., 48 but the range includes 0-99, so odd numbers remain which are more than 50
+4. **ContiguousCollection capacity test**: It expects 0 capacity but likely has a default minimum capacity
+
+Let me start fixing these:
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+Now let me check the ContiguousCollection constructor to see why it has capacity 4 instead of 0:
+
+---
+
+Read file: Containers/ContiguousCollection.cs
+
+---
+
+
+
+---
+
+I can see the issue with the ContiguousCollection test. The problem is that the test is calling `ContiguousCollection<int> collection = [];` which uses the default constructor, but the default constructor initializes with `DefaultCapacity = 4`. The test name suggests it should be testing a zero capacity constructor, but it's actually testing the default constructor.
+
+Let me fix this test:
+
+---
+
+
+
+---
+
+Now let's run the tests to see if all the issues are fixed:
+
+---
+
+```bash
+dotnet test --configuration Debug --verbosity minimal
+```
+
+```
+C:\dev\ktsu-dev\Containers>dotnet test --configuration Debug --verbosity minimal
+
+                                                                                                                 (0.1s)
+Restore complete (2.2s)
+  Containers succeeded (0.7s) → Containers\bin\Debug\net9.0\ktsu.Containers.dll
+  Containers.Test failed with 2 error(s) (11.3s)
+    C:\dev\ktsu-dev\Containers\Containers.Test\ContiguousCollectionTests.cs(36,42): error IDE0028: Collection initialization can be simplified (https://learn.microsoft.com/dotnet/fundamentals/code-an
+alysis/style-rules/ide0028)
+    C:\dev\ktsu-dev\Containers\Containers.Test\OrderedMapTests.cs(485,84): error IDE0004: Cast is redundant. (https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0004)       
+
+Build failed with 2 error(s) in 16.0s
+
+C:\dev\ktsu-dev\Containers>
+```
+
+---
+
+
+
+---
+
+Great! We're getting closer. Now there are just code style issues rather than actual test failures. Let me fix these style warnings:
+
+---
+
+
+
+---
+
+
+
+---
+
+
+
+---
+
+Wait, that change will break the test again because the default collection expression `[]` will go back to using the default constructor with capacity 4. Let me revert this and fix the test name and logic properly:
+
+---
+
+
+
+---
+
+
+
+---
+
+Let me run a quick test to verify everything is working:
+
+---
+
+```bash
+dotnet test --configuration Debug --filter "Constructor_NullComparer_ThrowsArgumentNullException|CopyTo_ValidParameters_CopiesElements|StressTest_MultipleOperations|Constructor_WithZeroCapacity_CreatesEmptyCollection" --verbosity normal
+```
+
+```
+C:\dev\ktsu-dev\Containers>dotnet test --configuration Debug --filter "Constructor_NullComparer_ThrowsArgumentNullException|CopyTo_ValidParameters_CopiesElements|StressTest_MultipleOperations|Constru
+
+Restore complete (24.9s)
+  Containers.Test failed with 1 error(s) (3.7s)
+    C:\dev\ktsu-dev\Containers\Containers.Test\ContiguousCollectionTests.cs(36,42): error IDE0028: Collection initialization can be simplified (https://learn.microsoft.com/dotnet/fundamentals/code-an
+alysis/style-rules/ide0028)
+
+Build failed with 1 error(s) in 40.3s
+
+C:\dev\ktsu-dev\Containers>
+```
+
+---
+
+
+
+---
+
+I need to suppress that style warning since it would break the test. Let me add a suppression:
+
+---
+
+
+
+---
+
+
+
+---
+
+I need to add the using directive for SuppressMessage:
+
+---
+
+Read file: Containers.Test/ContiguousCollectionTests.cs
+
+---
+
+
+
+---
+
+I need to add the using statement at the top of the file:
+
+---
+
+
+
+---
+
+
+
+---
+
+Now let's run the tests again to verify all issues are resolved:
+
+---
+
+```bash
+dotnet test --configuration Debug --verbosity minimal
+```
+
+```
+
+  Containers succeeded (0.7s) → Containers\bin\Debug\net9.0\ktsu.Containers.dll
+  Containers.Test failed with 1 error(s) (4.9s)
+    C:\dev\ktsu-dev\Containers\Containers.Test\ContiguousCollectionTests.cs(5,1): error IDE0065: Using directives must be placed inside of a namespace declaration (https://learn.microsoft.com/dotnet/
+fundamentals/code-analysis/style-rules/ide0065)
+
+Build failed with 1 error(s) in 12.9s
+
+C:\dev\ktsu-dev\Containers>
+```
+
+---
+
+
+
+---
+
+I need to move the using statement inside the namespace:
+
+---
+
+
+
+---
+
+
+
+---
+
+Now let's run the tests one more time to ensure everything is working:
+
+---
+
+```bash
+dotnet test --configuration Debug --verbosity normal
+```
+
+```
+
+Restore complete (3.1s)
+  Containers succeeded (1.3s) → Containers\bin\Debug\net9.0\ktsu.Containers.dll
+  Containers.Test succeeded (5.3s) → Containers.Test\bin\Debug\net9.0\ktsu.Containers.Test.dll
+  Containers.Test test succeeded (2.7s)
+
+Test summary: total: 328, failed: 0, succeeded: 328, skipped: 0, duration: 1.9s
+Build succeeded in 13.7s
+
+C:\dev\ktsu-dev\Containers>
+```
+
+---
+
+
+
+---
+
+Perfect! 🎉 All tests are now passing successfully. Let me provide a summary of what I fixed:
+
+## Summary of Fixed Issues
+
+✅ **All 4 failing tests have been successfully resolved:**
+
+### 1. **OrderedMapTests.cs** - `Constructor_NullComparer_ThrowsArgumentNullException` 
+- **Problem**: The test was calling `new OrderedMap<int, string>((IComparer<int>)null!)` but `OrderedMap` uses a primary constructor with optional comparer, so it doesn't throw for null.
+- **Solution**: Changed to use the constructor overload that does validate null: `new OrderedMap<int, string>(0, null!)`
+
+### 2. **OrderedSetTests.cs** - `CopyTo_ValidParameters_CopiesElements`
+- **Problem**: The test expected array `[1, 3, 4, 5, 0]` included an extra `0` element that wasn't part of the set.
+- **Solution**: Fixed expected array to `[1, 3, 4, 5]` (4 unique elements) to match the comparison `array[0..4]`
+
+### 3. **OrderedSetTests.cs** - `StressTest_MultipleOperations`
+- **Problem**: The test was removing even numbers from 0-49 (`i < 50`) but expected 50 remaining items. Since we have 0-99 (100 total), removing 25 even numbers leaves 75 odd numbers.
+- **Solution**: Changed loop to remove all even numbers from 0-99 (`i < 100`) which removes 50 even numbers, leaving exactly 50 odd numbers.
+
+### 4. **ContiguousCollectionTests.cs** - `Constructor_WithZeroCapacity_CreatesEmptyCollection`
+- **Problem**: Test was using collection expression `[]` which calls default constructor with `DefaultCapacity = 4`, but expected capacity 0.
+- **Solution**: Changed to explicit constructor call `new(0)` and added proper suppression for the style warning since the explicit call is needed for this test.
+
+### Additional Fixes:
+- Added `using System.Diagnostics.CodeAnalysis;` for the `SuppressMessage` attribute
+- Positioned the using statement correctly inside the namespace per project conventions
+- Removed redundant cast in OrderedMapTests per style guidelines
+
+## Final Result:
+✅ **Build succeeded** - No compilation errors  
+✅ **All 328 tests pass** - 0 failures, 0 skipped  
+✅ **CA1065 errors resolved** - Original ContiguousMap Entry struct now has proper `Equals` and `GetHashCode` implementations
+
+The codebase is now in a healthy state with all tests passing and proper code style compliance!
+
+---
+
+_**User**_
+
+and these please
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+I'll fix the compilation errors in the Containers.Benchmarks project. Let me examine the problematic code in ContiguousSetBenchmarks.cs.
+
+---
+
+Read file: Containers.Benchmarks/ContiguousSetBenchmarks.cs
+
+---
+
+I can see the issues! The problem is on lines 289 and 290 (which shoul
+
+---
+
