@@ -298,3 +298,19 @@ This comprehensive benchmarking approach ensures that ktsu.Containers delivers r
    - Generic collection guaranteed to allocate in contiguous memory
    - Generic set guaranteed to allocate in contiguous memory
    - Generic map guaranteed to allocate in contiguous memory
+
+**Missing Benchmarks:**
+- [ ] InsertionOrderCollectionBenchmarks.cs
+- [ ] InsertionOrderSetBenchmarks.cs
+- [ ] InsertionOrderMapBenchmarks.cs
+- [ ] ContiguousCollectionBenchmarks.cs
+- [ ] ContiguousSetBenchmarks.cs
+- [ ] ContiguousMapBenchmarks.cs
+
+**Missing Tests:**
+- [ ] InsertionOrderCollectionTests.cs
+- [ ] InsertionOrderSetTests.cs
+- [ ] InsertionOrderMapTests.cs
+- [ ] ContiguousCollectionTests.cs
+- [ ] ContiguousSetTests.cs
+- [ ] ContiguousMapTests.cs
