@@ -52,6 +52,7 @@ globs: *
 - Test edge cases and boundary conditions.
 - Ensure tests cover empty buffer behavior, indexer functionality, count property validation, enumeration testing, resample and resize edge cases, constructor parameter validation, and multi-element addition.
 - CollectionAssert.AreEqual should be used to assert collection equality in MSTest.
+- When using `CollectionAssert.AreEqual`, if type inference issues arise, use `ToArray()` on the tested collection.
 
 ## DEBUGGING
 - When encountering "The property 'Count' cannot be found on this object" errors in PowerShell scripts, wrap the variable in `@()` to ensure it's always treated as an array.

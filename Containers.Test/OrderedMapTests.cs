@@ -482,7 +482,7 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Constructor_NullComparer_ThrowsArgumentNullException()
 	{
-		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedMap<int, string>((IComparer<int>)null!));
+		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedMap<int, string>(0, null!));
 	}
 
 	/// <summary>

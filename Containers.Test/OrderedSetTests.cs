@@ -176,7 +176,7 @@ public class OrderedSetTests
 		int[] array = new int[5];
 		set.CopyTo(array, 0);
 
-		int[] expected = [1, 3, 4, 5, 0]; // Note: only 4 unique elements
+		int[] expected = [1, 3, 4, 5]; // Note: only 4 unique elements
 		CollectionAssert.AreEqual(expected, array[0..4]);
 	}
 
@@ -636,13 +636,13 @@ public class OrderedSetTests
 			set.Add(i);
 		}
 
-		// Remove some elements
-		for (int i = 0; i < 50; i += 2)
+		// Remove even elements (0, 2, 4, ..., 98)
+		for (int i = 0; i < 100; i += 2)
 		{
 			set.Remove(i);
 		}
 
-		// Verify correct count
+		// Verify correct count (50 odd numbers: 1, 3, 5, ..., 99)
 		Assert.AreEqual(50, set.Count);
 
 		// Verify all remaining elements are odd

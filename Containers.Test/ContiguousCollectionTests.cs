@@ -3,6 +3,8 @@
 // Licensed under the MIT license.
 
 namespace ktsu.Containers.Tests;
+
+using System.Diagnostics.CodeAnalysis;
 [TestClass]
 public class ContiguousCollectionTests
 {
@@ -30,10 +32,11 @@ public class ContiguousCollectionTests
 	}
 
 	[TestMethod]
+	[SuppressMessage("Style", "IDE0028:Collection initialization can be simplified", Justification = "Need explicit constructor call for zero capacity test")]
 	public void Constructor_WithZeroCapacity_CreatesEmptyCollection()
 	{
 		// Arrange & Act
-		ContiguousCollection<int> collection = [];
+		ContiguousCollection<int> collection = new(0);
 
 		// Assert
 		Assert.AreEqual(0, collection.Count);
