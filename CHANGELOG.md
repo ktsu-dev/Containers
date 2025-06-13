@@ -3,9 +3,14 @@
 Changes since v1.0.2:
 
 - Enhance ktsu.Containers with new benchmarks and tests ([@matt-edmondson](https://github.com/matt-edmondson))
+- Fix IDE0052 errors by removing unused private members in derived cursor rules ([@matt-edmondson](https://github.com/matt-edmondson))
 - Add new collection types and update documentation ([@matt-edmondson](https://github.com/matt-edmondson))
 - Refactor RingBuffer to improve efficiency and documentation ([@matt-edmondson](https://github.com/matt-edmondson))
 - Add OrderedMap and its benchmarks to ktsu.Containers ([@matt-edmondson](https://github.com/matt-edmondson))
+- Fix compilation errors in ContiguousSetBenchmarks and improve collection initialization ([@matt-edmondson](https://github.com/matt-edmondson))
+- Fix compilation errors and improve tests in collection classes ([@matt-edmondson](https://github.com/matt-edmondson))
+- Refactor collection classes to use properties for Count ([@matt-edmondson](https://github.com/matt-edmondson))
+- Implement equality logic and XML documentation for ContiguousMap.Entry ([@matt-edmondson](https://github.com/matt-edmondson))
 - Add OrderedSet and benchmarking framework for ktsu.Containers ([@matt-edmondson](https://github.com/matt-edmondson))
 ## v1.0.2 (patch)
 
