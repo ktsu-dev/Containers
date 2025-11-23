@@ -1,6 +1,6 @@
-## v1.0.7 (patch)
+## v1.0.8-pre.1 (prerelease)
 
-Changes since v1.0.6:
+Changes since v1.0.7:
 
-- "Claude Code Review workflow" ([@matt-edmondson](https://github.com/matt-edmondson))
-- "Claude PR Assistant workflow" ([@matt-edmondson](https://github.com/matt-edmondson))
+- Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))

@@ -1,3 +1,9 @@
+## v1.0.8-pre.1 (prerelease)
+
+Changes since v1.0.7:
+
+- Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
 ## v1.0.7 (patch)
 
 Changes since v1.0.6:
@@ -6,9 +12,7 @@ Changes since v1.0.6:
 - "Claude PR Assistant workflow" ([@matt-edmondson](https://github.com/matt-edmondson))
 ## v1.0.7-pre.1 (prerelease)
 
-Changes since v1.0.6:
-
-- Sync .specstory\.gitignore ([@ktsu[bot]](https://github.com/ktsu[bot]))
+Incremental prerelease update.
 ## v1.0.6 (patch)
 
 Changes since v1.0.5:
