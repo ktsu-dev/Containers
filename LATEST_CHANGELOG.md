@@ -1,5 +1,6 @@
-## v1.0.7-pre.1 (prerelease)
+## v1.0.7 (patch)
 
 Changes since v1.0.6:
 
-- Sync .specstory\.gitignore ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- "Claude Code Review workflow" ([@matt-edmondson](https://github.com/matt-edmondson))
+- "Claude PR Assistant workflow" ([@matt-edmondson](https://github.com/matt-edmondson))
