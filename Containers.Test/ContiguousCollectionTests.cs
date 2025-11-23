@@ -5,6 +5,8 @@
 namespace ktsu.Containers.Tests;
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 [TestClass]
 public class ContiguousCollectionTests
 {
@@ -32,7 +34,11 @@ public class ContiguousCollectionTests
 	}
 
 	[TestMethod]
-	[SuppressMessage("Style", "IDE0028:Collection initialization can be simplified", Justification = "Need explicit constructor call for zero capacity test")]
+	[SuppressMessage(
+		"Style",
+		"IDE0028:Collection initialization can be simplified",
+		Justification = "Need explicit constructor call for zero capacity test"
+	)]
 	public void Constructor_WithZeroCapacity_CreatesEmptyCollection()
 	{
 		// Arrange & Act
@@ -117,7 +123,7 @@ public class ContiguousCollectionTests
 			// Act
 			1,
 			2,
-			3 // Should trigger growth
+			3, // Should trigger growth
 		};
 
 		// Assert
@@ -330,6 +336,7 @@ public class ContiguousCollectionTests
 		Assert.AreEqual(2, array[4]);
 		Assert.AreEqual(0, array[5]); // Unchanged
 	}
+
 	private static readonly int[] expected = [3, 1, 4, 2];
 
 	[TestMethod]
@@ -451,11 +458,7 @@ public class ContiguousCollectionTests
 	public void TrimExcess_ReducesCapacityToCount()
 	{
 		// Arrange
-		ContiguousCollection<int> collection = new(10)
-		{
-			1,
-			2
-		};
+		ContiguousCollection<int> collection = new(10) { 1, 2 };
 
 		// Act
 		collection.TrimExcess();

@@ -4,56 +4,65 @@ A high-performance collection library for .NET providing specialized container i
 
 ## 🚀 Features
 
-- **OrderedCollection<T>**: Maintains elements in sorted order with efficient binary search operations
-- **OrderedSet<T>**: Unique elements maintained in sorted order with full ISet<T> support
-- **RingBuffer<T>**: Fixed-size circular buffer optimized for streaming data scenarios
-- **Comprehensive Benchmarking**: World-class performance validation against .NET collections
+-   **OrderedCollection<T>**: Maintains elements in sorted order with efficient binary search operations
+-   **OrderedSet<T>**: Unique elements maintained in sorted order with full ISet<T> support
+-   **RingBuffer<T>**: Fixed-size circular buffer optimized for streaming data scenarios
+-   **Comprehensive Benchmarking**: World-class performance validation against .NET collections
 
 ## 📦 Collections
 
 ### OrderedCollection<T>
+
 A collection that maintains elements in sorted order with efficient insertion and search operations.
 
 **Key Features:**
-- O(log n) insertion maintaining sort order
-- O(log n) search operations via binary search
-- Multiple constructors with capacity and comparer support
-- Implements ICollection<T>, IReadOnlyCollection<T>, IReadOnlyList<T>
+
+-   O(log n) insertion maintaining sort order
+-   O(log n) search operations via binary search
+-   Multiple constructors with capacity and comparer support
+-   Implements ICollection<T>, IReadOnlyCollection<T>, IReadOnlyList<T>
 
 **Best Use Cases:**
-- Incremental sorted data building
-- Frequent search operations on ordered data
-- Scenarios requiring both order and random access
+
+-   Incremental sorted data building
+-   Frequent search operations on ordered data
+-   Scenarios requiring both order and random access
 
 ### OrderedSet<T>
+
 A set implementation that maintains unique elements in sorted order.
 
 **Key Features:**
-- O(log n) Add/Remove/Contains operations
-- Full ISet<T> interface support (Union, Intersection, Except, etc.)
-- Sorted enumeration without additional sorting cost
-- Memory-efficient list-based implementation
+
+-   O(log n) Add/Remove/Contains operations
+-   Full ISet<T> interface support (Union, Intersection, Except, etc.)
+-   Sorted enumeration without additional sorting cost
+-   Memory-efficient list-based implementation
 
 **Best Use Cases:**
-- Unique sorted collections
-- Set operations with maintained order
-- Mathematical set operations with sorted results
+
+-   Unique sorted collections
+-   Set operations with maintained order
+-   Mathematical set operations with sorted results
 
 ### RingBuffer<T>
+
 A fixed-size circular buffer optimized for continuous data streams.
 
 **Key Features:**
-- O(1) insertion and access operations
-- Automatic wrapping when capacity is reached
-- Index-based access to buffer elements
-- Resizing and resampling capabilities
-- Power-of-two sizing for optimal performance
+
+-   O(1) insertion and access operations
+-   Automatic wrapping when capacity is reached
+-   Index-based access to buffer elements
+-   Resizing and resampling capabilities
+-   Power-of-two sizing for optimal performance
 
 **Best Use Cases:**
-- Streaming data processing
-- Fixed-size caches
-- Sliding window algorithms
-- Audio/signal processing buffers
+
+-   Streaming data processing
+-   Fixed-size caches
+-   Sliding window algorithms
+-   Audio/signal processing buffers
 
 ## 🏆 Performance & Benchmarking
 
@@ -62,34 +71,42 @@ We've implemented a comprehensive benchmarking system using BenchmarkDotNet that
 ### Benchmark Categories
 
 #### 🎯 Container-Specific Benchmarks
-- **OrderedCollection vs List<T> + Sort vs SortedList<T>**
-- **OrderedSet vs HashSet<T> vs SortedSet<T>**
-- **RingBuffer vs Queue<T> vs List<T> with size limiting**
+
+-   **OrderedCollection vs List<T> + Sort vs SortedList<T>**
+-   **OrderedSet vs HashSet<T> vs SortedSet<T>**
+-   **RingBuffer vs Queue<T> vs List<T> with size limiting**
 
 #### 📊 Standard Collection Baselines
+
 Performance baselines for all major .NET collections:
-- List<T>, HashSet<T>, SortedSet<T>
-- Dictionary<TKey,TValue>, SortedDictionary<TKey,TValue>
-- Queue<T>, Stack<T>
-- ConcurrentDictionary<TKey,TValue>, ConcurrentQueue<T>
+
+-   List<T>, HashSet<T>, SortedSet<T>
+-   Dictionary<TKey,TValue>, SortedDictionary<TKey,TValue>
+-   Queue<T>, Stack<T>
+-   ConcurrentDictionary<TKey,TValue>, ConcurrentQueue<T>
 
 #### 🔄 Cross-Collection Comparisons
+
 Direct comparisons for common scenarios:
-- Building ordered collections (incremental vs bulk)
-- Set operations across different implementations
-- Memory efficiency patterns
-- Real-world usage workflows
+
+-   Building ordered collections (incremental vs bulk)
+-   Set operations across different implementations
+-   Memory efficiency patterns
+-   Real-world usage workflows
 
 #### 📈 Performance Analysis
+
 Advanced scenarios including:
-- Scalability testing (1K to 100K+ elements)
-- Edge cases and worst-case scenarios
-- Memory pressure analysis
-- Specialized use cases (sliding windows, priority queues)
+
+-   Scalability testing (1K to 100K+ elements)
+-   Edge cases and worst-case scenarios
+-   Memory pressure analysis
+-   Specialized use cases (sliding windows, priority queues)
 
 ### Running Benchmarks
 
 #### Quick Start
+
 ```powershell
 # Fast development feedback
 .\scripts\run-benchmarks.ps1 -Target Quick
@@ -105,18 +122,20 @@ Advanced scenarios including:
 ```
 
 #### Available Targets
-| Target | Description |
-|--------|-------------|
-| `Quick` | Fast subset for development feedback |
-| `OrderedCollection` | OrderedCollection<T> vs alternatives |
-| `OrderedSet` | OrderedSet<T> vs alternatives |
-| `RingBuffer` | RingBuffer<T> vs alternatives |
-| `Standard` | Built-in .NET collection baselines |
-| `CrossComparison` | Direct cross-collection comparisons |
-| `PerformanceAnalysis` | Scalability and edge case analysis |
-| `All` | Complete benchmark suite |
+
+| Target                | Description                          |
+| --------------------- | ------------------------------------ |
+| `Quick`               | Fast subset for development feedback |
+| `OrderedCollection`   | OrderedCollection<T> vs alternatives |
+| `OrderedSet`          | OrderedSet<T> vs alternatives        |
+| `RingBuffer`          | RingBuffer<T> vs alternatives        |
+| `Standard`            | Built-in .NET collection baselines   |
+| `CrossComparison`     | Direct cross-collection comparisons  |
+| `PerformanceAnalysis` | Scalability and edge case analysis   |
+| `All`                 | Complete benchmark suite             |
 
 #### Command Line Options
+
 ```bash
 # Manual benchmark execution
 dotnet run --project Containers.Benchmarks --configuration Release
@@ -137,6 +156,7 @@ dotnet run --project Containers.Benchmarks --configuration Release -- --exporter
 ## 🔧 Usage Examples
 
 ### OrderedCollection<T>
+
 ```csharp
 // Create and populate
 var collection = new OrderedCollection<int>();
@@ -153,6 +173,7 @@ int first = collection[0]; // 1
 ```
 
 ### OrderedSet<T>
+
 ```csharp
 // Create with initial data
 var set = new OrderedSet<int> { 3, 1, 4, 1, 5 };
@@ -164,6 +185,7 @@ set.UnionWith(other); // [1, 3, 4, 5, 6]
 ```
 
 ### RingBuffer<T>
+
 ```csharp
 // Create fixed-size buffer
 var buffer = new RingBuffer<int>(3);
@@ -180,16 +202,19 @@ int latest = buffer[buffer.Count - 1]; // 4 (most recent)
 ## 🛠️ Development
 
 ### Building
+
 ```bash
 dotnet build
 ```
 
 ### Testing
+
 ```bash
 dotnet test
 ```
 
 ### Benchmarking
+
 ```bash
 # Quick performance check
 .\scripts\run-benchmarks.ps1 -Target Quick
@@ -201,19 +226,22 @@ dotnet test
 ## 📊 Performance Characteristics
 
 ### OrderedCollection<T>
-- ✅ **Excellent for**: Incremental sorted insertions, frequent searches
-- ⚠️ **Consider alternatives for**: Large bulk operations (List<T> + Sort may be faster)
-- 🎯 **Sweet spot**: 100-10,000 elements with mixed insert/search operations
+
+-   ✅ **Excellent for**: Incremental sorted insertions, frequent searches
+-   ⚠️ **Consider alternatives for**: Large bulk operations (List<T> + Sort may be faster)
+-   🎯 **Sweet spot**: 100-10,000 elements with mixed insert/search operations
 
 ### OrderedSet<T>
-- ✅ **Excellent for**: Unique sorted collections, set operations with order
-- ⚠️ **Consider alternatives for**: Pure membership testing (HashSet<T> is faster)
-- 🎯 **Sweet spot**: Mathematical set operations requiring sorted results
+
+-   ✅ **Excellent for**: Unique sorted collections, set operations with order
+-   ⚠️ **Consider alternatives for**: Pure membership testing (HashSet<T> is faster)
+-   🎯 **Sweet spot**: Mathematical set operations requiring sorted results
 
 ### RingBuffer<T>
-- ✅ **Excellent for**: Streaming data, fixed-size caches, sliding windows
-- ⚠️ **Consider alternatives for**: Dynamic growth requirements
-- 🎯 **Sweet spot**: Continuous data streams with occasional random access
+
+-   ✅ **Excellent for**: Streaming data, fixed-size caches, sliding windows
+-   ⚠️ **Consider alternatives for**: Dynamic growth requirements
+-   🎯 **Sweet spot**: Continuous data streams with occasional random access
 
 ## 🤝 Contributing
 
@@ -225,7 +253,9 @@ dotnet test
 6. Submit a pull request
 
 ### Adding New Containers
+
 When adding new containers:
+
 1. Implement the container in `Containers/`
 2. Add comprehensive tests in `Containers.Test/`
 3. Create benchmark comparisons in `Containers.Benchmarks/`
@@ -239,11 +269,11 @@ Licensed under the MIT License. See [LICENSE.md](LICENSE.md) for details.
 
 The library is built with performance and reliability in mind:
 
-- **Zero-allocation operations** where possible
-- **Power-of-two sizing** for optimal memory access patterns
-- **Binary search algorithms** for O(log n) performance
-- **Comprehensive test coverage** ensuring reliability
-- **Benchmark-driven development** validating performance claims
+-   **Zero-allocation operations** where possible
+-   **Power-of-two sizing** for optimal memory access patterns
+-   **Binary search algorithms** for O(log n) performance
+-   **Comprehensive test coverage** ensuring reliability
+-   **Benchmark-driven development** validating performance claims
 
 ## 🎯 Design Principles
 

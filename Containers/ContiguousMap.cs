@@ -6,7 +6,9 @@ namespace ktsu.Containers;
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+#if NET5_0_OR_GREATER
 using System.Runtime.CompilerServices;
+#endif
 
 /// <summary>
 /// Represents a generic map/dictionary that maintains key-value pairs in contiguous memory for optimal cache performance.
@@ -39,8 +41,14 @@ using System.Runtime.CompilerServices;
 /// </remarks>
 /// <typeparam name="TKey">The type of keys in the map.</typeparam>
 /// <typeparam name="TValue">The type of values in the map.</typeparam>
-[SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "ContiguousMap is a known collection name")]
-public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
+[SuppressMessage(
+	"Naming",
+	"CA1710:Identifiers should have correct suffix",
+	Justification = "ContiguousMap is a known collection name"
+)]
+public class ContiguousMap<TKey, TValue>
+	: IDictionary<TKey, TValue>,
+		IReadOnlyDictionary<TKey, TValue>
 	where TKey : notnull
 {
 	/// <summary>
@@ -69,15 +77,25 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 		/// <param name="obj">The object to compare with the current entry.</param>
 		/// <returns>true if the specified object is equal to the current entry; otherwise, false.</returns>
 		public override bool Equals(object? obj) =>
-			obj is Entry other &&
-			EqualityComparer<TKey>.Default.Equals(Key, other.Key) &&
-			EqualityComparer<TValue>.Default.Equals(Value, other.Value);
+			obj is Entry other
+			&& EqualityComparer<TKey>.Default.Equals(Key, other.Key)
+			&& EqualityComparer<TValue>.Default.Equals(Value, other.Value);
 
 		/// <summary>
 		/// Returns the hash code for this entry.
 		/// </summary>
 		/// <returns>A 32-bit signed integer hash code.</returns>
-		public override int GetHashCode() => HashCode.Combine(Key, Value);
+		public override int GetHashCode()
+		{
+#if NETSTANDARD2_0
+			int hash = 17;
+			hash = (hash * 31) + (Key?.GetHashCode() ?? 0);
+			hash = (hash * 31) + (Value?.GetHashCode() ?? 0);
+			return hash;
+#else
+			return HashCode.Combine(Key, Value);
+#endif
+		}
 
 		/// <summary>
 		/// Determines whether the current entry is equal to another entry.
@@ -85,8 +103,8 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 		/// <param name="other">An entry to compare with this entry.</param>
 		/// <returns>true if the current entry is equal to the other parameter; otherwise, false.</returns>
 		public bool Equals(Entry other) =>
-			EqualityComparer<TKey>.Default.Equals(Key, other.Key) &&
-			EqualityComparer<TValue>.Default.Equals(Value, other.Value);
+			EqualityComparer<TKey>.Default.Equals(Key, other.Key)
+			&& EqualityComparer<TValue>.Default.Equals(Value, other.Value);
 
 		/// <summary>
 		/// Determines whether two entries are equal.
@@ -146,7 +164,10 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	{
 		get
 		{
-			ArgumentNullException.ThrowIfNull(key);
+			if (key is null)
+			{
+				throw new ArgumentNullException(nameof(key));
+			}
 
 			return !keyToIndex.TryGetValue(key, out int index)
 				? throw new KeyNotFoundException($"The key '{key}' was not found in the map.")
@@ -154,7 +175,10 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 		}
 		set
 		{
-			ArgumentNullException.ThrowIfNull(key);
+			if (key is null)
+			{
+				throw new ArgumentNullException(nameof(key));
+			}
 
 			if (keyToIndex.TryGetValue(key, out int index))
 			{
@@ -214,7 +238,10 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// <exception cref="ArgumentNullException">Thrown when comparer is null.</exception>
 	public ContiguousMap(IEqualityComparer<TKey> comparer)
 	{
-		ArgumentNullException.ThrowIfNull(comparer);
+		if (comparer is null)
+		{
+			throw new ArgumentNullException(nameof(comparer));
+		}
 
 		items = new Entry[DefaultCapacity];
 		keyToIndex = new Dictionary<TKey, int>(comparer);
@@ -228,7 +255,10 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public ContiguousMap(int capacity)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+		if (capacity < 0)
+		{
+			throw new ArgumentOutOfRangeException(nameof(capacity));
+		}
 
 		items = capacity == 0 ? [] : new Entry[capacity];
 		keyToIndex = new Dictionary<TKey, int>(capacity);
@@ -244,8 +274,14 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public ContiguousMap(int capacity, IEqualityComparer<TKey> comparer)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
-		ArgumentNullException.ThrowIfNull(comparer);
+		if (capacity < 0)
+		{
+			throw new ArgumentOutOfRangeException(nameof(capacity));
+		}
+		if (comparer is null)
+		{
+			throw new ArgumentNullException(nameof(comparer));
+		}
 
 		items = capacity == 0 ? [] : new Entry[capacity];
 		keyToIndex = new Dictionary<TKey, int>(capacity, comparer);
@@ -259,7 +295,10 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// <exception cref="ArgumentNullException">Thrown when dictionary is null.</exception>
 	public ContiguousMap(IDictionary<TKey, TValue> dictionary)
 	{
-		ArgumentNullException.ThrowIfNull(dictionary);
+		if (dictionary is null)
+		{
+			throw new ArgumentNullException(nameof(dictionary));
+		}
 
 		int capacity = dictionary.Count == 0 ? DefaultCapacity : dictionary.Count;
 		items = new Entry[capacity];
@@ -280,8 +319,14 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// <exception cref="ArgumentNullException">Thrown when dictionary or comparer is null.</exception>
 	public ContiguousMap(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
 	{
-		ArgumentNullException.ThrowIfNull(dictionary);
-		ArgumentNullException.ThrowIfNull(comparer);
+		if (dictionary is null)
+		{
+			throw new ArgumentNullException(nameof(dictionary));
+		}
+		if (comparer is null)
+		{
+			throw new ArgumentNullException(nameof(comparer));
+		}
 
 		int capacity = dictionary.Count == 0 ? DefaultCapacity : dictionary.Count;
 		items = new Entry[capacity];
@@ -307,11 +352,17 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// </remarks>
 	public void Add(TKey key, TValue value)
 	{
-		ArgumentNullException.ThrowIfNull(key);
+		if (key is null)
+		{
+			throw new ArgumentNullException(nameof(key));
+		}
 
 		if (keyToIndex.ContainsKey(key))
 		{
-			throw new ArgumentException($"An element with the key '{key}' already exists.", nameof(key));
+			throw new ArgumentException(
+				$"An element with the key '{key}' already exists.",
+				nameof(key)
+			);
 		}
 
 		if (Count == items.Length)
@@ -337,7 +388,10 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// </remarks>
 	public bool Remove(TKey key)
 	{
-		ArgumentNullException.ThrowIfNull(key);
+		if (key is null)
+		{
+			throw new ArgumentNullException(nameof(key));
+		}
 
 		if (!keyToIndex.TryGetValue(key, out int index))
 		{
@@ -351,7 +405,11 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 			Array.Copy(items, index + 1, items, index, Count - index);
 		}
 
+#if NET5_0_OR_GREATER
 		if (RuntimeHelpers.IsReferenceOrContainsReferences<Entry>())
+#else
+		if (!typeof(Entry).IsValueType)
+#endif
 		{
 			items[Count] = default;
 		}
@@ -379,7 +437,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// </remarks>
 	public bool ContainsKey(TKey key)
 	{
-		ArgumentNullException.ThrowIfNull(key);
+		ThrowHelper.ThrowIfNull(key);
 		return keyToIndex.ContainsKey(key);
 	}
 
@@ -393,9 +451,9 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// <remarks>
 	/// This operation has O(1) average time complexity.
 	/// </remarks>
-	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
+	public bool TryGetValue(TKey key, out TValue value)
 	{
-		ArgumentNullException.ThrowIfNull(key);
+		ThrowHelper.ThrowIfNull(key);
 
 		if (keyToIndex.TryGetValue(key, out int index))
 		{
@@ -403,7 +461,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 			return true;
 		}
 
-		value = default;
+		value = default!;
 		return false;
 	}
 
@@ -419,7 +477,11 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// </summary>
 	public void Clear()
 	{
+#if NET5_0_OR_GREATER
 		if (RuntimeHelpers.IsReferenceOrContainsReferences<Entry>())
+#else
+		if (!typeof(Entry).IsValueType)
+#endif
 		{
 			// Clear references to help GC
 			Array.Clear(items, 0, Count);
@@ -447,10 +509,10 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// <exception cref="ArgumentException">Thrown when the destination array is too small.</exception>
 	public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
 	{
-		ArgumentNullException.ThrowIfNull(array);
-		ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
+		ThrowHelper.ThrowIfNull(array);
+		ThrowHelper.ThrowIfNegative(arrayIndex);
+		ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
+		ThrowHelper.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 		for (int i = 0; i < Count; i++)
 		{
@@ -502,7 +564,7 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 	/// </remarks>
 	public void EnsureCapacity(int capacity)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+		ThrowHelper.ThrowIfNegative(capacity);
 
 		if (items.Length < capacity)
 		{
@@ -626,22 +688,26 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 		public int Count => map.Count;
 		public bool IsReadOnly => true;
 
-		public void Add(TKey item) => throw new NotSupportedException("Keys collection is read-only.");
+		public void Add(TKey item) =>
+			throw new NotSupportedException("Keys collection is read-only.");
+
 		public void Clear() => throw new NotSupportedException("Keys collection is read-only.");
-		public bool Remove(TKey item) => throw new NotSupportedException("Keys collection is read-only.");
+
+		public bool Remove(TKey item) =>
+			throw new NotSupportedException("Keys collection is read-only.");
 
 		public bool Contains(TKey item)
 		{
-			ArgumentNullException.ThrowIfNull(item);
+			ThrowHelper.ThrowIfNull(item);
 			return map.ContainsKey(item);
 		}
 
 		public void CopyTo(TKey[] array, int arrayIndex)
 		{
-			ArgumentNullException.ThrowIfNull(array);
-			ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
-			ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
-			ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
+			ThrowHelper.ThrowIfNull(array);
+			ThrowHelper.ThrowIfNegative(arrayIndex);
+			ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
+			ThrowHelper.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 			for (int i = 0; i < map.Count; i++)
 			{
@@ -670,9 +736,13 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 		public int Count => map.Count;
 		public bool IsReadOnly => true;
 
-		public void Add(TValue item) => throw new NotSupportedException("Values collection is read-only.");
+		public void Add(TValue item) =>
+			throw new NotSupportedException("Values collection is read-only.");
+
 		public void Clear() => throw new NotSupportedException("Values collection is read-only.");
-		public bool Remove(TValue item) => throw new NotSupportedException("Values collection is read-only.");
+
+		public bool Remove(TValue item) =>
+			throw new NotSupportedException("Values collection is read-only.");
 
 		public bool Contains(TValue item)
 		{
@@ -688,10 +758,10 @@ public class ContiguousMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyD
 
 		public void CopyTo(TValue[] array, int arrayIndex)
 		{
-			ArgumentNullException.ThrowIfNull(array);
-			ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
-			ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
-			ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
+			ThrowHelper.ThrowIfNull(array);
+			ThrowHelper.ThrowIfNegative(arrayIndex);
+			ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
+			ThrowHelper.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 			for (int i = 0; i < map.Count; i++)
 			{

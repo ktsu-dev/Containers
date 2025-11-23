@@ -5,6 +5,7 @@
 namespace ktsu.Containers.Tests;
 
 using System.Collections;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 [TestClass]
 public class OrderedCollectionTests
@@ -27,12 +28,7 @@ public class OrderedCollectionTests
 		IComparer<int> reverseComparer = Comparer<int>.Create((x, y) => y.CompareTo(x));
 
 		// Act
-		OrderedCollection<int> collection = new(reverseComparer)
-		{
-			1,
-			3,
-			2
-		};
+		OrderedCollection<int> collection = new(reverseComparer) { 1, 3, 2 };
 
 		// Assert
 		Assert.AreEqual(3, collection.Count);
@@ -75,7 +71,9 @@ public class OrderedCollectionTests
 	public void Constructor_WithNullComparer_ThrowsArgumentNullException()
 	{
 		// Arrange, Act & Assert
-		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedCollection<int>((IComparer<int>)null!));
+		Assert.ThrowsExactly<ArgumentNullException>(() =>
+			new OrderedCollection<int>((IComparer<int>)null!)
+		);
 		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedCollection<int>(10, null!));
 	}
 
@@ -104,8 +102,12 @@ public class OrderedCollectionTests
 	public void Constructor_WithNullCollection_ThrowsArgumentNullException()
 	{
 		// Arrange, Act & Assert
-		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedCollection<int>((IEnumerable<int>)null!));
-		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedCollection<int>(null!, Comparer<int>.Default));
+		Assert.ThrowsExactly<ArgumentNullException>(() =>
+			new OrderedCollection<int>((IEnumerable<int>)null!)
+		);
+		Assert.ThrowsExactly<ArgumentNullException>(() =>
+			new OrderedCollection<int>(null!, Comparer<int>.Default)
+		);
 	}
 
 	[TestMethod]

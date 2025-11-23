@@ -28,8 +28,14 @@ using System.Diagnostics.CodeAnalysis;
 /// </remarks>
 /// <typeparam name="TKey">The type of keys in the map.</typeparam>
 /// <typeparam name="TValue">The type of values in the map.</typeparam>
-[SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "InsertionOrderMap is a known collection name")]
-public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>
+[SuppressMessage(
+	"Naming",
+	"CA1710:Identifiers should have correct suffix",
+	Justification = "InsertionOrderMap is a known collection name"
+)]
+public class InsertionOrderMap<TKey, TValue>
+	: IDictionary<TKey, TValue>,
+		IReadOnlyDictionary<TKey, TValue>
 	where TKey : notnull
 {
 	/// <summary>
@@ -72,7 +78,7 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	{
 		get
 		{
-			ArgumentNullException.ThrowIfNull(key);
+			ThrowHelper.ThrowIfNull(key);
 
 			return !keyToIndex.TryGetValue(key, out int index)
 				? throw new KeyNotFoundException($"The key '{key}' was not found in the map.")
@@ -80,7 +86,7 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 		}
 		set
 		{
-			ArgumentNullException.ThrowIfNull(key);
+			ThrowHelper.ThrowIfNull(key);
 
 			if (keyToIndex.TryGetValue(key, out int index))
 			{
@@ -135,7 +141,7 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// <exception cref="ArgumentNullException">Thrown when comparer is null.</exception>
 	public InsertionOrderMap(IEqualityComparer<TKey> comparer)
 	{
-		ArgumentNullException.ThrowIfNull(comparer);
+		ThrowHelper.ThrowIfNull(comparer);
 
 		items = [];
 		keyToIndex = new Dictionary<TKey, int>(comparer);
@@ -148,7 +154,7 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public InsertionOrderMap(int capacity)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+		ThrowHelper.ThrowIfNegative(capacity);
 
 		items = new List<Entry>(capacity);
 		keyToIndex = new Dictionary<TKey, int>(capacity);
@@ -163,8 +169,8 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public InsertionOrderMap(int capacity, IEqualityComparer<TKey> comparer)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
-		ArgumentNullException.ThrowIfNull(comparer);
+		ThrowHelper.ThrowIfNegative(capacity);
+		ThrowHelper.ThrowIfNull(comparer);
 
 		items = new List<Entry>(capacity);
 		keyToIndex = new Dictionary<TKey, int>(capacity, comparer);
@@ -177,7 +183,7 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// <exception cref="ArgumentNullException">Thrown when dictionary is null.</exception>
 	public InsertionOrderMap(IDictionary<TKey, TValue> dictionary)
 	{
-		ArgumentNullException.ThrowIfNull(dictionary);
+		ThrowHelper.ThrowIfNull(dictionary);
 
 		items = [];
 		keyToIndex = [];
@@ -196,8 +202,8 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// <exception cref="ArgumentNullException">Thrown when dictionary or comparer is null.</exception>
 	public InsertionOrderMap(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
 	{
-		ArgumentNullException.ThrowIfNull(dictionary);
-		ArgumentNullException.ThrowIfNull(comparer);
+		ThrowHelper.ThrowIfNull(dictionary);
+		ThrowHelper.ThrowIfNull(comparer);
 
 		items = [];
 		keyToIndex = new Dictionary<TKey, int>(comparer);
@@ -221,11 +227,14 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// </remarks>
 	public void Add(TKey key, TValue value)
 	{
-		ArgumentNullException.ThrowIfNull(key);
+		ThrowHelper.ThrowIfNull(key);
 
 		if (keyToIndex.ContainsKey(key))
 		{
-			throw new ArgumentException($"An element with the key '{key}' already exists.", nameof(key));
+			throw new ArgumentException(
+				$"An element with the key '{key}' already exists.",
+				nameof(key)
+			);
 		}
 
 		int index = items.Count;
@@ -244,7 +253,7 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// </remarks>
 	public bool Remove(TKey key)
 	{
-		ArgumentNullException.ThrowIfNull(key);
+		ThrowHelper.ThrowIfNull(key);
 
 		if (!keyToIndex.TryGetValue(key, out int index))
 		{
@@ -276,7 +285,7 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// </remarks>
 	public bool ContainsKey(TKey key)
 	{
-		ArgumentNullException.ThrowIfNull(key);
+		ThrowHelper.ThrowIfNull(key);
 		return keyToIndex.ContainsKey(key);
 	}
 
@@ -290,9 +299,13 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// <remarks>
 	/// This operation has O(1) average time complexity.
 	/// </remarks>
-	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
+	public bool TryGetValue(TKey key,
+#if NET5_0_OR_GREATER
+		[MaybeNullWhen(false)]
+#endif
+		out TValue value)
 	{
-		ArgumentNullException.ThrowIfNull(key);
+		ThrowHelper.ThrowIfNull(key);
 
 		if (keyToIndex.TryGetValue(key, out int index))
 		{
@@ -300,7 +313,7 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 			return true;
 		}
 
-		value = default;
+		value = default!;
 		return false;
 	}
 
@@ -325,7 +338,9 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// </summary>
 	/// <param name="item">The key-value pair to locate.</param>
 	/// <returns>true if the key-value pair is found; otherwise, false.</returns>
-	public bool Contains(KeyValuePair<TKey, TValue> item) => keyToIndex.TryGetValue(item.Key, out int index) && EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value);
+	public bool Contains(KeyValuePair<TKey, TValue> item) =>
+		keyToIndex.TryGetValue(item.Key, out int index)
+		&& EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value);
 
 	/// <summary>
 	/// Copies the key-value pairs of the map to an array, starting at the specified array index.
@@ -337,10 +352,10 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// <exception cref="ArgumentException">Thrown when the destination array is too small.</exception>
 	public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
 	{
-		ArgumentNullException.ThrowIfNull(array);
-		ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
+		ThrowHelper.ThrowIfNull(array);
+		ThrowHelper.ThrowIfNegative(arrayIndex);
+		ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
+		ThrowHelper.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 		for (int i = 0; i < items.Count; i++)
 		{
@@ -354,7 +369,10 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 	/// </summary>
 	/// <param name="item">The key-value pair to remove.</param>
 	/// <returns>true if the key-value pair was found and removed; otherwise, false.</returns>
-	public bool Remove(KeyValuePair<TKey, TValue> item) => keyToIndex.TryGetValue(item.Key, out int index) && EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value) && Remove(item.Key);
+	public bool Remove(KeyValuePair<TKey, TValue> item) =>
+		keyToIndex.TryGetValue(item.Key, out int index)
+		&& EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value)
+		&& Remove(item.Key);
 
 	/// <summary>
 	/// Returns an enumerator that iterates through the map in insertion order.
@@ -391,22 +409,26 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 		public int Count => map.Count;
 		public bool IsReadOnly => true;
 
-		public void Add(TKey item) => throw new NotSupportedException("Keys collection is read-only.");
+		public void Add(TKey item) =>
+			throw new NotSupportedException("Keys collection is read-only.");
+
 		public void Clear() => throw new NotSupportedException("Keys collection is read-only.");
-		public bool Remove(TKey item) => throw new NotSupportedException("Keys collection is read-only.");
+
+		public bool Remove(TKey item) =>
+			throw new NotSupportedException("Keys collection is read-only.");
 
 		public bool Contains(TKey item)
 		{
-			ArgumentNullException.ThrowIfNull(item);
+			ThrowHelper.ThrowIfNull(item);
 			return map.ContainsKey(item);
 		}
 
 		public void CopyTo(TKey[] array, int arrayIndex)
 		{
-			ArgumentNullException.ThrowIfNull(array);
-			ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
-			ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
-			ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
+			ThrowHelper.ThrowIfNull(array);
+			ThrowHelper.ThrowIfNegative(arrayIndex);
+			ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
+			ThrowHelper.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 			for (int i = 0; i < map.items.Count; i++)
 			{
@@ -435,18 +457,23 @@ public class InsertionOrderMap<TKey, TValue> : IDictionary<TKey, TValue>, IReadO
 		public int Count => map.Count;
 		public bool IsReadOnly => true;
 
-		public void Add(TValue item) => throw new NotSupportedException("Values collection is read-only.");
-		public void Clear() => throw new NotSupportedException("Values collection is read-only.");
-		public bool Remove(TValue item) => throw new NotSupportedException("Values collection is read-only.");
+		public void Add(TValue item) =>
+			throw new NotSupportedException("Values collection is read-only.");
 
-		public bool Contains(TValue item) => map.items.Any(entry => EqualityComparer<TValue>.Default.Equals(entry.Value, item));
+		public void Clear() => throw new NotSupportedException("Values collection is read-only.");
+
+		public bool Remove(TValue item) =>
+			throw new NotSupportedException("Values collection is read-only.");
+
+		public bool Contains(TValue item) =>
+			map.items.Any(entry => EqualityComparer<TValue>.Default.Equals(entry.Value, item));
 
 		public void CopyTo(TValue[] array, int arrayIndex)
 		{
-			ArgumentNullException.ThrowIfNull(array);
-			ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
-			ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
-			ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
+			ThrowHelper.ThrowIfNull(array);
+			ThrowHelper.ThrowIfNegative(arrayIndex);
+			ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
+			ThrowHelper.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 			for (int i = 0; i < map.items.Count; i++)
 			{

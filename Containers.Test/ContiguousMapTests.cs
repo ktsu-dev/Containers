@@ -3,6 +3,9 @@
 // Licensed under the MIT license.
 
 namespace ktsu.Containers.Tests;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 [TestClass]
 public class ContiguousMapTests
 {
@@ -37,7 +40,7 @@ public class ContiguousMapTests
 			new(1, "one"),
 			new(4, "four"),
 			new(1, "duplicate"), // Duplicate key
-			new(2, "two")
+			new(2, "two"),
 		];
 
 		// Act
@@ -137,7 +140,11 @@ public class ContiguousMapTests
 	}
 
 	[TestMethod]
-	[System.Diagnostics.CodeAnalysis.SuppressMessage("Major Bug", "S4143:Collection elements should not be replaced unconditionally", Justification = "<Pending>")]
+	[System.Diagnostics.CodeAnalysis.SuppressMessage(
+		"Major Bug",
+		"S4143:Collection elements should not be replaced unconditionally",
+		Justification = "<Pending>"
+	)]
 	public void Indexer_Set_UpdatesValue()
 	{
 		// Arrange

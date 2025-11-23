@@ -3,6 +3,7 @@
 // Licensed under the MIT license.
 
 namespace ktsu.Containers.Benchmarks;
+
 using BenchmarkDotNet.Attributes;
 using ktsu.Containers;
 
@@ -79,16 +80,17 @@ public class PerformanceAnalysisBenchmarks
 	/// <summary>
 	/// Gets the current test dataset based on the scenario.
 	/// </summary>
-	private int[] GetCurrentDataset() => Scenario switch
-	{
-		"Small" => smallDataset,
-		"Medium" => mediumDataset,
-		"Large" => largeDataset,
-		"DuplicateHeavy" => duplicateHeavyData,
-		"Sorted" => sortedData,
-		"ReverseSorted" => reverseSortedData,
-		_ => smallDataset
-	};
+	private int[] GetCurrentDataset() =>
+		Scenario switch
+		{
+			"Small" => smallDataset,
+			"Medium" => mediumDataset,
+			"Large" => largeDataset,
+			"DuplicateHeavy" => duplicateHeavyData,
+			"Sorted" => sortedData,
+			"ReverseSorted" => reverseSortedData,
+			_ => smallDataset,
+		};
 
 	// ================================
 	// Scalability Analysis

@@ -3,6 +3,9 @@
 // Licensed under the MIT license.
 
 namespace ktsu.Containers.Tests;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 [TestClass]
 public class InsertionOrderMapTests
 {
@@ -36,7 +39,7 @@ public class InsertionOrderMapTests
 			new(3, "three"),
 			new(1, "one"),
 			new(4, "four"),
-			new(2, "two")
+			new(2, "two"),
 		];
 
 		// Act

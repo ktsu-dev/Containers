@@ -3,6 +3,9 @@
 // Licensed under the MIT license.
 
 namespace ktsu.Containers.Tests;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 [TestClass]
 public class InsertionOrderSetTests
 {
@@ -182,6 +185,7 @@ public class InsertionOrderSetTests
 		Assert.AreEqual(2, array[4]); // Fourth inserted
 		Assert.AreEqual(0, array[5]); // Unchanged
 	}
+
 	private static readonly int[] expected = [3, 1, 4, 2];
 
 	[TestMethod]
@@ -317,7 +321,7 @@ public class InsertionOrderSetTests
 		// Assert
 		Assert.AreEqual(3, set.Count); // Only unique elements
 		Assert.AreEqual("charlie", set.ElementAt(0)); // First unique
-		Assert.AreEqual("alpha", set.ElementAt(1));   // Second unique
-		Assert.AreEqual("bravo", set.ElementAt(2));   // Third unique
+		Assert.AreEqual("alpha", set.ElementAt(1)); // Second unique
+		Assert.AreEqual("bravo", set.ElementAt(2)); // Third unique
 	}
 }

@@ -73,7 +73,9 @@ public class OrderedSetTests
 	[TestMethod]
 	public void Constructor_NullComparer_ThrowsArgumentNullException()
 	{
-		Assert.ThrowsExactly<ArgumentNullException>(() => _ = new OrderedSet<int>((IComparer<int>)null!));
+		Assert.ThrowsExactly<ArgumentNullException>(() =>
+			_ = new OrderedSet<int>((IComparer<int>)null!)
+		);
 	}
 
 	[TestMethod]
@@ -85,7 +87,9 @@ public class OrderedSetTests
 	[TestMethod]
 	public void Constructor_NullCollection_ThrowsArgumentNullException()
 	{
-		Assert.ThrowsExactly<ArgumentNullException>(() => _ = new OrderedSet<int>((IEnumerable<int>)null!));
+		Assert.ThrowsExactly<ArgumentNullException>(() =>
+			_ = new OrderedSet<int>((IEnumerable<int>)null!)
+		);
 	}
 
 	[TestMethod]
@@ -126,10 +130,7 @@ public class OrderedSetTests
 	public void Add_WithCustomComparer_UsesCaseInsensitiveComparison()
 	{
 		IComparer<string> comparer = StringComparer.OrdinalIgnoreCase;
-		OrderedSet<string> set = new(comparer)
-		{
-			"Apple"
-		};
+		OrderedSet<string> set = new(comparer) { "Apple" };
 		bool addedDuplicate = set.Add("apple");
 
 		Assert.IsFalse(addedDuplicate);

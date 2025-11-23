@@ -3,6 +3,7 @@
 // Licensed under the MIT license.
 
 namespace ktsu.Containers.Benchmarks;
+
 using BenchmarkDotNet.Running;
 
 /// <summary>

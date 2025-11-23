@@ -30,8 +30,16 @@ using System.Diagnostics.CodeAnalysis;
 /// </list>
 /// </remarks>
 /// <typeparam name="T">The type of elements stored in the set.</typeparam>
-[SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "OrderedSet is a known collection name")]
-public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
+[SuppressMessage(
+	"Naming",
+	"CA1710:Identifiers should have correct suffix",
+	Justification = "OrderedSet is a known collection name"
+)]
+public class OrderedSet<T> : ISet<T>
+#if NET5_0_OR_GREATER
+		, IReadOnlySet<T>
+#endif
+		, IReadOnlyCollection<T>
 {
 	/// <summary>
 	/// The internal list that stores elements in sorted order.
@@ -62,9 +70,14 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentException">Thrown when T does not implement IComparable{T}.</exception>
 	public OrderedSet()
 	{
-		if (!typeof(IComparable<T>).IsAssignableFrom(typeof(T)) && !typeof(IComparable).IsAssignableFrom(typeof(T)))
+		if (
+			!typeof(IComparable<T>).IsAssignableFrom(typeof(T))
+			&& !typeof(IComparable).IsAssignableFrom(typeof(T))
+		)
 		{
-			throw new ArgumentException($"Type {typeof(T)} must implement IComparable<T> or IComparable when no comparer is provided.");
+			throw new ArgumentException(
+				$"Type {typeof(T)} must implement IComparable<T> or IComparable when no comparer is provided."
+			);
 		}
 
 		items = [];
@@ -78,7 +91,7 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when comparer is null.</exception>
 	public OrderedSet(IComparer<T> comparer)
 	{
-		ArgumentNullException.ThrowIfNull(comparer);
+		ThrowHelper.ThrowIfNull(comparer);
 
 		items = [];
 		this.comparer = comparer;
@@ -92,11 +105,16 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public OrderedSet(int capacity)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+		ThrowHelper.ThrowIfNegative(capacity);
 
-		if (!typeof(IComparable<T>).IsAssignableFrom(typeof(T)) && !typeof(IComparable).IsAssignableFrom(typeof(T)))
+		if (
+			!typeof(IComparable<T>).IsAssignableFrom(typeof(T))
+			&& !typeof(IComparable).IsAssignableFrom(typeof(T))
+		)
 		{
-			throw new ArgumentException($"Type {typeof(T)} must implement IComparable<T> or IComparable when no comparer is provided.");
+			throw new ArgumentException(
+				$"Type {typeof(T)} must implement IComparable<T> or IComparable when no comparer is provided."
+			);
 		}
 
 		items = new List<T>(capacity);
@@ -112,8 +130,8 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public OrderedSet(int capacity, IComparer<T> comparer)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
-		ArgumentNullException.ThrowIfNull(comparer);
+		ThrowHelper.ThrowIfNegative(capacity);
+		ThrowHelper.ThrowIfNull(comparer);
 
 		items = new List<T>(capacity);
 		this.comparer = comparer;
@@ -127,11 +145,16 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentException">Thrown when T does not implement IComparable{T}.</exception>
 	public OrderedSet(IEnumerable<T> collection)
 	{
-		ArgumentNullException.ThrowIfNull(collection);
+		ThrowHelper.ThrowIfNull(collection);
 
-		if (!typeof(IComparable<T>).IsAssignableFrom(typeof(T)) && !typeof(IComparable).IsAssignableFrom(typeof(T)))
+		if (
+			!typeof(IComparable<T>).IsAssignableFrom(typeof(T))
+			&& !typeof(IComparable).IsAssignableFrom(typeof(T))
+		)
 		{
-			throw new ArgumentException($"Type {typeof(T)} must implement IComparable<T> or IComparable when no comparer is provided.");
+			throw new ArgumentException(
+				$"Type {typeof(T)} must implement IComparable<T> or IComparable when no comparer is provided."
+			);
 		}
 
 		items = [];
@@ -151,8 +174,8 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when collection or comparer is null.</exception>
 	public OrderedSet(IEnumerable<T> collection, IComparer<T> comparer)
 	{
-		ArgumentNullException.ThrowIfNull(collection);
-		ArgumentNullException.ThrowIfNull(comparer);
+		ThrowHelper.ThrowIfNull(collection);
+		ThrowHelper.ThrowIfNull(comparer);
 
 		items = [];
 		this.comparer = comparer;
@@ -223,8 +246,8 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentException">Thrown when the destination array is too small.</exception>
 	public void CopyTo(T[] array, int arrayIndex)
 	{
-		ArgumentNullException.ThrowIfNull(array);
-		ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+		ThrowHelper.ThrowIfNull(array);
+		ThrowHelper.ThrowIfNegative(arrayIndex);
 
 		if (array.Length - arrayIndex < Count)
 		{
@@ -309,7 +332,7 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void UnionWith(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		foreach (T item in other)
 		{
@@ -324,7 +347,7 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void IntersectWith(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		HashSet<T> otherSet = [.. other];
 
@@ -344,7 +367,7 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void ExceptWith(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		foreach (T item in other)
 		{
@@ -359,7 +382,7 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void SymmetricExceptWith(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		HashSet<T> otherSet = [.. other];
 
@@ -397,7 +420,7 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsSubsetOf(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		HashSet<T> otherSet = [.. other];
 		return items.All(otherSet.Contains);
@@ -411,7 +434,7 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsSupersetOf(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		return other.All(Contains);
 	}
@@ -424,7 +447,7 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsProperSubsetOf(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		HashSet<T> otherSet = [.. other];
 		return Count < otherSet.Count && IsSubsetOf(otherSet);
@@ -438,7 +461,7 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsProperSupersetOf(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		HashSet<T> otherSet = [.. other];
 		return Count > otherSet.Count && IsSupersetOf(otherSet);
@@ -452,7 +475,7 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool Overlaps(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		return other.Any(Contains);
 	}
@@ -465,7 +488,7 @@ public class OrderedSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool SetEquals(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		HashSet<T> otherSet = [.. other];
 		return Count == otherSet.Count && IsSubsetOf(otherSet);

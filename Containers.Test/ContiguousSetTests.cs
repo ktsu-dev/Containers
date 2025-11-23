@@ -3,6 +3,9 @@
 // Licensed under the MIT license.
 
 namespace ktsu.Containers.Tests;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
 [TestClass]
 public class ContiguousSetTests
 {
@@ -50,7 +53,9 @@ public class ContiguousSetTests
 	public void Constructor_WithNullCollection_ThrowsArgumentNullException()
 	{
 		// Arrange, Act & Assert
-		Assert.ThrowsExactly<ArgumentNullException>(() => new ContiguousSet<int>((IEnumerable<int>)null!));
+		Assert.ThrowsExactly<ArgumentNullException>(() =>
+			new ContiguousSet<int>((IEnumerable<int>)null!)
+		);
 	}
 
 	[TestMethod]

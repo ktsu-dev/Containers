@@ -28,8 +28,16 @@ using System.Diagnostics.CodeAnalysis;
 /// </list>
 /// </remarks>
 /// <typeparam name="T">The type of elements stored in the set.</typeparam>
-[SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "InsertionOrderSet is a known collection name")]
-public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
+[SuppressMessage(
+	"Naming",
+	"CA1710:Identifiers should have correct suffix",
+	Justification = "InsertionOrderSet is a known collection name"
+)]
+public class InsertionOrderSet<T> : ISet<T>
+#if NET5_0_OR_GREATER
+		, IReadOnlySet<T>
+#endif
+		, IReadOnlyCollection<T>
 {
 	/// <summary>
 	/// The internal list that stores elements in insertion order.
@@ -67,7 +75,7 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentNullException">Thrown when comparer is null.</exception>
 	public InsertionOrderSet(IEqualityComparer<T> comparer)
 	{
-		ArgumentNullException.ThrowIfNull(comparer);
+		ThrowHelper.ThrowIfNull(comparer);
 
 		items = [];
 		uniquenessSet = new HashSet<T>(comparer);
@@ -80,10 +88,14 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public InsertionOrderSet(int capacity)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+		ThrowHelper.ThrowIfNegative(capacity);
 
 		items = new List<T>(capacity);
+#if NETSTANDARD2_0
+		uniquenessSet = [];
+#else
 		uniquenessSet = new HashSet<T>(capacity);
+#endif
 	}
 
 	/// <summary>
@@ -95,11 +107,15 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public InsertionOrderSet(int capacity, IEqualityComparer<T> comparer)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
-		ArgumentNullException.ThrowIfNull(comparer);
+		ThrowHelper.ThrowIfNegative(capacity);
+		ThrowHelper.ThrowIfNull(comparer);
 
 		items = new List<T>(capacity);
+#if NETSTANDARD2_0
+		uniquenessSet = new HashSet<T>(comparer);
+#else
 		uniquenessSet = new HashSet<T>(capacity, comparer);
+#endif
 	}
 
 	/// <summary>
@@ -109,7 +125,7 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentNullException">Thrown when collection is null.</exception>
 	public InsertionOrderSet(IEnumerable<T> collection)
 	{
-		ArgumentNullException.ThrowIfNull(collection);
+		ThrowHelper.ThrowIfNull(collection);
 
 		items = [];
 		uniquenessSet = [];
@@ -128,8 +144,8 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentNullException">Thrown when collection or comparer is null.</exception>
 	public InsertionOrderSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
 	{
-		ArgumentNullException.ThrowIfNull(collection);
-		ArgumentNullException.ThrowIfNull(comparer);
+		ThrowHelper.ThrowIfNull(collection);
+		ThrowHelper.ThrowIfNull(comparer);
 
 		items = [];
 		uniquenessSet = new HashSet<T>(comparer);
@@ -197,10 +213,10 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentException">Thrown when the destination array is too small.</exception>
 	public void CopyTo(T[] array, int arrayIndex)
 	{
-		ArgumentNullException.ThrowIfNull(array);
-		ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
+		ThrowHelper.ThrowIfNull(array);
+		ThrowHelper.ThrowIfNegative(arrayIndex);
+		ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
+		ThrowHelper.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 		items.CopyTo(array, arrayIndex);
 	}
@@ -245,7 +261,7 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void UnionWith(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		foreach (T item in other)
 		{
@@ -260,7 +276,7 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void IntersectWith(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
 
@@ -283,7 +299,7 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void ExceptWith(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		foreach (T item in other)
 		{
@@ -298,7 +314,7 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void SymmetricExceptWith(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		// Use a temporary set to avoid modifying the collection while enumerating
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
@@ -330,7 +346,7 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsSubsetOf(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 		return uniquenessSet.IsSubsetOf(other);
 	}
 
@@ -342,7 +358,7 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsSupersetOf(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 		return uniquenessSet.IsSupersetOf(other);
 	}
 
@@ -354,7 +370,7 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsProperSubsetOf(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 		return uniquenessSet.IsProperSubsetOf(other);
 	}
 
@@ -366,7 +382,7 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsProperSupersetOf(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 		return uniquenessSet.IsProperSupersetOf(other);
 	}
 
@@ -378,7 +394,7 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool Overlaps(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 		return uniquenessSet.Overlaps(other);
 	}
 
@@ -390,7 +406,7 @@ public class InsertionOrderSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollectio
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool SetEquals(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 		return uniquenessSet.SetEquals(other);
 	}
 

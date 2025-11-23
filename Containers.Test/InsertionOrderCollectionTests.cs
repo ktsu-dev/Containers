@@ -5,6 +5,7 @@
 namespace ktsu.Containers.Tests;
 
 using System.Collections;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 [TestClass]
 public class InsertionOrderCollectionTests
@@ -34,7 +35,9 @@ public class InsertionOrderCollectionTests
 	public void Constructor_WithNegativeCapacity_ThrowsArgumentOutOfRangeException()
 	{
 		// Arrange, Act & Assert
-		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new InsertionOrderCollection<int>(-1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() =>
+			new InsertionOrderCollection<int>(-1)
+		);
 	}
 
 	[TestMethod]
@@ -324,6 +327,7 @@ public class InsertionOrderCollectionTests
 		// Act & Assert
 		Assert.AreEqual(-1, collection.IndexOf(5));
 	}
+
 	private static readonly int[] expected = [3, 1, 4, 2];
 
 	[TestMethod]
@@ -440,13 +444,16 @@ public class InsertionOrderCollectionTests
 	public void WorksWithStrings_MaintainsInsertionOrder()
 	{
 		// Arrange & Act
-		InsertionOrderCollection<string> collection = [.. new string[] { "charlie", "alpha", "bravo", "alpha" }];
+		InsertionOrderCollection<string> collection =
+		[
+			.. new string[] { "charlie", "alpha", "bravo", "alpha" },
+		];
 
 		// Assert
 		Assert.AreEqual(4, collection.Count);
 		Assert.AreEqual("charlie", collection[0]); // First inserted
-		Assert.AreEqual("alpha", collection[1]);   // Second inserted
-		Assert.AreEqual("bravo", collection[2]);   // Third inserted
-		Assert.AreEqual("alpha", collection[3]);   // Fourth inserted (duplicate allowed)
+		Assert.AreEqual("alpha", collection[1]); // Second inserted
+		Assert.AreEqual("bravo", collection[2]); // Third inserted
+		Assert.AreEqual("alpha", collection[3]); // Fourth inserted (duplicate allowed)
 	}
 }

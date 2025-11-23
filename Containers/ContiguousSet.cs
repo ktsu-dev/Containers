@@ -6,7 +6,9 @@ namespace ktsu.Containers;
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+#if NET5_0_OR_GREATER
 using System.Runtime.CompilerServices;
+#endif
 
 /// <summary>
 /// Represents a generic set that maintains unique elements in contiguous memory for optimal cache performance.
@@ -39,8 +41,16 @@ using System.Runtime.CompilerServices;
 /// </list>
 /// </remarks>
 /// <typeparam name="T">The type of elements stored in the set.</typeparam>
-[SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "ContiguousSet is a known collection name")]
-public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
+[SuppressMessage(
+	"Naming",
+	"CA1710:Identifiers should have correct suffix",
+	Justification = "ContiguousSet is a known collection name"
+)]
+public class ContiguousSet<T> : ISet<T>
+#if NET5_0_OR_GREATER
+		, IReadOnlySet<T>
+#endif
+		, IReadOnlyCollection<T>
 {
 	/// <summary>
 	/// The backing array that stores elements in contiguous memory.
@@ -89,7 +99,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when comparer is null.</exception>
 	public ContiguousSet(IEqualityComparer<T> comparer)
 	{
-		ArgumentNullException.ThrowIfNull(comparer);
+		ThrowHelper.ThrowIfNull(comparer);
 
 		items = new T[DefaultCapacity];
 		uniquenessSet = new HashSet<T>(comparer);
@@ -103,10 +113,14 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public ContiguousSet(int capacity)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+		ThrowHelper.ThrowIfNegative(capacity);
 
 		items = capacity == 0 ? [] : new T[capacity];
+#if NETSTANDARD2_0
+		uniquenessSet = [];
+#else
 		uniquenessSet = new HashSet<T>(capacity);
+#endif
 		Count = 0;
 	}
 
@@ -119,11 +133,15 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public ContiguousSet(int capacity, IEqualityComparer<T> comparer)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
-		ArgumentNullException.ThrowIfNull(comparer);
+		ThrowHelper.ThrowIfNegative(capacity);
+		ThrowHelper.ThrowIfNull(comparer);
 
 		items = capacity == 0 ? [] : new T[capacity];
+#if NETSTANDARD2_0
+		uniquenessSet = new HashSet<T>(comparer);
+#else
 		uniquenessSet = new HashSet<T>(capacity, comparer);
+#endif
 		Count = 0;
 	}
 
@@ -134,7 +152,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when collection is null.</exception>
 	public ContiguousSet(IEnumerable<T> collection)
 	{
-		ArgumentNullException.ThrowIfNull(collection);
+		ThrowHelper.ThrowIfNull(collection);
 
 		items = new T[DefaultCapacity];
 		uniquenessSet = [];
@@ -154,8 +172,8 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when collection or comparer is null.</exception>
 	public ContiguousSet(IEnumerable<T> collection, IEqualityComparer<T> comparer)
 	{
-		ArgumentNullException.ThrowIfNull(collection);
-		ArgumentNullException.ThrowIfNull(comparer);
+		ThrowHelper.ThrowIfNull(collection);
+		ThrowHelper.ThrowIfNull(comparer);
 
 		items = new T[DefaultCapacity];
 		uniquenessSet = new HashSet<T>(comparer);
@@ -205,7 +223,11 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// </summary>
 	public void Clear()
 	{
+#if NET5_0_OR_GREATER
 		if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+#else
+		if (!typeof(T).IsValueType)
+#endif
 		{
 			// Clear references to help GC
 			Array.Clear(items, 0, Count);
@@ -234,10 +256,10 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentException">Thrown when the destination array is too small.</exception>
 	public void CopyTo(T[] array, int arrayIndex)
 	{
-		ArgumentNullException.ThrowIfNull(array);
-		ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
+		ThrowHelper.ThrowIfNull(array);
+		ThrowHelper.ThrowIfNegative(arrayIndex);
+		ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
+		ThrowHelper.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 		Array.Copy(items, 0, array, arrayIndex, Count);
 	}
@@ -270,7 +292,11 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 				Array.Copy(items, index + 1, items, index, Count - index);
 			}
 
+#if NET5_0_OR_GREATER
 			if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+#else
+			if (!typeof(T).IsValueType)
+#endif
 			{
 				items[Count] = default!;
 			}
@@ -307,7 +333,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void UnionWith(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		foreach (T item in other)
 		{
@@ -322,7 +348,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void IntersectWith(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
 
@@ -344,7 +370,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void ExceptWith(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		foreach (T item in other)
 		{
@@ -359,7 +385,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void SymmetricExceptWith(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
 
@@ -389,7 +415,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsSubsetOf(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 		return uniquenessSet.IsSubsetOf(other);
 	}
 
@@ -401,7 +427,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsSupersetOf(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 		return uniquenessSet.IsSupersetOf(other);
 	}
 
@@ -413,7 +439,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsProperSubsetOf(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 		return uniquenessSet.IsProperSubsetOf(other);
 	}
 
@@ -425,7 +451,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsProperSupersetOf(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 		return uniquenessSet.IsProperSupersetOf(other);
 	}
 
@@ -437,7 +463,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool Overlaps(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 		return uniquenessSet.Overlaps(other);
 	}
 
@@ -449,7 +475,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool SetEquals(IEnumerable<T> other)
 	{
-		ArgumentNullException.ThrowIfNull(other);
+		ThrowHelper.ThrowIfNull(other);
 		return uniquenessSet.SetEquals(other);
 	}
 
@@ -464,7 +490,7 @@ public class ContiguousSet<T> : ISet<T>, IReadOnlySet<T>, IReadOnlyCollection<T>
 	/// </remarks>
 	public void EnsureCapacity(int capacity)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+		ThrowHelper.ThrowIfNegative(capacity);
 
 		if (items.Length < capacity)
 		{

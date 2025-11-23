@@ -28,7 +28,11 @@ using System.Linq;
 /// </list>
 /// </remarks>
 /// <typeparam name="T">The type of elements stored in the buffer.</typeparam>
-[SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "RingBuffer is a known collection name")]
+[SuppressMessage(
+	"Naming",
+	"CA1710:Identifiers should have correct suffix",
+	Justification = "RingBuffer is a known collection name"
+)]
 public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyList<T>
 {
 	/// <summary>
@@ -84,9 +88,13 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 	/// </summary>
 	/// <param name="items">The items to prefill the buffer with.</param>
 	/// <param name="length">The number of elements the buffer should store.</param>
-	public RingBuffer(IEnumerable<T> items, int length) : this(length)
+	public RingBuffer(IEnumerable<T> items, int length)
+		: this(length)
 	{
-		ArgumentNullException.ThrowIfNull(items);
+		if (items is null)
+		{
+			throw new ArgumentNullException(nameof(items));
+		}
 
 		// Buffer only the last 'length' items if overfilled
 		// Convert to array for efficient access and use Skip() to take only the last 'length' items
@@ -108,7 +116,8 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 	/// </summary>
 	/// <param name="value">The value to prefill the buffer with.</param>
 	/// <param name="length">The number of elements the buffer should store.</param>
-	public RingBuffer(T value, int length) : this(length)
+	public RingBuffer(T value, int length)
+		: this(length)
 	{
 		for (int i = 0; i < length; i++)
 		{
@@ -181,13 +190,17 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 	/// Gets the element at the front of the buffer (the oldest element).
 	/// </summary>
 	/// <returns>The front element.</returns>
-	public T Front() => Count == 0 ? throw new InvalidOperationException("Buffer is empty") : Buffer[FrontIndex];
+	public T Front() =>
+		Count == 0 ? throw new InvalidOperationException("Buffer is empty") : Buffer[FrontIndex];
 
 	/// <summary>
 	/// Gets the element at the back of the buffer (the most recently added element).
 	/// </summary>
 	/// <returns>The back element.</returns>
-	public T Back() => Count == 0 ? throw new InvalidOperationException("Buffer is empty") : Buffer[(BackIndex - 1 + Capacity) & (Capacity - 1)]; // Calculate previous index with wraparound using bitwise AND for efficiency
+	public T Back() =>
+		Count == 0
+			? throw new InvalidOperationException("Buffer is empty")
+			: Buffer[(BackIndex - 1 + Capacity) & (Capacity - 1)]; // Calculate previous index with wraparound using bitwise AND for efficiency
 
 	/// <summary>
 	/// Calculates the next power of two greater than or equal to the specified value.

@@ -6,7 +6,9 @@ namespace ktsu.Containers;
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+#if NET5_0_OR_GREATER
 using System.Runtime.CompilerServices;
+#endif
 
 /// <summary>
 /// Represents a generic collection that guarantees contiguous memory allocation for optimal cache performance.
@@ -37,7 +39,11 @@ using System.Runtime.CompilerServices;
 /// </list>
 /// </remarks>
 /// <typeparam name="T">The type of elements stored in the collection.</typeparam>
-[SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "ContiguousCollection is a known collection name")]
+[SuppressMessage(
+	"Naming",
+	"CA1710:Identifiers should have correct suffix",
+	Justification = "ContiguousCollection is a known collection name"
+)]
 public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, IReadOnlyList<T>
 {
 	/// <summary>
@@ -75,14 +81,26 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	{
 		get
 		{
-			ArgumentOutOfRangeException.ThrowIfNegative(index);
-			ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
+			if (index < 0)
+			{
+				throw new ArgumentOutOfRangeException(nameof(index));
+			}
+			if (index >= Count)
+			{
+				throw new ArgumentOutOfRangeException(nameof(index));
+			}
 			return items[index];
 		}
 		set
 		{
-			ArgumentOutOfRangeException.ThrowIfNegative(index);
-			ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
+			if (index < 0)
+			{
+				throw new ArgumentOutOfRangeException(nameof(index));
+			}
+			if (index >= Count)
+			{
+				throw new ArgumentOutOfRangeException(nameof(index));
+			}
 			items[index] = value;
 		}
 	}
@@ -103,7 +121,10 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public ContiguousCollection(int capacity)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+		if (capacity < 0)
+		{
+			throw new ArgumentOutOfRangeException(nameof(capacity));
+		}
 
 		items = capacity == 0 ? [] : new T[capacity];
 		Count = 0;
@@ -116,7 +137,10 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// <exception cref="ArgumentNullException">Thrown when collection is null.</exception>
 	public ContiguousCollection(IEnumerable<T> collection)
 	{
-		ArgumentNullException.ThrowIfNull(collection);
+		if (collection is null)
+		{
+			throw new ArgumentNullException(nameof(collection));
+		}
 
 		if (collection is ICollection<T> col)
 		{
@@ -161,7 +185,11 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// </summary>
 	public void Clear()
 	{
+#if NET5_0_OR_GREATER
 		if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+#else
+		if (!typeof(T).IsValueType)
+#endif
 		{
 			// Clear references to help GC
 			Array.Clear(items, 0, Count);
@@ -190,11 +218,22 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// <exception cref="ArgumentException">Thrown when the destination array is too small.</exception>
 	public void CopyTo(T[] array, int arrayIndex)
 	{
-		ArgumentNullException.ThrowIfNull(array);
-		ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
-
+		if (array is null)
+		{
+			throw new ArgumentNullException(nameof(array));
+		}
+		if (arrayIndex < 0)
+		{
+			throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+		}
+		if (arrayIndex > array.Length)
+		{
+			throw new ArgumentOutOfRangeException(nameof(arrayIndex));
+		}
+		if (Count > array.Length - arrayIndex)
+		{
+			throw new ArgumentException("The destination array is too small.");
+		}
 		Array.Copy(items, 0, array, arrayIndex, Count);
 	}
 
@@ -230,8 +269,14 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// </remarks>
 	public void RemoveAt(int index)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(index);
-		ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
+		if (index < 0)
+		{
+			throw new ArgumentOutOfRangeException(nameof(index));
+		}
+		if (index >= Count)
+		{
+			throw new ArgumentOutOfRangeException(nameof(index));
+		}
 
 		Count--;
 		if (index < Count)
@@ -239,7 +284,11 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 			Array.Copy(items, index + 1, items, index, Count - index);
 		}
 
+#if NET5_0_OR_GREATER
 		if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+#else
+		if (!typeof(T).IsValueType)
+#endif
 		{
 			items[Count] = default!;
 		}
@@ -268,8 +317,14 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// </remarks>
 	public void Insert(int index, T item)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(index);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(index, Count);
+		if (index < 0)
+		{
+			throw new ArgumentOutOfRangeException(nameof(index));
+		}
+		if (index > Count)
+		{
+			throw new ArgumentOutOfRangeException(nameof(index));
+		}
 
 		if (Count == items.Length)
 		{
@@ -296,7 +351,10 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// </remarks>
 	public void EnsureCapacity(int capacity)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+		if (capacity < 0)
+		{
+			throw new ArgumentOutOfRangeException(nameof(capacity));
+		}
 
 		if (items.Length < capacity)
 		{
@@ -363,10 +421,18 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, I
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when startIndex or count is invalid.</exception>
 	public ContiguousCollection<T> GetRange(int startIndex, int count)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(startIndex);
-		ArgumentOutOfRangeException.ThrowIfNegative(count);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(startIndex + count, Count);
-
+		if (startIndex < 0)
+		{
+			throw new ArgumentOutOfRangeException(nameof(startIndex));
+		}
+		if (count < 0)
+		{
+			throw new ArgumentOutOfRangeException(nameof(count));
+		}
+		if (startIndex + count > Count)
+		{
+			throw new ArgumentOutOfRangeException(nameof(startIndex));
+		}
 		ContiguousCollection<T> result = new(count);
 		Array.Copy(items, startIndex, result.items, 0, count);
 		result.Count = count;

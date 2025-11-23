@@ -6,56 +6,67 @@ This project contains comprehensive performance benchmarks for the ktsu.Containe
 
 The benchmarks compare our custom container implementations against built-in .NET collections to measure:
 
-- **Performance**: Execution time for various operations
-- **Memory Usage**: Allocation patterns and memory efficiency
-- **Scalability**: How performance changes with different data sizes
+-   **Performance**: Execution time for various operations
+-   **Memory Usage**: Allocation patterns and memory efficiency
+-   **Scalability**: How performance changes with different data sizes
 
 ## Benchmark Categories
 
 ### OrderedCollection Benchmarks
+
 Compares `OrderedCollection<T>` against:
-- `List<T>` with manual sorting
-- `SortedList<TKey, TValue>`
+
+-   `List<T>` with manual sorting
+-   `SortedList<TKey, TValue>`
 
 **Operations tested:**
-- Adding elements while maintaining order
-- Searching/Contains operations
-- Enumeration performance
-- Element removal
-- Mixed operation scenarios
+
+-   Adding elements while maintaining order
+-   Searching/Contains operations
+-   Enumeration performance
+-   Element removal
+-   Mixed operation scenarios
 
 ### OrderedSet Benchmarks
+
 Compares `OrderedSet<T>` against:
-- `HashSet<T>` (unordered)
-- `SortedSet<T>` (ordered)
+
+-   `HashSet<T>` (unordered)
+-   `SortedSet<T>` (ordered)
 
 **Operations tested:**
-- Adding unique elements
-- Set operations (Union, Intersection, Except)
-- Contains/membership testing
-- Enumeration in sorted order
-- Mixed operation workflows
+
+-   Adding unique elements
+-   Set operations (Union, Intersection, Except)
+-   Contains/membership testing
+-   Enumeration in sorted order
+-   Mixed operation workflows
 
 ### RingBuffer Benchmarks
+
 Compares `RingBuffer<T>` against:
-- `Queue<T>` with size limiting
-- `List<T>` with circular behavior simulation
+
+-   `Queue<T>` with size limiting
+-   `List<T>` with circular behavior simulation
 
 **Operations tested:**
-- Circular buffer operations
-- Index-based access vs enumeration
-- Memory allocation patterns
-- Resizing and resampling operations
-- Continuous data streaming scenarios
+
+-   Circular buffer operations
+-   Index-based access vs enumeration
+-   Memory allocation patterns
+-   Resizing and resampling operations
+-   Continuous data streaming scenarios
 
 ## Running Benchmarks
 
 ### Run All Benchmarks
+
 ```bash
 dotnet run --project Containers.Benchmarks --configuration Release
 ```
 
 ### Run Specific Benchmark Class
+
 ```bash
 dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*OrderedCollection*"
 dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*OrderedSet*"
@@ -63,12 +74,14 @@ dotnet run --project Containers.Benchmarks --configuration Release -- --filter "
 ```
 
 ### Run Specific Methods
+
 ```bash
 dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*Add*"
 dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*Contains*"
 ```
 
 ### Export Results
+
 ```bash
 # Export to various formats
 dotnet run --project Containers.Benchmarks --configuration Release -- --exporters html
@@ -79,33 +92,38 @@ dotnet run --project Containers.Benchmarks --configuration Release -- --exporter
 ## Benchmark Parameters
 
 Each benchmark runs with multiple data sizes to show scalability:
-- **Small**: 100 elements
-- **Medium**: 1,000 elements  
-- **Large**: 10,000 elements
+
+-   **Small**: 100 elements
+-   **Medium**: 1,000 elements
+-   **Large**: 10,000 elements
 
 ## Understanding Results
 
 ### Key Metrics
-- **Mean**: Average execution time
-- **Error**: Half of 99.9% confidence interval
-- **StdDev**: Standard deviation of all measurements
-- **Allocated**: Memory allocated per operation
+
+-   **Mean**: Average execution time
+-   **Error**: Half of 99.9% confidence interval
+-   **StdDev**: Standard deviation of all measurements
+-   **Allocated**: Memory allocated per operation
 
 ### Performance Expectations
 
 **OrderedCollection vs List+Sort:**
-- OrderedCollection should be faster for incremental additions
-- List+Sort may be faster for bulk operations followed by single sort
+
+-   OrderedCollection should be faster for incremental additions
+-   List+Sort may be faster for bulk operations followed by single sort
 
 **OrderedSet vs HashSet/SortedSet:**
-- HashSet will be fastest for pure membership testing
-- OrderedSet provides sorted enumeration with competitive performance
-- SortedSet uses tree structure vs our list-based approach
+
+-   HashSet will be fastest for pure membership testing
+-   OrderedSet provides sorted enumeration with competitive performance
+-   SortedSet uses tree structure vs our list-based approach
 
 **RingBuffer vs Queue/List:**
-- RingBuffer should excel in continuous streaming scenarios
-- Index access should be much faster than Queue enumeration
-- Memory allocation should be more predictable
+
+-   RingBuffer should excel in continuous streaming scenarios
+-   Index access should be much faster than Queue enumeration
+-   Memory allocation should be more predictable
 
 ## Adding New Benchmarks
 
@@ -131,4 +149,4 @@ Intel Core i7-12700K, 1 CPU, 20 logical and 12 physical cores
 |          SortedList_Add |          100 |  18.90 μs |  0.345 μs |  0.323 μs |      4.56 KB |
 ```
 
-This helps identify the best container for specific use cases and validates our implementation performance. 
+This helps identify the best container for specific use cases and validates our implementation performance.
