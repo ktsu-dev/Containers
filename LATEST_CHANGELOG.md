@@ -1,6 +1,6 @@
-## v1.0.8 (patch)
+## v1.0.9-pre.1 (prerelease)
 
-Changes since v1.0.7:
+Changes since v1.0.8:
 
-- Add AssemblyInfo, update test assertions, and enhance project configuration ([@matt-edmondson](https://github.com/matt-edmondson))
-- Add CLAUDE.md for project guidance and update target frameworks to net10.0 ([@matt-edmondson](https://github.com/matt-edmondson))
+- Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\update-winget-manifests.ps1 ([@ktsu[bot]](https://github.com/ktsu[bot]))

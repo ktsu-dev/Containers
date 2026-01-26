@@ -1,3 +1,9 @@
+## v1.0.9-pre.1 (prerelease)
+
+Changes since v1.0.8:
+
+- Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\update-winget-manifests.ps1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
 ## v1.0.8 (patch)
 
 Changes since v1.0.7:
@@ -16,10 +22,7 @@ Changes since v1.0.8-pre.1:
 - Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
 ## v1.0.8-pre.1 (prerelease)
 
-Changes since v1.0.7:
-
-- Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+Incremental prerelease update.
 ## v1.0.7 (patch)
 
 Changes since v1.0.6:
