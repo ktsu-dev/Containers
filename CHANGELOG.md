@@ -1,13 +1,9 @@
-## v1.0.8-pre.4 (prerelease)
+## v1.0.8 (patch)
 
-Changes since v1.0.8-pre.3:
+Changes since v1.0.7:
 
-- Sync global.json ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Sync .specstory\.gitignore ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Sync .github\workflows\update-sdks.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Sync .gitignore ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Add AssemblyInfo, update test assertions, and enhance project configuration ([@matt-edmondson](https://github.com/matt-edmondson))
+- Add CLAUDE.md for project guidance and update target frameworks to net10.0 ([@matt-edmondson](https://github.com/matt-edmondson))
 ## v1.0.8-pre.3 (prerelease)
 
 Changes since v1.0.8-pre.2:
