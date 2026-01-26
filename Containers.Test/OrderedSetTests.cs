@@ -253,7 +253,7 @@ public class OrderedSetTests
 		OrderedSet<int> set = new([1, 3, 5, 7, 9]);
 		int index = set.BinarySearch(4);
 
-		Assert.IsTrue(index < 0);
+		Assert.IsLessThan(0, index);
 		int insertionPoint = ~index;
 		Assert.AreEqual(2, insertionPoint);
 	}
@@ -593,8 +593,8 @@ public class OrderedSetTests
 		ICollection<int> set = orderedSet;
 		set.Add(5);
 
-		Assert.AreEqual(1, set.Count);
-		Assert.IsTrue(set.Contains(5));
+		Assert.HasCount(1, set);
+		Assert.Contains(5, set);
 	}
 
 	[TestMethod]
@@ -619,11 +619,11 @@ public class OrderedSetTests
 		int[] result = [.. set];
 		for (int i = 1; i < result.Length; i++)
 		{
-			Assert.IsTrue(result[i - 1] < result[i], "Elements should be in sorted order");
+			Assert.IsLessThan(result[i], result[i - 1], "Elements should be in sorted order");
 		}
 
 		// Verify uniqueness
-		Assert.AreEqual(result.Distinct().Count(), result.Length, "All elements should be unique");
+		Assert.HasCount(result.Length, result.Distinct(), "All elements should be unique");
 	}
 
 	[TestMethod]
@@ -656,7 +656,7 @@ public class OrderedSetTests
 		int[] result = [.. set];
 		for (int i = 1; i < result.Length; i++)
 		{
-			Assert.IsTrue(result[i - 1] < result[i], "Elements should remain sorted");
+			Assert.IsLessThan(result[i], result[i - 1], "Elements should remain sorted");
 		}
 	}
 }

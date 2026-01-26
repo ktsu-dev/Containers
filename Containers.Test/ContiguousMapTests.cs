@@ -297,11 +297,11 @@ public class ContiguousMapTests
 		HashSet<int> keys = [.. map.Keys];
 
 		// Assert
-		Assert.AreEqual(4, keys.Count);
-		Assert.IsTrue(keys.Contains(1));
-		Assert.IsTrue(keys.Contains(2));
-		Assert.IsTrue(keys.Contains(3));
-		Assert.IsTrue(keys.Contains(4));
+		Assert.HasCount(4, keys);
+		Assert.Contains(1, keys);
+		Assert.Contains(2, keys);
+		Assert.Contains(3, keys);
+		Assert.Contains(4, keys);
 	}
 
 	[TestMethod]
@@ -318,11 +318,11 @@ public class ContiguousMapTests
 		HashSet<string> values = [.. map.Values];
 
 		// Assert
-		Assert.AreEqual(4, values.Count);
-		Assert.IsTrue(values.Contains("one"));
-		Assert.IsTrue(values.Contains("two"));
-		Assert.IsTrue(values.Contains("three"));
-		Assert.IsTrue(values.Contains("four"));
+		Assert.HasCount(4, values);
+		Assert.Contains("one", values);
+		Assert.Contains("two", values);
+		Assert.Contains("three", values);
+		Assert.Contains("four", values);
 	}
 
 	[TestMethod]
@@ -343,7 +343,7 @@ public class ContiguousMapTests
 		}
 
 		// Assert
-		Assert.AreEqual(4, enumerated.Count);
+		Assert.HasCount(4, enumerated);
 		Assert.AreEqual("one", enumerated[1]);
 		Assert.AreEqual("two", enumerated[2]);
 		Assert.AreEqual("three", enumerated[3]);
@@ -393,8 +393,8 @@ public class ContiguousMapTests
 
 		// Verify that the two pairs are in the array (order may vary)
 		HashSet<KeyValuePair<int, string>> copied = [array[1], array[2]];
-		Assert.IsTrue(copied.Contains(new KeyValuePair<int, string>(1, "one")));
-		Assert.IsTrue(copied.Contains(new KeyValuePair<int, string>(3, "three")));
+		Assert.Contains(new KeyValuePair<int, string>(1, "one"), copied);
+		Assert.Contains(new KeyValuePair<int, string>(3, "three"), copied);
 
 		Assert.AreEqual(default, array[3]); // Unchanged
 	}
@@ -421,11 +421,11 @@ public class ContiguousMapTests
 		{
 			spanKeys.Add(keysSpan[i]);
 		}
-		Assert.AreEqual(4, spanKeys.Count);
-		Assert.IsTrue(spanKeys.Contains(1));
-		Assert.IsTrue(spanKeys.Contains(2));
-		Assert.IsTrue(spanKeys.Contains(3));
-		Assert.IsTrue(spanKeys.Contains(4));
+		Assert.HasCount(4, spanKeys);
+		Assert.Contains(1, spanKeys);
+		Assert.Contains(2, spanKeys);
+		Assert.Contains(3, spanKeys);
+		Assert.Contains(4, spanKeys);
 	}
 
 	[TestMethod]
@@ -450,11 +450,11 @@ public class ContiguousMapTests
 		{
 			spanValues.Add(valuesSpan[i]);
 		}
-		Assert.AreEqual(4, spanValues.Count);
-		Assert.IsTrue(spanValues.Contains("one"));
-		Assert.IsTrue(spanValues.Contains("two"));
-		Assert.IsTrue(spanValues.Contains("three"));
-		Assert.IsTrue(spanValues.Contains("four"));
+		Assert.HasCount(4, spanValues);
+		Assert.Contains("one", spanValues);
+		Assert.Contains("two", spanValues);
+		Assert.Contains("three", spanValues);
+		Assert.Contains("four", spanValues);
 	}
 
 	[TestMethod]
@@ -489,7 +489,7 @@ public class ContiguousMapTests
 		{
 			spanKeys.Add(keysSpan[i]);
 		}
-		Assert.AreEqual(1000, spanKeys.Count);
+		Assert.HasCount(1000, spanKeys);
 	}
 
 	[TestMethod]

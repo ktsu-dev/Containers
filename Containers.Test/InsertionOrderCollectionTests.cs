@@ -362,7 +362,7 @@ public class InsertionOrderCollectionTests
 		}
 
 		// Assert
-		Assert.AreEqual(4, enumerated.Count);
+		Assert.HasCount(4, enumerated);
 		Assert.AreEqual(3, enumerated[0]);
 		Assert.AreEqual(1, enumerated[1]);
 		Assert.AreEqual(4, enumerated[2]);

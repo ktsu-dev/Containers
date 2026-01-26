@@ -335,7 +335,7 @@ public class InsertionOrderMapTests
 		}
 
 		// Assert
-		Assert.AreEqual(4, enumerated.Count);
+		Assert.HasCount(4, enumerated);
 		Assert.AreEqual(3, enumerated[0].Key);
 		Assert.AreEqual("three", enumerated[0].Value);
 		Assert.AreEqual(1, enumerated[1].Key);

@@ -192,10 +192,10 @@ public class ContiguousSetTests
 
 		// Verify all set elements are in the array
 		HashSet<int> copied = [.. array[1..5]];
-		Assert.IsTrue(copied.Contains(1));
-		Assert.IsTrue(copied.Contains(2));
-		Assert.IsTrue(copied.Contains(3));
-		Assert.IsTrue(copied.Contains(4));
+		Assert.Contains(1, copied);
+		Assert.Contains(2, copied);
+		Assert.Contains(3, copied);
+		Assert.Contains(4, copied);
 	}
 
 	[TestMethod]
@@ -212,11 +212,11 @@ public class ContiguousSetTests
 		}
 
 		// Assert
-		Assert.AreEqual(4, enumerated.Count); // No duplicates
-		Assert.IsTrue(enumerated.Contains(1));
-		Assert.IsTrue(enumerated.Contains(2));
-		Assert.IsTrue(enumerated.Contains(3));
-		Assert.IsTrue(enumerated.Contains(4));
+		Assert.HasCount(4, enumerated); // No duplicates
+		Assert.Contains(1, enumerated);
+		Assert.Contains(2, enumerated);
+		Assert.Contains(3, enumerated);
+		Assert.Contains(4, enumerated);
 	}
 
 	[TestMethod]
@@ -237,11 +237,11 @@ public class ContiguousSetTests
 		{
 			spanElements.Add(span[i]);
 		}
-		Assert.AreEqual(4, spanElements.Count);
-		Assert.IsTrue(spanElements.Contains(1));
-		Assert.IsTrue(spanElements.Contains(2));
-		Assert.IsTrue(spanElements.Contains(3));
-		Assert.IsTrue(spanElements.Contains(4));
+		Assert.HasCount(4, spanElements);
+		Assert.Contains(1, spanElements);
+		Assert.Contains(2, spanElements);
+		Assert.Contains(3, spanElements);
+		Assert.Contains(4, spanElements);
 	}
 
 	[TestMethod]
@@ -439,7 +439,7 @@ public class ContiguousSetTests
 		{
 			spanElements.Add(span[i]);
 		}
-		Assert.AreEqual(1000, spanElements.Count);
+		Assert.HasCount(1000, spanElements);
 	}
 
 	[TestMethod]

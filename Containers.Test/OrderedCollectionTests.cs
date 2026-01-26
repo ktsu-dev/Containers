@@ -392,7 +392,7 @@ public class OrderedCollectionTests
 		int result = collection.BinarySearch(4);
 
 		// Assert
-		Assert.IsTrue(result < 0);
+		Assert.IsLessThan(0, result);
 		Assert.AreEqual(2, ~result); // Should indicate insertion point between 3 and 5
 	}
 
@@ -449,7 +449,7 @@ public class OrderedCollectionTests
 		}
 
 		// Assert
-		Assert.AreEqual(4, actual.Count);
+		Assert.HasCount(4, actual);
 		Assert.AreEqual(1, actual[0]);
 		Assert.AreEqual(2, actual[1]);
 		Assert.AreEqual(3, actual[2]);

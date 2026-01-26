@@ -19,7 +19,7 @@ public class ContiguousCollectionTests
 		// Assert
 		Assert.AreEqual(0, collection.Count);
 		Assert.IsFalse(collection.IsReadOnly);
-		Assert.IsTrue(collection.Capacity >= 0);
+		Assert.IsGreaterThanOrEqualTo(0, collection.Capacity);
 	}
 
 	[TestMethod]
@@ -128,7 +128,7 @@ public class ContiguousCollectionTests
 
 		// Assert
 		Assert.AreEqual(3, collection.Count);
-		Assert.IsTrue(collection.Capacity >= 3);
+		Assert.IsGreaterThanOrEqualTo(3, collection.Capacity);
 		Assert.AreEqual(1, collection[0]);
 		Assert.AreEqual(2, collection[1]);
 		Assert.AreEqual(3, collection[2]);
@@ -451,7 +451,7 @@ public class ContiguousCollectionTests
 		collection.EnsureCapacity(10);
 
 		// Assert
-		Assert.IsTrue(collection.Capacity >= 10);
+		Assert.IsGreaterThanOrEqualTo(10, collection.Capacity);
 	}
 
 	[TestMethod]

@@ -10,4 +10,8 @@
     <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
     <TestingPlatformShowTestsFailureDetails>true</TestingPlatformShowTestsFailureDetails>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Containers\Containers.csproj" />
+  </ItemGroup>
 </Project>

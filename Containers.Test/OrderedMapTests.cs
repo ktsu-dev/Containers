@@ -286,7 +286,7 @@ public class OrderedMapTests
 
 		KeyValuePair<int, string>[] pairs = [.. map];
 
-		Assert.AreEqual(3, pairs.Length);
+		Assert.HasCount(3, pairs);
 		Assert.AreEqual(new KeyValuePair<int, string>(1, "one"), pairs[0]);
 		Assert.AreEqual(new KeyValuePair<int, string>(2, "two"), pairs[1]);
 		Assert.AreEqual(new KeyValuePair<int, string>(3, "three"), pairs[2]);
