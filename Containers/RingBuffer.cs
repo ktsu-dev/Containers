@@ -91,10 +91,7 @@ public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyLi
 	public RingBuffer(IEnumerable<T> items, int length)
 		: this(length)
 	{
-		if (items is null)
-		{
-			throw new ArgumentNullException(nameof(items));
-		}
+		Ensure.NotNull(items);
 
 		// Buffer only the last 'length' items if overfilled
 		// Convert to array for efficient access and use Skip() to take only the last 'length' items

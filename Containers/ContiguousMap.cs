@@ -164,10 +164,7 @@ public class ContiguousMap<TKey, TValue>
 	{
 		get
 		{
-			if (key is null)
-			{
-				throw new ArgumentNullException(nameof(key));
-			}
+			Ensure.NotNull((object?)key);
 
 			return !keyToIndex.TryGetValue(key, out int index)
 				? throw new KeyNotFoundException($"The key '{key}' was not found in the map.")
@@ -175,10 +172,7 @@ public class ContiguousMap<TKey, TValue>
 		}
 		set
 		{
-			if (key is null)
-			{
-				throw new ArgumentNullException(nameof(key));
-			}
+			Ensure.NotNull((object?)key);
 
 			if (keyToIndex.TryGetValue(key, out int index))
 			{
@@ -238,10 +232,7 @@ public class ContiguousMap<TKey, TValue>
 	/// <exception cref="ArgumentNullException">Thrown when comparer is null.</exception>
 	public ContiguousMap(IEqualityComparer<TKey> comparer)
 	{
-		if (comparer is null)
-		{
-			throw new ArgumentNullException(nameof(comparer));
-		}
+		Ensure.NotNull(comparer);
 
 		items = new Entry[DefaultCapacity];
 		keyToIndex = new Dictionary<TKey, int>(comparer);
@@ -255,10 +246,7 @@ public class ContiguousMap<TKey, TValue>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public ContiguousMap(int capacity)
 	{
-		if (capacity < 0)
-		{
-			throw new ArgumentOutOfRangeException(nameof(capacity));
-		}
+		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 
 		items = capacity == 0 ? [] : new Entry[capacity];
 		keyToIndex = new Dictionary<TKey, int>(capacity);
@@ -274,14 +262,8 @@ public class ContiguousMap<TKey, TValue>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public ContiguousMap(int capacity, IEqualityComparer<TKey> comparer)
 	{
-		if (capacity < 0)
-		{
-			throw new ArgumentOutOfRangeException(nameof(capacity));
-		}
-		if (comparer is null)
-		{
-			throw new ArgumentNullException(nameof(comparer));
-		}
+		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+		Ensure.NotNull(comparer);
 
 		items = capacity == 0 ? [] : new Entry[capacity];
 		keyToIndex = new Dictionary<TKey, int>(capacity, comparer);
@@ -295,10 +277,7 @@ public class ContiguousMap<TKey, TValue>
 	/// <exception cref="ArgumentNullException">Thrown when dictionary is null.</exception>
 	public ContiguousMap(IDictionary<TKey, TValue> dictionary)
 	{
-		if (dictionary is null)
-		{
-			throw new ArgumentNullException(nameof(dictionary));
-		}
+		Ensure.NotNull(dictionary);
 
 		int capacity = dictionary.Count == 0 ? DefaultCapacity : dictionary.Count;
 		items = new Entry[capacity];
@@ -319,14 +298,8 @@ public class ContiguousMap<TKey, TValue>
 	/// <exception cref="ArgumentNullException">Thrown when dictionary or comparer is null.</exception>
 	public ContiguousMap(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
 	{
-		if (dictionary is null)
-		{
-			throw new ArgumentNullException(nameof(dictionary));
-		}
-		if (comparer is null)
-		{
-			throw new ArgumentNullException(nameof(comparer));
-		}
+		Ensure.NotNull(dictionary);
+		Ensure.NotNull(comparer);
 
 		int capacity = dictionary.Count == 0 ? DefaultCapacity : dictionary.Count;
 		items = new Entry[capacity];
@@ -352,10 +325,7 @@ public class ContiguousMap<TKey, TValue>
 	/// </remarks>
 	public void Add(TKey key, TValue value)
 	{
-		if (key is null)
-		{
-			throw new ArgumentNullException(nameof(key));
-		}
+		Ensure.NotNull((object?)key);
 
 		if (keyToIndex.ContainsKey(key))
 		{
@@ -388,10 +358,7 @@ public class ContiguousMap<TKey, TValue>
 	/// </remarks>
 	public bool Remove(TKey key)
 	{
-		if (key is null)
-		{
-			throw new ArgumentNullException(nameof(key));
-		}
+		Ensure.NotNull((object?)key);
 
 		if (!keyToIndex.TryGetValue(key, out int index))
 		{
@@ -437,7 +404,7 @@ public class ContiguousMap<TKey, TValue>
 	/// </remarks>
 	public bool ContainsKey(TKey key)
 	{
-		ThrowHelper.ThrowIfNull(key);
+		Ensure.NotNull((object?)key);
 		return keyToIndex.ContainsKey(key);
 	}
 
@@ -453,7 +420,7 @@ public class ContiguousMap<TKey, TValue>
 	/// </remarks>
 	public bool TryGetValue(TKey key, out TValue value)
 	{
-		ThrowHelper.ThrowIfNull(key);
+		Ensure.NotNull((object?)key);
 
 		if (keyToIndex.TryGetValue(key, out int index))
 		{
@@ -509,10 +476,10 @@ public class ContiguousMap<TKey, TValue>
 	/// <exception cref="ArgumentException">Thrown when the destination array is too small.</exception>
 	public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
 	{
-		ThrowHelper.ThrowIfNull(array);
-		ThrowHelper.ThrowIfNegative(arrayIndex);
-		ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
-		ThrowHelper.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
+		Ensure.NotNull(array);
+		ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 		for (int i = 0; i < Count; i++)
 		{
@@ -564,7 +531,7 @@ public class ContiguousMap<TKey, TValue>
 	/// </remarks>
 	public void EnsureCapacity(int capacity)
 	{
-		ThrowHelper.ThrowIfNegative(capacity);
+		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 
 		if (items.Length < capacity)
 		{
@@ -698,16 +665,16 @@ public class ContiguousMap<TKey, TValue>
 
 		public bool Contains(TKey item)
 		{
-			ThrowHelper.ThrowIfNull(item);
+			Ensure.NotNull((object?)item);
 			return map.ContainsKey(item);
 		}
 
 		public void CopyTo(TKey[] array, int arrayIndex)
 		{
-			ThrowHelper.ThrowIfNull(array);
-			ThrowHelper.ThrowIfNegative(arrayIndex);
-			ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
-			ThrowHelper.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
+			Ensure.NotNull(array);
+			ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+			ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
+			ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 			for (int i = 0; i < map.Count; i++)
 			{
@@ -758,10 +725,10 @@ public class ContiguousMap<TKey, TValue>
 
 		public void CopyTo(TValue[] array, int arrayIndex)
 		{
-			ThrowHelper.ThrowIfNull(array);
-			ThrowHelper.ThrowIfNegative(arrayIndex);
-			ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
-			ThrowHelper.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
+			Ensure.NotNull(array);
+			ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+			ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
+			ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 			for (int i = 0; i < map.Count; i++)
 			{

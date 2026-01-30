@@ -1,12 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Sdk Name="ktsu.Sdk" />
 
-  <PropertyGroup>
-    <!-- Suppress CA1510/CA1512 analyzer rules that suggest using ThrowIfNull/ThrowIfNegative -->
-    <!-- These methods are not available on all target frameworks without proper polyfill configuration -->
-    <NoWarn>$(NoWarn);CA1510;CA1512</NoWarn>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.AzureRepos.Git" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" />

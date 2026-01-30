@@ -88,7 +88,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	{
 		get
 		{
-			ThrowHelper.ThrowIfNull(key);
+			Ensure.NotNull((object?)key);
 
 			int index = BinarySearchByKey(key);
 			return index < 0
@@ -97,7 +97,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 		}
 		set
 		{
-			ThrowHelper.ThrowIfNull(key);
+			Ensure.NotNull((object?)key);
 
 			int index = BinarySearchByKey(key);
 			if (index >= 0)
@@ -145,7 +145,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	public OrderedMap(int capacity)
 		: this()
 	{
-		ThrowHelper.ThrowIfNegative(capacity);
+		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 
 		if (
 			!typeof(IComparable<TKey>).IsAssignableFrom(typeof(TKey))
@@ -171,8 +171,8 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	public OrderedMap(int capacity, IComparer<TKey> comparer)
 		: this(comparer)
 	{
-		ThrowHelper.ThrowIfNegative(capacity);
-		ThrowHelper.ThrowIfNull(comparer);
+		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+		Ensure.NotNull(comparer);
 
 		items = new List<Entry>(capacity);
 		this.comparer = comparer;
@@ -187,7 +187,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	public OrderedMap(IDictionary<TKey, TValue> dictionary)
 		: this()
 	{
-		ThrowHelper.ThrowIfNull(dictionary);
+		Ensure.NotNull(dictionary);
 
 		if (
 			!typeof(IComparable<TKey>).IsAssignableFrom(typeof(TKey))
@@ -217,8 +217,8 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	public OrderedMap(IDictionary<TKey, TValue> dictionary, IComparer<TKey> comparer)
 		: this(comparer)
 	{
-		ThrowHelper.ThrowIfNull(dictionary);
-		ThrowHelper.ThrowIfNull(comparer);
+		Ensure.NotNull(dictionary);
+		Ensure.NotNull(comparer);
 
 		items = [];
 		this.comparer = comparer;
@@ -238,7 +238,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <exception cref="ArgumentException">Thrown when key already exists in the map.</exception>
 	public void Add(TKey key, TValue value)
 	{
-		ThrowHelper.ThrowIfNull(key);
+		Ensure.NotNull((object?)key);
 
 		int index = BinarySearchByKey(key);
 		if (index >= 0)
@@ -258,7 +258,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <exception cref="ArgumentNullException">Thrown when key is null.</exception>
 	public bool Remove(TKey key)
 	{
-		ThrowHelper.ThrowIfNull(key);
+		Ensure.NotNull((object?)key);
 
 		int index = BinarySearchByKey(key);
 		if (index < 0)
@@ -278,7 +278,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <exception cref="ArgumentNullException">Thrown when key is null.</exception>
 	public bool ContainsKey(TKey key)
 	{
-		ThrowHelper.ThrowIfNull(key);
+		Ensure.NotNull((object?)key);
 
 		return BinarySearchByKey(key) >= 0;
 	}
@@ -296,7 +296,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 #endif
 		out TValue value)
 	{
-		ThrowHelper.ThrowIfNull(key);
+		Ensure.NotNull((object?)key);
 
 		int index = BinarySearchByKey(key);
 		if (index >= 0)
@@ -329,7 +329,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <returns>True if the key-value pair is found; otherwise, false.</returns>
 	public bool Contains(KeyValuePair<TKey, TValue> item)
 	{
-		ThrowHelper.ThrowIfNull(item.Key);
+		Ensure.NotNull((object?)item.Key);
 
 		int index = BinarySearchByKey(item.Key);
 		return (index >= 0)
@@ -346,9 +346,9 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <exception cref="ArgumentException">Thrown when the destination array is too small.</exception>
 	public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
 	{
-		ThrowHelper.ThrowIfNull(array);
-		ThrowHelper.ThrowIfNegative(arrayIndex);
-		ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
+		Ensure.NotNull(array);
+		ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
 
 		if (array.Length - arrayIndex < Count)
 		{
@@ -372,7 +372,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <returns>True if the key-value pair was successfully removed; otherwise, false.</returns>
 	public bool Remove(KeyValuePair<TKey, TValue> item)
 	{
-		ThrowHelper.ThrowIfNull(item.Key);
+		Ensure.NotNull((object?)item.Key);
 
 		int index = BinarySearchByKey(item.Key);
 		if (index < 0)
@@ -423,7 +423,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <exception cref="ArgumentNullException">Thrown when key is null.</exception>
 	private int BinarySearchByKey(TKey key)
 	{
-		ThrowHelper.ThrowIfNull(key);
+		Ensure.NotNull((object?)key);
 
 		int left = 0;
 		int right = items.Count - 1;
@@ -470,15 +470,15 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 
 		public bool Contains(TKey item)
 		{
-			ThrowHelper.ThrowIfNull(item);
+			Ensure.NotNull((object?)item);
 			return map.ContainsKey(item);
 		}
 
 		public void CopyTo(TKey[] array, int arrayIndex)
 		{
-			ThrowHelper.ThrowIfNull(array);
-			ThrowHelper.ThrowIfNegative(arrayIndex);
-			ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
+			Ensure.NotNull(array);
+			ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+			ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
 
 			if (array.Length - arrayIndex < Count)
 			{
@@ -528,9 +528,9 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 
 		public void CopyTo(TValue[] array, int arrayIndex)
 		{
-			ThrowHelper.ThrowIfNull(array);
-			ThrowHelper.ThrowIfNegative(arrayIndex);
-			ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
+			Ensure.NotNull(array);
+			ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+			ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
 
 			if (array.Length - arrayIndex < Count)
 			{

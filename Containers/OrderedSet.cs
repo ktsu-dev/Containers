@@ -91,7 +91,7 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentNullException">Thrown when comparer is null.</exception>
 	public OrderedSet(IComparer<T> comparer)
 	{
-		ThrowHelper.ThrowIfNull(comparer);
+		Ensure.NotNull(comparer);
 
 		items = [];
 		Comparer = comparer;
@@ -105,7 +105,7 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public OrderedSet(int capacity)
 	{
-		ThrowHelper.ThrowIfNegative(capacity);
+		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 
 		if (
 			!typeof(IComparable<T>).IsAssignableFrom(typeof(T))
@@ -130,8 +130,8 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public OrderedSet(int capacity, IComparer<T> comparer)
 	{
-		ThrowHelper.ThrowIfNegative(capacity);
-		ThrowHelper.ThrowIfNull(comparer);
+		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+		Ensure.NotNull(comparer);
 
 		items = new List<T>(capacity);
 		Comparer = comparer;
@@ -145,7 +145,7 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentException">Thrown when T does not implement IComparable{T}.</exception>
 	public OrderedSet(IEnumerable<T> collection)
 	{
-		ThrowHelper.ThrowIfNull(collection);
+		Ensure.NotNull(collection);
 
 		if (
 			!typeof(IComparable<T>).IsAssignableFrom(typeof(T))
@@ -174,8 +174,8 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentNullException">Thrown when collection or comparer is null.</exception>
 	public OrderedSet(IEnumerable<T> collection, IComparer<T> comparer)
 	{
-		ThrowHelper.ThrowIfNull(collection);
-		ThrowHelper.ThrowIfNull(comparer);
+		Ensure.NotNull(collection);
+		Ensure.NotNull(comparer);
 
 		items = [];
 		Comparer = comparer;
@@ -246,8 +246,8 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentException">Thrown when the destination array is too small.</exception>
 	public void CopyTo(T[] array, int arrayIndex)
 	{
-		ThrowHelper.ThrowIfNull(array);
-		ThrowHelper.ThrowIfNegative(arrayIndex);
+		Ensure.NotNull(array);
+		ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
 
 		if (array.Length - arrayIndex < Count)
 		{
@@ -332,7 +332,7 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void UnionWith(IEnumerable<T> other)
 	{
-		ThrowHelper.ThrowIfNull(other);
+		Ensure.NotNull(other);
 
 		foreach (T item in other)
 		{
@@ -347,7 +347,7 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void IntersectWith(IEnumerable<T> other)
 	{
-		ThrowHelper.ThrowIfNull(other);
+		Ensure.NotNull(other);
 
 		HashSet<T> otherSet = [.. other];
 
@@ -367,7 +367,7 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void ExceptWith(IEnumerable<T> other)
 	{
-		ThrowHelper.ThrowIfNull(other);
+		Ensure.NotNull(other);
 
 		foreach (T item in other)
 		{
@@ -382,7 +382,7 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public void SymmetricExceptWith(IEnumerable<T> other)
 	{
-		ThrowHelper.ThrowIfNull(other);
+		Ensure.NotNull(other);
 
 		HashSet<T> otherSet = [.. other];
 
@@ -420,7 +420,7 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsSubsetOf(IEnumerable<T> other)
 	{
-		ThrowHelper.ThrowIfNull(other);
+		Ensure.NotNull(other);
 
 		HashSet<T> otherSet = [.. other];
 		return items.All(otherSet.Contains);
@@ -434,7 +434,7 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsSupersetOf(IEnumerable<T> other)
 	{
-		ThrowHelper.ThrowIfNull(other);
+		Ensure.NotNull(other);
 
 		return other.All(Contains);
 	}
@@ -447,7 +447,7 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsProperSubsetOf(IEnumerable<T> other)
 	{
-		ThrowHelper.ThrowIfNull(other);
+		Ensure.NotNull(other);
 
 		HashSet<T> otherSet = [.. other];
 		return Count < otherSet.Count && IsSubsetOf(otherSet);
@@ -461,7 +461,7 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool IsProperSupersetOf(IEnumerable<T> other)
 	{
-		ThrowHelper.ThrowIfNull(other);
+		Ensure.NotNull(other);
 
 		HashSet<T> otherSet = [.. other];
 		return Count > otherSet.Count && IsSupersetOf(otherSet);
@@ -475,7 +475,7 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool Overlaps(IEnumerable<T> other)
 	{
-		ThrowHelper.ThrowIfNull(other);
+		Ensure.NotNull(other);
 
 		return other.Any(Contains);
 	}
@@ -488,7 +488,7 @@ public class OrderedSet<T> : ISet<T>
 	/// <exception cref="ArgumentNullException">Thrown when other is null.</exception>
 	public bool SetEquals(IEnumerable<T> other)
 	{
-		ThrowHelper.ThrowIfNull(other);
+		Ensure.NotNull(other);
 
 		HashSet<T> otherSet = [.. other];
 		return Count == otherSet.Count && IsSubsetOf(otherSet);

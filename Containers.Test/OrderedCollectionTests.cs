@@ -274,14 +274,14 @@ public class OrderedCollectionTests
 	}
 
 	[TestMethod]
-	public void CopyTo_InsufficientSpace_ThrowsArgumentException()
+	public void CopyTo_InsufficientSpace_ThrowsArgumentOutOfRangeException()
 	{
 		// Arrange
 		OrderedCollection<int> collection = new([1, 2, 3, 4, 5]);
 		int[] array = new int[3];
 
 		// Act & Assert
-		Assert.ThrowsExactly<ArgumentException>(() => collection.CopyTo(array, 0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.CopyTo(array, 0));
 	}
 
 	[TestMethod]

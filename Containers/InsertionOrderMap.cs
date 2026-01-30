@@ -78,7 +78,7 @@ public class InsertionOrderMap<TKey, TValue>
 	{
 		get
 		{
-			ThrowHelper.ThrowIfNull(key);
+			Ensure.NotNull((object?)key);
 
 			return !keyToIndex.TryGetValue(key, out int index)
 				? throw new KeyNotFoundException($"The key '{key}' was not found in the map.")
@@ -86,7 +86,7 @@ public class InsertionOrderMap<TKey, TValue>
 		}
 		set
 		{
-			ThrowHelper.ThrowIfNull(key);
+			Ensure.NotNull((object?)key);
 
 			if (keyToIndex.TryGetValue(key, out int index))
 			{
@@ -141,7 +141,7 @@ public class InsertionOrderMap<TKey, TValue>
 	/// <exception cref="ArgumentNullException">Thrown when comparer is null.</exception>
 	public InsertionOrderMap(IEqualityComparer<TKey> comparer)
 	{
-		ThrowHelper.ThrowIfNull(comparer);
+		Ensure.NotNull(comparer);
 
 		items = [];
 		keyToIndex = new Dictionary<TKey, int>(comparer);
@@ -154,7 +154,7 @@ public class InsertionOrderMap<TKey, TValue>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public InsertionOrderMap(int capacity)
 	{
-		ThrowHelper.ThrowIfNegative(capacity);
+		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 
 		items = new List<Entry>(capacity);
 		keyToIndex = new Dictionary<TKey, int>(capacity);
@@ -169,8 +169,8 @@ public class InsertionOrderMap<TKey, TValue>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public InsertionOrderMap(int capacity, IEqualityComparer<TKey> comparer)
 	{
-		ThrowHelper.ThrowIfNegative(capacity);
-		ThrowHelper.ThrowIfNull(comparer);
+		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+		Ensure.NotNull(comparer);
 
 		items = new List<Entry>(capacity);
 		keyToIndex = new Dictionary<TKey, int>(capacity, comparer);
@@ -183,7 +183,7 @@ public class InsertionOrderMap<TKey, TValue>
 	/// <exception cref="ArgumentNullException">Thrown when dictionary is null.</exception>
 	public InsertionOrderMap(IDictionary<TKey, TValue> dictionary)
 	{
-		ThrowHelper.ThrowIfNull(dictionary);
+		Ensure.NotNull(dictionary);
 
 		items = [];
 		keyToIndex = [];
@@ -202,8 +202,8 @@ public class InsertionOrderMap<TKey, TValue>
 	/// <exception cref="ArgumentNullException">Thrown when dictionary or comparer is null.</exception>
 	public InsertionOrderMap(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
 	{
-		ThrowHelper.ThrowIfNull(dictionary);
-		ThrowHelper.ThrowIfNull(comparer);
+		Ensure.NotNull(dictionary);
+		Ensure.NotNull(comparer);
 
 		items = [];
 		keyToIndex = new Dictionary<TKey, int>(comparer);
@@ -227,7 +227,7 @@ public class InsertionOrderMap<TKey, TValue>
 	/// </remarks>
 	public void Add(TKey key, TValue value)
 	{
-		ThrowHelper.ThrowIfNull(key);
+		Ensure.NotNull((object?)key);
 
 		if (keyToIndex.ContainsKey(key))
 		{
@@ -253,7 +253,7 @@ public class InsertionOrderMap<TKey, TValue>
 	/// </remarks>
 	public bool Remove(TKey key)
 	{
-		ThrowHelper.ThrowIfNull(key);
+		Ensure.NotNull((object?)key);
 
 		if (!keyToIndex.TryGetValue(key, out int index))
 		{
@@ -285,7 +285,7 @@ public class InsertionOrderMap<TKey, TValue>
 	/// </remarks>
 	public bool ContainsKey(TKey key)
 	{
-		ThrowHelper.ThrowIfNull(key);
+		Ensure.NotNull((object?)key);
 		return keyToIndex.ContainsKey(key);
 	}
 
@@ -305,7 +305,7 @@ public class InsertionOrderMap<TKey, TValue>
 #endif
 		out TValue value)
 	{
-		ThrowHelper.ThrowIfNull(key);
+		Ensure.NotNull((object?)key);
 
 		if (keyToIndex.TryGetValue(key, out int index))
 		{
@@ -352,10 +352,10 @@ public class InsertionOrderMap<TKey, TValue>
 	/// <exception cref="ArgumentException">Thrown when the destination array is too small.</exception>
 	public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
 	{
-		ThrowHelper.ThrowIfNull(array);
-		ThrowHelper.ThrowIfNegative(arrayIndex);
-		ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
-		ThrowHelper.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
+		Ensure.NotNull(array);
+		ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 		for (int i = 0; i < items.Count; i++)
 		{
@@ -419,16 +419,16 @@ public class InsertionOrderMap<TKey, TValue>
 
 		public bool Contains(TKey item)
 		{
-			ThrowHelper.ThrowIfNull(item);
+			Ensure.NotNull((object?)item);
 			return map.ContainsKey(item);
 		}
 
 		public void CopyTo(TKey[] array, int arrayIndex)
 		{
-			ThrowHelper.ThrowIfNull(array);
-			ThrowHelper.ThrowIfNegative(arrayIndex);
-			ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
-			ThrowHelper.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
+			Ensure.NotNull(array);
+			ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+			ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
+			ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 			for (int i = 0; i < map.items.Count; i++)
 			{
@@ -470,10 +470,10 @@ public class InsertionOrderMap<TKey, TValue>
 
 		public void CopyTo(TValue[] array, int arrayIndex)
 		{
-			ThrowHelper.ThrowIfNull(array);
-			ThrowHelper.ThrowIfNegative(arrayIndex);
-			ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
-			ThrowHelper.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
+			Ensure.NotNull(array);
+			ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+			ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
+			ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 			for (int i = 0; i < map.items.Count; i++)
 			{

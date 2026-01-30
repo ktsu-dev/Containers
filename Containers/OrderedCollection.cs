@@ -66,14 +66,8 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyCollection<T>, IRea
 	{
 		get
 		{
-			if (index < 0)
-			{
-				throw new ArgumentOutOfRangeException(nameof(index));
-			}
-			if (index >= Count)
-			{
-				throw new ArgumentOutOfRangeException(nameof(index));
-			}
+			ArgumentOutOfRangeException.ThrowIfNegative(index);
+			ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
 			return items[index];
 		}
 	}
@@ -108,10 +102,7 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyCollection<T>, IRea
 	/// <exception cref="ArgumentNullException">Thrown when comparer is null.</exception>
 	public OrderedCollection(IComparer<T> comparer)
 	{
-		if (comparer is null)
-		{
-			throw new ArgumentNullException(nameof(comparer));
-		}
+		Ensure.NotNull(comparer);
 
 		items = [];
 		this.comparer = comparer;
@@ -125,10 +116,7 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyCollection<T>, IRea
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public OrderedCollection(int capacity)
 	{
-		if (capacity < 0)
-		{
-			throw new ArgumentOutOfRangeException(nameof(capacity));
-		}
+		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 
 		if (
 			!typeof(IComparable<T>).IsAssignableFrom(typeof(T))
@@ -153,15 +141,8 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyCollection<T>, IRea
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public OrderedCollection(int capacity, IComparer<T> comparer)
 	{
-		if (capacity < 0)
-		{
-			throw new ArgumentOutOfRangeException(nameof(capacity));
-		}
-
-		if (comparer is null)
-		{
-			throw new ArgumentNullException(nameof(comparer));
-		}
+		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
+		Ensure.NotNull(comparer);
 
 		items = new List<T>(capacity);
 		this.comparer = comparer;
@@ -175,10 +156,7 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyCollection<T>, IRea
 	/// <exception cref="ArgumentException">Thrown when T does not implement IComparable{T}.</exception>
 	public OrderedCollection(IEnumerable<T> collection)
 	{
-		if (collection is null)
-		{
-			throw new ArgumentNullException(nameof(collection));
-		}
+		Ensure.NotNull(collection);
 
 		if (
 			!typeof(IComparable<T>).IsAssignableFrom(typeof(T))
@@ -207,14 +185,8 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyCollection<T>, IRea
 	/// <exception cref="ArgumentNullException">Thrown when collection or comparer is null.</exception>
 	public OrderedCollection(IEnumerable<T> collection, IComparer<T> comparer)
 	{
-		if (collection is null)
-		{
-			throw new ArgumentNullException(nameof(collection));
-		}
-		if (comparer is null)
-		{
-			throw new ArgumentNullException(nameof(comparer));
-		}
+		Ensure.NotNull(collection);
+		Ensure.NotNull(comparer);
 
 		items = [];
 		this.comparer = comparer;
@@ -268,24 +240,13 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyCollection<T>, IRea
 	/// <param name="array">The destination array.</param>
 	/// <param name="arrayIndex">The zero-based index in array at which copying begins.</param>
 	/// <exception cref="ArgumentNullException">Thrown when array is null.</exception>
-	/// <exception cref="ArgumentOutOfRangeException">Thrown when arrayIndex is negative.</exception>
-	/// <exception cref="ArgumentException">Thrown when the destination array is too small.</exception>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when arrayIndex is negative or the destination array is too small.</exception>
 	public void CopyTo(T[] array, int arrayIndex)
 	{
-		if (array is null)
-		{
-			throw new ArgumentNullException(nameof(array));
-		}
-
-		if (arrayIndex < 0)
-		{
-			throw new ArgumentOutOfRangeException(nameof(arrayIndex));
-		}
-
-		if (array.Length - arrayIndex < Count)
-		{
-			throw new ArgumentException("The destination array is too small.");
-		}
+		Ensure.NotNull(array);
+		ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 		items.CopyTo(array, arrayIndex);
 	}
@@ -317,14 +278,8 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyCollection<T>, IRea
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when index is out of range.</exception>
 	public void RemoveAt(int index)
 	{
-		if (index < 0)
-		{
-			throw new ArgumentOutOfRangeException(nameof(index));
-		}
-		if (index >= Count)
-		{
-			throw new ArgumentOutOfRangeException(nameof(index));
-		}
+		ArgumentOutOfRangeException.ThrowIfNegative(index);
+		ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
 		items.RemoveAt(index);
 	}
 
@@ -395,22 +350,10 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyCollection<T>, IRea
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when parameters are out of range.</exception>
 	public OrderedCollection<T> GetRange(int startIndex, int count)
 	{
-		if (startIndex < 0)
-		{
-			throw new ArgumentOutOfRangeException(nameof(startIndex));
-		}
-		if (startIndex >= Count)
-		{
-			throw new ArgumentOutOfRangeException(nameof(startIndex));
-		}
-		if (count < 0)
-		{
-			throw new ArgumentOutOfRangeException(nameof(count));
-		}
-		if (startIndex + count > Count)
-		{
-			throw new ArgumentOutOfRangeException(nameof(startIndex));
-		}
+		ArgumentOutOfRangeException.ThrowIfNegative(startIndex);
+		ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(startIndex, Count);
+		ArgumentOutOfRangeException.ThrowIfNegative(count);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(startIndex + count, Count);
 
 		List<T> rangeItems = items.GetRange(startIndex, count);
 		return new OrderedCollection<T>(rangeItems, comparer);

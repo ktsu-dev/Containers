@@ -59,8 +59,8 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyCollection<T
 	{
 		get
 		{
-			ThrowHelper.ThrowIfNegative(index);
-			ThrowHelper.ThrowIfGreaterThanOrEqual(index, Count);
+			ArgumentOutOfRangeException.ThrowIfNegative(index);
+			ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
 			return items[index];
 		}
 	}
@@ -77,7 +77,7 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyCollection<T
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public InsertionOrderCollection(int capacity)
 	{
-		ThrowHelper.ThrowIfNegative(capacity);
+		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 		items = new List<T>(capacity);
 	}
 
@@ -88,7 +88,7 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyCollection<T
 	/// <exception cref="ArgumentNullException">Thrown when collection is null.</exception>
 	public InsertionOrderCollection(IEnumerable<T> collection)
 	{
-		ThrowHelper.ThrowIfNull(collection);
+		Ensure.NotNull(collection);
 		items = [.. collection];
 	}
 
@@ -127,10 +127,10 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyCollection<T
 	/// <exception cref="ArgumentException">Thrown when the destination array is too small.</exception>
 	public void CopyTo(T[] array, int arrayIndex)
 	{
-		ThrowHelper.ThrowIfNull(array);
-		ThrowHelper.ThrowIfNegative(arrayIndex);
-		ThrowHelper.ThrowIfGreaterThan(arrayIndex, array.Length);
-		ThrowHelper.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
+		Ensure.NotNull(array);
+		ArgumentOutOfRangeException.ThrowIfNegative(arrayIndex);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(arrayIndex, array.Length);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(Count, array.Length - arrayIndex);
 
 		items.CopyTo(array, arrayIndex);
 	}
@@ -157,8 +157,8 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyCollection<T
 	/// </remarks>
 	public void RemoveAt(int index)
 	{
-		ThrowHelper.ThrowIfNegative(index);
-		ThrowHelper.ThrowIfGreaterThanOrEqual(index, Count);
+		ArgumentOutOfRangeException.ThrowIfNegative(index);
+		ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
 
 		items.RemoveAt(index);
 	}
@@ -194,9 +194,9 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyCollection<T
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when startIndex or count is invalid.</exception>
 	public InsertionOrderCollection<T> GetRange(int startIndex, int count)
 	{
-		ThrowHelper.ThrowIfNegative(startIndex);
-		ThrowHelper.ThrowIfNegative(count);
-		ThrowHelper.ThrowIfGreaterThan(startIndex + count, Count);
+		ArgumentOutOfRangeException.ThrowIfNegative(startIndex);
+		ArgumentOutOfRangeException.ThrowIfNegative(count);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(startIndex + count, Count);
 
 		return [.. items.GetRange(startIndex, count)];
 	}
