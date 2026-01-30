@@ -17,7 +17,7 @@ public class InsertionOrderSetTests
 
 		// Assert
 		Assert.AreEqual(0, set.Count);
-		Assert.IsFalse(set.IsReadOnly);
+		Assert.IsFalse(set.IsReadOnly, "Set should not be read-only");
 	}
 
 	[TestMethod]
@@ -59,9 +59,9 @@ public class InsertionOrderSetTests
 		bool result = set.Add(5);
 
 		// Assert
-		Assert.IsTrue(result);
+		Assert.IsTrue(result, "Add should return true for new element");
 		Assert.AreEqual(1, set.Count);
-		Assert.IsTrue(set.Contains(5));
+		Assert.Contains(5, set);
 	}
 
 	[TestMethod]
@@ -74,7 +74,7 @@ public class InsertionOrderSetTests
 		bool result = set.Add(5);
 
 		// Assert
-		Assert.IsFalse(result);
+		Assert.IsFalse(result, "Add should return false for duplicate element");
 		Assert.AreEqual(1, set.Count);
 	}
 
@@ -119,9 +119,9 @@ public class InsertionOrderSetTests
 		InsertionOrderSet<int> set = [.. new int[] { 1, 2, 3, 4, 5 }];
 
 		// Act & Assert
-		Assert.IsTrue(set.Contains(3));
-		Assert.IsTrue(set.Contains(1));
-		Assert.IsTrue(set.Contains(5));
+		Assert.Contains(3, set);
+		Assert.Contains(1, set);
+		Assert.Contains(5, set);
 	}
 
 	[TestMethod]
@@ -131,8 +131,8 @@ public class InsertionOrderSetTests
 		InsertionOrderSet<int> set = [.. new int[] { 1, 2, 3, 4, 5 }];
 
 		// Act & Assert
-		Assert.IsFalse(set.Contains(6));
-		Assert.IsFalse(set.Contains(0));
+		Assert.DoesNotContain(6, set);
+		Assert.DoesNotContain(0, set);
 	}
 
 	[TestMethod]
@@ -145,12 +145,12 @@ public class InsertionOrderSetTests
 		bool result = set.Remove(1);
 
 		// Assert
-		Assert.IsTrue(result);
+		Assert.IsTrue(result, "Remove should return true for existing element");
 		Assert.AreEqual(3, set.Count);
 		Assert.AreEqual(3, set.ElementAt(0));
 		Assert.AreEqual(4, set.ElementAt(1)); // Maintains order of remaining elements
 		Assert.AreEqual(2, set.ElementAt(2));
-		Assert.IsFalse(set.Contains(1));
+		Assert.DoesNotContain(1, set);
 	}
 
 	[TestMethod]
@@ -163,7 +163,7 @@ public class InsertionOrderSetTests
 		bool result = set.Remove(5);
 
 		// Assert
-		Assert.IsFalse(result);
+		Assert.IsFalse(result, "Remove should return false for non-existing element");
 		Assert.AreEqual(3, set.Count);
 	}
 
@@ -213,8 +213,8 @@ public class InsertionOrderSetTests
 		InsertionOrderSet<int> set2 = [.. new int[] { 3, 1, 2 }]; // Different order
 
 		// Act & Assert
-		Assert.IsTrue(set1.SetEquals(set2));
-		Assert.IsTrue(set2.SetEquals(set1));
+		Assert.IsTrue(set1.SetEquals(set2), "Sets with same elements should be equal");
+		Assert.IsTrue(set2.SetEquals(set1), "SetEquals should be symmetric");
 	}
 
 	[TestMethod]
@@ -225,8 +225,8 @@ public class InsertionOrderSetTests
 		InsertionOrderSet<int> set2 = [.. new int[] { 1, 2, 4 }];
 
 		// Act & Assert
-		Assert.IsFalse(set1.SetEquals(set2));
-		Assert.IsFalse(set2.SetEquals(set1));
+		Assert.IsFalse(set1.SetEquals(set2), "Sets with different elements should not be equal");
+		Assert.IsFalse(set2.SetEquals(set1), "SetEquals should be symmetric for non-equal sets");
 	}
 
 	[TestMethod]
@@ -237,7 +237,7 @@ public class InsertionOrderSetTests
 		InsertionOrderSet<int> superset = [.. new int[] { 1, 2, 3, 4 }];
 
 		// Act & Assert
-		Assert.IsTrue(subset.IsSubsetOf(superset));
+		Assert.IsTrue(subset.IsSubsetOf(superset), "Subset should be recognized as subset of superset");
 	}
 
 	[TestMethod]
@@ -248,7 +248,7 @@ public class InsertionOrderSetTests
 		InsertionOrderSet<int> set2 = [.. new int[] { 1, 2, 3, 4 }];
 
 		// Act & Assert
-		Assert.IsFalse(set1.IsSubsetOf(set2));
+		Assert.IsFalse(set1.IsSubsetOf(set2), "Set with elements not in other should not be subset");
 	}
 
 	[TestMethod]
@@ -259,7 +259,7 @@ public class InsertionOrderSetTests
 		InsertionOrderSet<int> subset = [.. new int[] { 1, 3 }];
 
 		// Act & Assert
-		Assert.IsTrue(superset.IsSupersetOf(subset));
+		Assert.IsTrue(superset.IsSupersetOf(subset), "Superset should be recognized as superset of subset");
 	}
 
 	[TestMethod]

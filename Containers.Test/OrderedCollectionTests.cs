@@ -18,7 +18,7 @@ public class OrderedCollectionTests
 
 		// Assert
 		Assert.AreEqual(0, collection.Count);
-		Assert.IsFalse(collection.IsReadOnly);
+		Assert.IsFalse(collection.IsReadOnly, "Collection should not be read-only");
 	}
 
 	[TestMethod]
@@ -206,9 +206,9 @@ public class OrderedCollectionTests
 		OrderedCollection<int> collection = new([1, 3, 5, 7, 9]);
 
 		// Act & Assert
-		Assert.IsTrue(collection.Contains(5));
-		Assert.IsTrue(collection.Contains(1));
-		Assert.IsTrue(collection.Contains(9));
+		Assert.Contains(5, collection);
+		Assert.Contains(1, collection);
+		Assert.Contains(9, collection);
 	}
 
 	[TestMethod]
@@ -218,9 +218,9 @@ public class OrderedCollectionTests
 		OrderedCollection<int> collection = new([1, 3, 5, 7, 9]);
 
 		// Act & Assert
-		Assert.IsFalse(collection.Contains(2));
-		Assert.IsFalse(collection.Contains(0));
-		Assert.IsFalse(collection.Contains(10));
+		Assert.DoesNotContain(2, collection);
+		Assert.DoesNotContain(0, collection);
+		Assert.DoesNotContain(10, collection);
 	}
 
 	[TestMethod]
@@ -230,7 +230,7 @@ public class OrderedCollectionTests
 		OrderedCollection<int> collection = [];
 
 		// Act & Assert
-		Assert.IsFalse(collection.Contains(1));
+		Assert.DoesNotContain(1, collection);
 	}
 
 	[TestMethod]
@@ -294,7 +294,7 @@ public class OrderedCollectionTests
 		bool result = collection.Remove(2);
 
 		// Assert
-		Assert.IsTrue(result);
+		Assert.IsTrue(result, "Remove should return true for existing element");
 		Assert.AreEqual(4, collection.Count);
 		Assert.AreEqual(1, collection[0]);
 		Assert.AreEqual(2, collection[1]); // Should remove first occurrence
@@ -312,7 +312,7 @@ public class OrderedCollectionTests
 		bool result = collection.Remove(2);
 
 		// Assert
-		Assert.IsFalse(result);
+		Assert.IsFalse(result, "Remove should return false for non-existing element");
 		Assert.AreEqual(3, collection.Count);
 	}
 
@@ -524,7 +524,7 @@ public class OrderedCollectionTests
 
 		// Act & Assert
 		Assert.AreEqual(0, collection.Count);
-		Assert.IsFalse(collection.IsReadOnly);
+		Assert.IsFalse(collection.IsReadOnly, "Collection should not be read-only");
 	}
 
 	[TestMethod]

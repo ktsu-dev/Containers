@@ -17,7 +17,7 @@ public class ContiguousSetTests
 
 		// Assert
 		Assert.AreEqual(0, set.Count);
-		Assert.IsFalse(set.IsReadOnly);
+		Assert.IsFalse(set.IsReadOnly, "Set should not be read-only");
 	}
 
 	[TestMethod]
@@ -41,12 +41,12 @@ public class ContiguousSetTests
 
 		// Assert
 		Assert.AreEqual(6, set.Count); // Only unique elements
-		Assert.IsTrue(set.Contains(1));
-		Assert.IsTrue(set.Contains(2));
-		Assert.IsTrue(set.Contains(3));
-		Assert.IsTrue(set.Contains(4));
-		Assert.IsTrue(set.Contains(5));
-		Assert.IsTrue(set.Contains(6));
+		Assert.Contains(1, set);
+		Assert.Contains(2, set);
+		Assert.Contains(3, set);
+		Assert.Contains(4, set);
+		Assert.Contains(5, set);
+		Assert.Contains(6, set);
 	}
 
 	[TestMethod]
@@ -68,9 +68,9 @@ public class ContiguousSetTests
 		bool result = set.Add(5);
 
 		// Assert
-		Assert.IsTrue(result);
+		Assert.IsTrue(result, "Add should return true for new element");
 		Assert.AreEqual(1, set.Count);
-		Assert.IsTrue(set.Contains(5));
+		Assert.Contains(5, set);
 	}
 
 	[TestMethod]
@@ -83,7 +83,7 @@ public class ContiguousSetTests
 		bool result = set.Add(5);
 
 		// Assert
-		Assert.IsFalse(result);
+		Assert.IsFalse(result, "Add should return false for duplicate element");
 		Assert.AreEqual(1, set.Count);
 	}
 
@@ -100,10 +100,10 @@ public class ContiguousSetTests
 		bool result4 = set.Add(1); // Duplicate
 
 		// Assert
-		Assert.IsTrue(result1);
-		Assert.IsTrue(result2);
-		Assert.IsTrue(result3);
-		Assert.IsFalse(result4);
+		Assert.IsTrue(result1, "Add should return true for first unique element");
+		Assert.IsTrue(result2, "Add should return true for second unique element");
+		Assert.IsTrue(result3, "Add should return true for third unique element");
+		Assert.IsFalse(result4, "Add should return false for duplicate element");
 		Assert.AreEqual(3, set.Count);
 	}
 
@@ -127,9 +127,9 @@ public class ContiguousSetTests
 		ContiguousSet<int> set = [.. new int[] { 1, 2, 3, 4, 5 }];
 
 		// Act & Assert
-		Assert.IsTrue(set.Contains(3));
-		Assert.IsTrue(set.Contains(1));
-		Assert.IsTrue(set.Contains(5));
+		Assert.Contains(3, set);
+		Assert.Contains(1, set);
+		Assert.Contains(5, set);
 	}
 
 	[TestMethod]
@@ -139,8 +139,8 @@ public class ContiguousSetTests
 		ContiguousSet<int> set = [.. new int[] { 1, 2, 3, 4, 5 }];
 
 		// Act & Assert
-		Assert.IsFalse(set.Contains(6));
-		Assert.IsFalse(set.Contains(0));
+		Assert.DoesNotContain(6, set);
+		Assert.DoesNotContain(0, set);
 	}
 
 	[TestMethod]
@@ -153,12 +153,12 @@ public class ContiguousSetTests
 		bool result = set.Remove(1);
 
 		// Assert
-		Assert.IsTrue(result);
+		Assert.IsTrue(result, "Remove should return true for existing element");
 		Assert.AreEqual(3, set.Count);
-		Assert.IsTrue(set.Contains(3));
-		Assert.IsFalse(set.Contains(1));
-		Assert.IsTrue(set.Contains(4));
-		Assert.IsTrue(set.Contains(2));
+		Assert.Contains(3, set);
+		Assert.DoesNotContain(1, set);
+		Assert.Contains(4, set);
+		Assert.Contains(2, set);
 	}
 
 	[TestMethod]
@@ -171,7 +171,7 @@ public class ContiguousSetTests
 		bool result = set.Remove(5);
 
 		// Assert
-		Assert.IsFalse(result);
+		Assert.IsFalse(result, "Remove should return false for non-existing element");
 		Assert.AreEqual(3, set.Count);
 	}
 
@@ -256,11 +256,11 @@ public class ContiguousSetTests
 
 		// Assert
 		Assert.AreEqual(5, set1.Count);
-		Assert.IsTrue(set1.Contains(1));
-		Assert.IsTrue(set1.Contains(2));
-		Assert.IsTrue(set1.Contains(3));
-		Assert.IsTrue(set1.Contains(4));
-		Assert.IsTrue(set1.Contains(5));
+		Assert.Contains(1, set1);
+		Assert.Contains(2, set1);
+		Assert.Contains(3, set1);
+		Assert.Contains(4, set1);
+		Assert.Contains(5, set1);
 	}
 
 	[TestMethod]
@@ -275,10 +275,10 @@ public class ContiguousSetTests
 
 		// Assert
 		Assert.AreEqual(2, set1.Count);
-		Assert.IsFalse(set1.Contains(1));
-		Assert.IsTrue(set1.Contains(2));
-		Assert.IsFalse(set1.Contains(3));
-		Assert.IsTrue(set1.Contains(4));
+		Assert.DoesNotContain(1, set1);
+		Assert.Contains(2, set1);
+		Assert.DoesNotContain(3, set1);
+		Assert.Contains(4, set1);
 	}
 
 	[TestMethod]
@@ -293,10 +293,10 @@ public class ContiguousSetTests
 
 		// Assert
 		Assert.AreEqual(2, set1.Count);
-		Assert.IsTrue(set1.Contains(1));
-		Assert.IsFalse(set1.Contains(2));
-		Assert.IsTrue(set1.Contains(3));
-		Assert.IsFalse(set1.Contains(4));
+		Assert.Contains(1, set1);
+		Assert.DoesNotContain(2, set1);
+		Assert.Contains(3, set1);
+		Assert.DoesNotContain(4, set1);
 	}
 
 	[TestMethod]
@@ -311,10 +311,10 @@ public class ContiguousSetTests
 
 		// Assert
 		Assert.AreEqual(2, set1.Count);
-		Assert.IsTrue(set1.Contains(1));
-		Assert.IsFalse(set1.Contains(2));
-		Assert.IsFalse(set1.Contains(3));
-		Assert.IsTrue(set1.Contains(4));
+		Assert.Contains(1, set1);
+		Assert.DoesNotContain(2, set1);
+		Assert.DoesNotContain(3, set1);
+		Assert.Contains(4, set1);
 	}
 
 	[TestMethod]
@@ -325,8 +325,8 @@ public class ContiguousSetTests
 		ContiguousSet<int> set2 = [.. new int[] { 3, 1, 2 }]; // Different order
 
 		// Act & Assert
-		Assert.IsTrue(set1.SetEquals(set2));
-		Assert.IsTrue(set2.SetEquals(set1));
+		Assert.IsTrue(set1.SetEquals(set2), "Sets with same elements should be equal");
+		Assert.IsTrue(set2.SetEquals(set1), "SetEquals should be symmetric");
 	}
 
 	[TestMethod]
@@ -337,8 +337,8 @@ public class ContiguousSetTests
 		ContiguousSet<int> set2 = [.. new int[] { 1, 2, 4 }];
 
 		// Act & Assert
-		Assert.IsFalse(set1.SetEquals(set2));
-		Assert.IsFalse(set2.SetEquals(set1));
+		Assert.IsFalse(set1.SetEquals(set2), "Sets with different elements should not be equal");
+		Assert.IsFalse(set2.SetEquals(set1), "SetEquals should be symmetric for non-equal sets");
 	}
 
 	[TestMethod]
@@ -349,7 +349,7 @@ public class ContiguousSetTests
 		ContiguousSet<int> superset = [.. new int[] { 1, 2, 3, 4 }];
 
 		// Act & Assert
-		Assert.IsTrue(subset.IsSubsetOf(superset));
+		Assert.IsTrue(subset.IsSubsetOf(superset), "Subset should be recognized as subset of superset");
 	}
 
 	[TestMethod]
@@ -360,7 +360,7 @@ public class ContiguousSetTests
 		ContiguousSet<int> set2 = [.. new int[] { 1, 2, 3, 4 }];
 
 		// Act & Assert
-		Assert.IsFalse(set1.IsSubsetOf(set2));
+		Assert.IsFalse(set1.IsSubsetOf(set2), "Set with elements not in other should not be subset");
 	}
 
 	[TestMethod]
@@ -371,7 +371,7 @@ public class ContiguousSetTests
 		ContiguousSet<int> subset = [.. new int[] { 1, 3 }];
 
 		// Act & Assert
-		Assert.IsTrue(superset.IsSupersetOf(subset));
+		Assert.IsTrue(superset.IsSupersetOf(subset), "Superset should be recognized as superset of subset");
 	}
 
 	[TestMethod]
@@ -382,8 +382,8 @@ public class ContiguousSetTests
 		ContiguousSet<int> superset = [.. new int[] { 1, 2, 3, 4 }];
 
 		// Act & Assert
-		Assert.IsTrue(subset.IsProperSubsetOf(superset));
-		Assert.IsFalse(superset.IsProperSubsetOf(subset));
+		Assert.IsTrue(subset.IsProperSubsetOf(superset), "Proper subset should be recognized");
+		Assert.IsFalse(superset.IsProperSubsetOf(subset), "Superset should not be proper subset of its subset");
 	}
 
 	[TestMethod]
@@ -394,8 +394,8 @@ public class ContiguousSetTests
 		ContiguousSet<int> set2 = [.. new int[] { 3, 4, 5 }];
 
 		// Act & Assert
-		Assert.IsTrue(set1.Overlaps(set2));
-		Assert.IsTrue(set2.Overlaps(set1));
+		Assert.IsTrue(set1.Overlaps(set2), "Sets with common elements should overlap");
+		Assert.IsTrue(set2.Overlaps(set1), "Overlaps should be symmetric");
 	}
 
 	[TestMethod]
@@ -406,8 +406,8 @@ public class ContiguousSetTests
 		ContiguousSet<int> set2 = [.. new int[] { 4, 5, 6 }];
 
 		// Act & Assert
-		Assert.IsFalse(set1.Overlaps(set2));
-		Assert.IsFalse(set2.Overlaps(set1));
+		Assert.IsFalse(set1.Overlaps(set2), "Sets without common elements should not overlap");
+		Assert.IsFalse(set2.Overlaps(set1), "Overlaps should be symmetric for non-overlapping sets");
 	}
 
 	[TestMethod]
@@ -426,7 +426,7 @@ public class ContiguousSetTests
 		Assert.AreEqual(1000, set.Count);
 		for (int i = 0; i < 1000; i++)
 		{
-			Assert.IsTrue(set.Contains(i));
+			Assert.IsTrue(set.Contains(i), $"Set should contain element {i}");
 		}
 
 		// Test span access (only possible with contiguous memory)
@@ -450,8 +450,8 @@ public class ContiguousSetTests
 
 		// Assert
 		Assert.AreEqual(3, set.Count); // Only unique elements
-		Assert.IsTrue(set.Contains("charlie"));
-		Assert.IsTrue(set.Contains("alpha"));
-		Assert.IsTrue(set.Contains("bravo"));
+		Assert.Contains("charlie", set);
+		Assert.Contains("alpha", set);
+		Assert.Contains("bravo", set);
 	}
 }

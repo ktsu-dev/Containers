@@ -18,7 +18,7 @@ public class ContiguousCollectionTests
 
 		// Assert
 		Assert.AreEqual(0, collection.Count);
-		Assert.IsFalse(collection.IsReadOnly);
+		Assert.IsFalse(collection.IsReadOnly, "Collection should not be read-only");
 		Assert.IsGreaterThanOrEqualTo(0, collection.Capacity);
 	}
 
@@ -154,9 +154,9 @@ public class ContiguousCollectionTests
 		ContiguousCollection<int> collection = [.. new int[] { 1, 2, 3, 4, 5 }];
 
 		// Act & Assert
-		Assert.IsTrue(collection.Contains(3));
-		Assert.IsTrue(collection.Contains(1));
-		Assert.IsTrue(collection.Contains(5));
+		Assert.Contains(3, collection);
+		Assert.Contains(1, collection);
+		Assert.Contains(5, collection);
 	}
 
 	[TestMethod]
@@ -166,8 +166,8 @@ public class ContiguousCollectionTests
 		ContiguousCollection<int> collection = [.. new int[] { 1, 2, 3, 4, 5 }];
 
 		// Act & Assert
-		Assert.IsFalse(collection.Contains(6));
-		Assert.IsFalse(collection.Contains(0));
+		Assert.DoesNotContain(6, collection);
+		Assert.DoesNotContain(0, collection);
 	}
 
 	[TestMethod]
@@ -269,7 +269,7 @@ public class ContiguousCollectionTests
 		bool result = collection.Remove(1); // Should remove first occurrence
 
 		// Assert
-		Assert.IsTrue(result);
+		Assert.IsTrue(result, "Remove should return true for existing element");
 		Assert.AreEqual(4, collection.Count);
 		Assert.AreEqual(3, collection[0]);
 		Assert.AreEqual(4, collection[1]); // 4 moved forward
@@ -287,7 +287,7 @@ public class ContiguousCollectionTests
 		bool result = collection.Remove(5);
 
 		// Assert
-		Assert.IsFalse(result);
+		Assert.IsFalse(result, "Remove should return false for non-existing element");
 		Assert.AreEqual(3, collection.Count);
 	}
 

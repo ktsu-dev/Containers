@@ -17,7 +17,7 @@ public class ContiguousMapTests
 
 		// Assert
 		Assert.AreEqual(0, map.Count);
-		Assert.IsFalse(map.IsReadOnly);
+		Assert.IsFalse(map.IsReadOnly, "Map should not be read-only");
 	}
 
 	[TestMethod]
@@ -70,7 +70,7 @@ public class ContiguousMapTests
 		// Assert
 		Assert.AreEqual(1, map.Count);
 		Assert.AreEqual("five", map[5]);
-		Assert.IsTrue(map.ContainsKey(5));
+		Assert.IsTrue(map.ContainsKey(5), "Map should contain added key");
 	}
 
 	[TestMethod]
@@ -94,7 +94,7 @@ public class ContiguousMapTests
 		bool result = map.TryAdd(5, "five");
 
 		// Assert
-		Assert.IsTrue(result);
+		Assert.IsTrue(result, "TryAdd should return true for new key");
 		Assert.AreEqual(1, map.Count);
 		Assert.AreEqual("five", map[5]);
 	}
@@ -110,7 +110,7 @@ public class ContiguousMapTests
 		bool result = map.TryAdd(5, "another five");
 
 		// Assert
-		Assert.IsFalse(result);
+		Assert.IsFalse(result, "TryAdd should return false for duplicate key");
 		Assert.AreEqual(1, map.Count);
 		Assert.AreEqual("five", map[5]); // Original value remains
 	}
@@ -183,8 +183,8 @@ public class ContiguousMapTests
 		map.Add(2, "two");
 
 		// Act & Assert
-		Assert.IsTrue(map.ContainsKey(1));
-		Assert.IsTrue(map.ContainsKey(2));
+		Assert.IsTrue(map.ContainsKey(1), "Map should contain key 1");
+		Assert.IsTrue(map.ContainsKey(2), "Map should contain key 2");
 	}
 
 	[TestMethod]
@@ -195,8 +195,8 @@ public class ContiguousMapTests
 		map.Add(1, "one");
 
 		// Act & Assert
-		Assert.IsFalse(map.ContainsKey(2));
-		Assert.IsFalse(map.ContainsKey(0));
+		Assert.IsFalse(map.ContainsKey(2), "Map should not contain key 2");
+		Assert.IsFalse(map.ContainsKey(0), "Map should not contain key 0");
 	}
 
 	[TestMethod]
@@ -210,7 +210,7 @@ public class ContiguousMapTests
 		bool result = map.TryGetValue(1, out string? value);
 
 		// Assert
-		Assert.IsTrue(result);
+		Assert.IsTrue(result, "TryGetValue should return true for existing key");
 		Assert.AreEqual("one", value);
 	}
 
@@ -225,7 +225,7 @@ public class ContiguousMapTests
 		bool result = map.TryGetValue(2, out string? value);
 
 		// Assert
-		Assert.IsFalse(result);
+		Assert.IsFalse(result, "TryGetValue should return false for non-existing key");
 		Assert.IsNull(value);
 	}
 
@@ -242,11 +242,11 @@ public class ContiguousMapTests
 		bool result = map.Remove(2);
 
 		// Assert
-		Assert.IsTrue(result);
+		Assert.IsTrue(result, "Remove should return true for existing key");
 		Assert.AreEqual(2, map.Count);
-		Assert.IsFalse(map.ContainsKey(2));
-		Assert.IsTrue(map.ContainsKey(1));
-		Assert.IsTrue(map.ContainsKey(3));
+		Assert.IsFalse(map.ContainsKey(2), "Map should not contain removed key");
+		Assert.IsTrue(map.ContainsKey(1), "Map should still contain key 1");
+		Assert.IsTrue(map.ContainsKey(3), "Map should still contain key 3");
 	}
 
 	[TestMethod]
@@ -260,7 +260,7 @@ public class ContiguousMapTests
 		bool result = map.Remove(2);
 
 		// Assert
-		Assert.IsFalse(result);
+		Assert.IsFalse(result, "Remove should return false for non-existing key");
 		Assert.AreEqual(1, map.Count);
 	}
 
@@ -278,9 +278,9 @@ public class ContiguousMapTests
 
 		// Assert
 		Assert.AreEqual(0, map.Count);
-		Assert.IsFalse(map.ContainsKey(1));
-		Assert.IsFalse(map.ContainsKey(2));
-		Assert.IsFalse(map.ContainsKey(3));
+		Assert.IsFalse(map.ContainsKey(1), "Map should not contain key 1 after clear");
+		Assert.IsFalse(map.ContainsKey(2), "Map should not contain key 2 after clear");
+		Assert.IsFalse(map.ContainsKey(3), "Map should not contain key 3 after clear");
 	}
 
 	[TestMethod]
@@ -359,8 +359,8 @@ public class ContiguousMapTests
 		map.Add(2, "two");
 
 		// Act & Assert
-		Assert.IsTrue(map.Contains(new KeyValuePair<int, string>(1, "one")));
-		Assert.IsTrue(map.Contains(new KeyValuePair<int, string>(2, "two")));
+		Assert.IsTrue(map.Contains(new KeyValuePair<int, string>(1, "one")), "Map should contain key-value pair (1, 'one')");
+		Assert.IsTrue(map.Contains(new KeyValuePair<int, string>(2, "two")), "Map should contain key-value pair (2, 'two')");
 	}
 
 	[TestMethod]
@@ -371,8 +371,8 @@ public class ContiguousMapTests
 		map.Add(1, "one");
 
 		// Act & Assert
-		Assert.IsFalse(map.Contains(new KeyValuePair<int, string>(1, "ONE"))); // Wrong value
-		Assert.IsFalse(map.Contains(new KeyValuePair<int, string>(2, "two"))); // Wrong key
+		Assert.IsFalse(map.Contains(new KeyValuePair<int, string>(1, "ONE")), "Map should not contain key-value pair with wrong value");
+		Assert.IsFalse(map.Contains(new KeyValuePair<int, string>(2, "two")), "Map should not contain key-value pair with wrong key");
 	}
 
 	[TestMethod]
@@ -473,7 +473,7 @@ public class ContiguousMapTests
 		Assert.AreEqual(1000, map.Count);
 		for (int i = 0; i < 1000; i++)
 		{
-			Assert.IsTrue(map.ContainsKey(i));
+			Assert.IsTrue(map.ContainsKey(i), $"Map should contain key {i}");
 			Assert.AreEqual($"value_{i}", map[i]);
 		}
 
@@ -524,7 +524,7 @@ public class ContiguousMapTests
 		Assert.AreEqual(2, map.Count);
 		Assert.IsNull(map[1]);
 		Assert.AreEqual("two", map[2]);
-		Assert.IsTrue(map.TryGetValue(1, out string? value));
+		Assert.IsTrue(map.TryGetValue(1, out string? value), "TryGetValue should return true for key with null value");
 		Assert.IsNull(value);
 	}
 }

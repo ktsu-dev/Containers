@@ -49,7 +49,7 @@ public class OrderedSet<T> : ISet<T>
 	/// <summary>
 	/// The comparer used to maintain sorted order.
 	/// </summary>
-	private readonly IComparer<T> comparer;
+	private readonly IComparer<T> Comparer;
 
 	/// <summary>
 	/// Gets the number of elements in the set.
@@ -81,7 +81,7 @@ public class OrderedSet<T> : ISet<T>
 		}
 
 		items = [];
-		comparer = Comparer<T>.Default;
+		Comparer = Comparer<T>.Default;
 	}
 
 	/// <summary>
@@ -94,7 +94,7 @@ public class OrderedSet<T> : ISet<T>
 		ThrowHelper.ThrowIfNull(comparer);
 
 		items = [];
-		this.comparer = comparer;
+		Comparer = comparer;
 	}
 
 	/// <summary>
@@ -118,7 +118,7 @@ public class OrderedSet<T> : ISet<T>
 		}
 
 		items = new List<T>(capacity);
-		comparer = Comparer<T>.Default;
+		Comparer = Comparer<T>.Default;
 	}
 
 	/// <summary>
@@ -134,7 +134,7 @@ public class OrderedSet<T> : ISet<T>
 		ThrowHelper.ThrowIfNull(comparer);
 
 		items = new List<T>(capacity);
-		this.comparer = comparer;
+		Comparer = comparer;
 	}
 
 	/// <summary>
@@ -158,7 +158,7 @@ public class OrderedSet<T> : ISet<T>
 		}
 
 		items = [];
-		comparer = Comparer<T>.Default;
+		Comparer = Comparer<T>.Default;
 
 		foreach (T item in collection)
 		{
@@ -178,7 +178,7 @@ public class OrderedSet<T> : ISet<T>
 		ThrowHelper.ThrowIfNull(comparer);
 
 		items = [];
-		this.comparer = comparer;
+		Comparer = comparer;
 
 		foreach (T item in collection)
 		{
@@ -293,7 +293,7 @@ public class OrderedSet<T> : ISet<T>
 		while (left <= right)
 		{
 			int mid = left + ((right - left) / 2);
-			int comparison = comparer.Compare(items[mid], item);
+			int comparison = Comparer.Compare(items[mid], item);
 
 			if (comparison == 0)
 			{
@@ -498,5 +498,5 @@ public class OrderedSet<T> : ISet<T>
 	/// Creates a shallow copy of the ordered set.
 	/// </summary>
 	/// <returns>A shallow copy of the set.</returns>
-	public OrderedSet<T> Clone() => new(items, comparer);
+	public OrderedSet<T> Clone() => new(items, Comparer);
 }

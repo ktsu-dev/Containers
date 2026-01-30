@@ -21,7 +21,7 @@ public class OrderedMapTests
 	{
 		OrderedMap<int, string> map = [];
 		Assert.AreEqual(0, map.Count);
-		Assert.IsFalse(map.IsReadOnly);
+		Assert.IsFalse(map.IsReadOnly, "OrderedMap should not be read-only");
 	}
 
 	/// <summary>
@@ -178,7 +178,7 @@ public class OrderedMapTests
 	{
 		OrderedMap<int, string> map = new() { { 1, "one" } };
 
-		Assert.IsTrue(map.ContainsKey(1));
+		Assert.IsTrue(map.ContainsKey(1), "ContainsKey should return true for existing key");
 	}
 
 	/// <summary>
@@ -189,7 +189,7 @@ public class OrderedMapTests
 	{
 		OrderedMap<int, string> map = new() { { 1, "one" } };
 
-		Assert.IsFalse(map.ContainsKey(2));
+		Assert.IsFalse(map.ContainsKey(2), "ContainsKey should return false for non-existing key");
 	}
 
 	/// <summary>
@@ -202,7 +202,7 @@ public class OrderedMapTests
 
 		bool found = map.TryGetValue(1, out string? value);
 
-		Assert.IsTrue(found);
+		Assert.IsTrue(found, "TryGetValue should return true for existing key");
 		Assert.AreEqual("one", value);
 	}
 
@@ -216,7 +216,7 @@ public class OrderedMapTests
 
 		bool found = map.TryGetValue(1, out string? value);
 
-		Assert.IsFalse(found);
+		Assert.IsFalse(found, "TryGetValue should return false for non-existing key");
 		Assert.IsNull(value);
 	}
 
@@ -235,9 +235,9 @@ public class OrderedMapTests
 
 		bool removed = map.Remove(2);
 
-		Assert.IsTrue(removed);
+		Assert.IsTrue(removed, "Remove should return true for existing key");
 		Assert.AreEqual(2, map.Count);
-		Assert.IsFalse(map.ContainsKey(2));
+		Assert.IsFalse(map.ContainsKey(2), "Removed key should no longer exist");
 		int[] expectedKeys = [1, 3];
 		CollectionAssert.AreEqual(expectedKeys, map.Keys.ToArray());
 	}
@@ -252,7 +252,7 @@ public class OrderedMapTests
 
 		bool removed = map.Remove(2);
 
-		Assert.IsFalse(removed);
+		Assert.IsFalse(removed, "Remove should return false for non-existing key");
 		Assert.AreEqual(1, map.Count);
 	}
 
@@ -267,8 +267,8 @@ public class OrderedMapTests
 		map.Clear();
 
 		Assert.AreEqual(0, map.Count);
-		Assert.IsFalse(map.ContainsKey(1));
-		Assert.IsFalse(map.ContainsKey(2));
+		Assert.IsFalse(map.ContainsKey(1), "Map should not contain key 1 after Clear");
+		Assert.IsFalse(map.ContainsKey(2), "Map should not contain key 2 after Clear");
 	}
 
 	/// <summary>
@@ -334,9 +334,9 @@ public class OrderedMapTests
 	{
 		OrderedMap<int, string> map = new() { { 1, "one" }, { 2, "two" } };
 
-		Assert.IsTrue(map.Contains(new KeyValuePair<int, string>(1, "one")));
-		Assert.IsFalse(map.Contains(new KeyValuePair<int, string>(1, "ONE")));
-		Assert.IsFalse(map.Contains(new KeyValuePair<int, string>(3, "three")));
+		Assert.Contains(new KeyValuePair<int, string>(1, "one"), map);
+		Assert.DoesNotContain(new KeyValuePair<int, string>(1, "ONE"), map);
+		Assert.DoesNotContain(new KeyValuePair<int, string>(3, "three"), map);
 	}
 
 	/// <summary>
@@ -366,10 +366,10 @@ public class OrderedMapTests
 		bool removed1 = map.Remove(new KeyValuePair<int, string>(1, "one"));
 		bool removed2 = map.Remove(new KeyValuePair<int, string>(2, "TWO"));
 
-		Assert.IsTrue(removed1);
-		Assert.IsFalse(removed2);
+		Assert.IsTrue(removed1, "Remove should return true for exact key-value match");
+		Assert.IsFalse(removed2, "Remove should return false for value mismatch");
 		Assert.AreEqual(1, map.Count);
-		Assert.IsTrue(map.ContainsKey(2));
+		Assert.IsTrue(map.ContainsKey(2), "Key 2 should still exist");
 	}
 
 	/// <summary>
@@ -399,7 +399,7 @@ public class OrderedMapTests
 	{
 		OrderedMap<int, string> map = new() { { 1, "one" } };
 
-		Assert.IsTrue(map.Keys.IsReadOnly);
+		Assert.IsTrue(map.Keys.IsReadOnly, "Keys collection should be read-only");
 		Assert.ThrowsExactly<NotSupportedException>(() => map.Keys.Add(2));
 		Assert.ThrowsExactly<NotSupportedException>(() => map.Keys.Remove(1));
 		Assert.ThrowsExactly<NotSupportedException>(map.Keys.Clear);
@@ -413,7 +413,7 @@ public class OrderedMapTests
 	{
 		OrderedMap<int, string> map = new() { { 1, "one" } };
 
-		Assert.IsTrue(map.Values.IsReadOnly);
+		Assert.IsTrue(map.Values.IsReadOnly, "Values collection should be read-only");
 		Assert.ThrowsExactly<NotSupportedException>(() => map.Values.Add("two"));
 		Assert.ThrowsExactly<NotSupportedException>(() => map.Values.Remove("one"));
 		Assert.ThrowsExactly<NotSupportedException>(map.Values.Clear);
@@ -468,13 +468,13 @@ public class OrderedMapTests
 		IEnumerable enumerable = map;
 		IEnumerator enumerator = enumerable.GetEnumerator();
 
-		Assert.IsTrue(enumerator.MoveNext());
+		Assert.IsTrue(enumerator.MoveNext(), "First MoveNext should return true");
 		Assert.AreEqual(new KeyValuePair<int, string>(1, "one"), enumerator.Current);
 
-		Assert.IsTrue(enumerator.MoveNext());
+		Assert.IsTrue(enumerator.MoveNext(), "Second MoveNext should return true");
 		Assert.AreEqual(new KeyValuePair<int, string>(2, "two"), enumerator.Current);
 
-		Assert.IsFalse(enumerator.MoveNext());
+		Assert.IsFalse(enumerator.MoveNext(), "Third MoveNext should return false (no more elements)");
 	}
 
 	/// <summary>

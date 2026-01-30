@@ -15,7 +15,7 @@ public class OrderedSetTests
 	{
 		OrderedSet<int> set = [];
 		Assert.AreEqual(0, set.Count);
-		Assert.IsFalse(set.IsReadOnly);
+		Assert.IsFalse(set.IsReadOnly, "OrderedSet should not be read-only");
 	}
 
 	[TestMethod]
@@ -23,7 +23,7 @@ public class OrderedSetTests
 	{
 		OrderedSet<string> set = new(StringComparer.OrdinalIgnoreCase);
 		Assert.AreEqual(0, set.Count);
-		Assert.IsFalse(set.IsReadOnly);
+		Assert.IsFalse(set.IsReadOnly, "OrderedSet should not be read-only");
 	}
 
 	[TestMethod]
@@ -31,7 +31,7 @@ public class OrderedSetTests
 	{
 		OrderedSet<int> set = new(10);
 		Assert.AreEqual(0, set.Count);
-		Assert.IsFalse(set.IsReadOnly);
+		Assert.IsFalse(set.IsReadOnly, "OrderedSet should not be read-only");
 	}
 
 	[TestMethod]
@@ -39,7 +39,7 @@ public class OrderedSetTests
 	{
 		OrderedSet<string> set = new(10, StringComparer.OrdinalIgnoreCase);
 		Assert.AreEqual(0, set.Count);
-		Assert.IsFalse(set.IsReadOnly);
+		Assert.IsFalse(set.IsReadOnly, "OrderedSet should not be read-only");
 	}
 
 	[TestMethod]
@@ -98,9 +98,9 @@ public class OrderedSetTests
 		OrderedSet<int> set = [];
 		bool added = set.Add(5);
 
-		Assert.IsTrue(added);
+		Assert.IsTrue(added, "Add should return true for new element");
 		Assert.AreEqual(1, set.Count);
-		Assert.IsTrue(set.Contains(5));
+		Assert.Contains(5, set);
 	}
 
 	[TestMethod]
@@ -109,7 +109,7 @@ public class OrderedSetTests
 		OrderedSet<int> set = [];
 		bool[] results = [set.Add(5), set.Add(2), set.Add(8), set.Add(1)];
 
-		Assert.IsTrue(results.All(r => r));
+		Assert.IsTrue(results.All(r => r), "All Add operations should return true");
 		Assert.AreEqual(4, set.Count);
 
 		int[] expected = [1, 2, 5, 8];
@@ -122,7 +122,7 @@ public class OrderedSetTests
 		OrderedSet<int> set = [5];
 		bool addedDuplicate = set.Add(5);
 
-		Assert.IsFalse(addedDuplicate);
+		Assert.IsFalse(addedDuplicate, "Add should return false for duplicate element");
 		Assert.AreEqual(1, set.Count);
 	}
 
@@ -133,10 +133,10 @@ public class OrderedSetTests
 		OrderedSet<string> set = new(comparer) { "Apple" };
 		bool addedDuplicate = set.Add("apple");
 
-		Assert.IsFalse(addedDuplicate);
+		Assert.IsFalse(addedDuplicate, "Add should return false for case-insensitive duplicate");
 		Assert.AreEqual(1, set.Count);
-		Assert.IsTrue(set.Contains("Apple"));
-		Assert.IsTrue(set.Contains("apple"));
+		Assert.Contains("Apple", set);
+		Assert.Contains("apple", set);
 	}
 
 	[TestMethod]
@@ -146,28 +146,28 @@ public class OrderedSetTests
 		set.Clear();
 
 		Assert.AreEqual(0, set.Count);
-		Assert.IsFalse(set.Contains(3));
+		Assert.DoesNotContain(3, set);
 	}
 
 	[TestMethod]
 	public void Contains_ExistingElement_ReturnsTrue()
 	{
 		OrderedSet<int> set = new([1, 2, 3, 4, 5]);
-		Assert.IsTrue(set.Contains(3));
+		Assert.Contains(3, set);
 	}
 
 	[TestMethod]
 	public void Contains_NonExistingElement_ReturnsFalse()
 	{
 		OrderedSet<int> set = new([1, 2, 3, 4, 5]);
-		Assert.IsFalse(set.Contains(6));
+		Assert.DoesNotContain(6, set);
 	}
 
 	[TestMethod]
 	public void Contains_EmptySet_ReturnsFalse()
 	{
 		OrderedSet<int> set = [];
-		Assert.IsFalse(set.Contains(1));
+		Assert.DoesNotContain(1, set);
 	}
 
 	[TestMethod]
@@ -210,9 +210,9 @@ public class OrderedSetTests
 		OrderedSet<int> set = new([1, 2, 3, 4, 5]);
 		bool removed = set.Remove(3);
 
-		Assert.IsTrue(removed);
+		Assert.IsTrue(removed, "Remove should return true for existing element");
 		Assert.AreEqual(4, set.Count);
-		Assert.IsFalse(set.Contains(3));
+		Assert.DoesNotContain(3, set);
 
 		int[] expected = [1, 2, 4, 5];
 		CollectionAssert.AreEqual(expected, set.ToArray());
@@ -224,7 +224,7 @@ public class OrderedSetTests
 		OrderedSet<int> set = new([1, 2, 3, 4, 5]);
 		bool removed = set.Remove(6);
 
-		Assert.IsFalse(removed);
+		Assert.IsFalse(removed, "Remove should return false for non-existing element");
 		Assert.AreEqual(5, set.Count);
 	}
 
@@ -234,7 +234,7 @@ public class OrderedSetTests
 		OrderedSet<int> set = [];
 		bool removed = set.Remove(1);
 
-		Assert.IsFalse(removed);
+		Assert.IsFalse(removed, "Remove should return false for empty set");
 		Assert.AreEqual(0, set.Count);
 	}
 
@@ -408,7 +408,7 @@ public class OrderedSetTests
 		OrderedSet<int> set1 = new([1, 2, 3]);
 		int[] set2 = [1, 2, 3, 4, 5];
 
-		Assert.IsTrue(set1.IsSubsetOf(set2));
+		Assert.IsTrue(set1.IsSubsetOf(set2), "Set should be a subset");
 	}
 
 	[TestMethod]
@@ -417,7 +417,7 @@ public class OrderedSetTests
 		OrderedSet<int> set1 = new([1, 2, 6]);
 		int[] set2 = [1, 2, 3, 4, 5];
 
-		Assert.IsFalse(set1.IsSubsetOf(set2));
+		Assert.IsFalse(set1.IsSubsetOf(set2), "Set should not be a subset");
 	}
 
 	[TestMethod]
@@ -426,7 +426,7 @@ public class OrderedSetTests
 		OrderedSet<int> set1 = new([1, 2, 3]);
 		int[] set2 = [1, 2, 3];
 
-		Assert.IsTrue(set1.IsSubsetOf(set2));
+		Assert.IsTrue(set1.IsSubsetOf(set2), "Equal sets should be subsets of each other");
 	}
 
 	[TestMethod]
@@ -442,7 +442,7 @@ public class OrderedSetTests
 		OrderedSet<int> set1 = new([1, 2, 3, 4, 5]);
 		int[] set2 = [1, 2, 3];
 
-		Assert.IsTrue(set1.IsSupersetOf(set2));
+		Assert.IsTrue(set1.IsSupersetOf(set2), "Set should be a superset");
 	}
 
 	[TestMethod]
@@ -451,7 +451,7 @@ public class OrderedSetTests
 		OrderedSet<int> set1 = new([1, 2, 3]);
 		int[] set2 = [1, 2, 3, 4, 5];
 
-		Assert.IsFalse(set1.IsSupersetOf(set2));
+		Assert.IsFalse(set1.IsSupersetOf(set2), "Set should not be a superset");
 	}
 
 	[TestMethod]
@@ -467,7 +467,7 @@ public class OrderedSetTests
 		OrderedSet<int> set1 = new([1, 2, 3]);
 		int[] set2 = [1, 2, 3, 4, 5];
 
-		Assert.IsTrue(set1.IsProperSubsetOf(set2));
+		Assert.IsTrue(set1.IsProperSubsetOf(set2), "Set should be a proper subset");
 	}
 
 	[TestMethod]
@@ -476,7 +476,7 @@ public class OrderedSetTests
 		OrderedSet<int> set1 = new([1, 2, 3]);
 		int[] set2 = [1, 2, 3];
 
-		Assert.IsFalse(set1.IsProperSubsetOf(set2));
+		Assert.IsFalse(set1.IsProperSubsetOf(set2), "Equal sets are not proper subsets");
 	}
 
 	[TestMethod]
@@ -492,7 +492,7 @@ public class OrderedSetTests
 		OrderedSet<int> set1 = new([1, 2, 3, 4, 5]);
 		int[] set2 = [1, 2, 3];
 
-		Assert.IsTrue(set1.IsProperSupersetOf(set2));
+		Assert.IsTrue(set1.IsProperSupersetOf(set2), "Set should be a proper superset");
 	}
 
 	[TestMethod]
@@ -501,7 +501,7 @@ public class OrderedSetTests
 		OrderedSet<int> set1 = new([1, 2, 3]);
 		int[] set2 = [1, 2, 3];
 
-		Assert.IsFalse(set1.IsProperSupersetOf(set2));
+		Assert.IsFalse(set1.IsProperSupersetOf(set2), "Equal sets are not proper supersets");
 	}
 
 	[TestMethod]
@@ -517,7 +517,7 @@ public class OrderedSetTests
 		OrderedSet<int> set1 = new([1, 2, 3]);
 		int[] set2 = [3, 4, 5];
 
-		Assert.IsTrue(set1.Overlaps(set2));
+		Assert.IsTrue(set1.Overlaps(set2), "Sets with common elements should overlap");
 	}
 
 	[TestMethod]
@@ -526,7 +526,7 @@ public class OrderedSetTests
 		OrderedSet<int> set1 = new([1, 2, 3]);
 		int[] set2 = [4, 5, 6];
 
-		Assert.IsFalse(set1.Overlaps(set2));
+		Assert.IsFalse(set1.Overlaps(set2), "Sets without common elements should not overlap");
 	}
 
 	[TestMethod]
@@ -542,7 +542,7 @@ public class OrderedSetTests
 		OrderedSet<int> set1 = new([1, 2, 3]);
 		int[] set2 = [3, 1, 2]; // Different order, same elements
 
-		Assert.IsTrue(set1.SetEquals(set2));
+		Assert.IsTrue(set1.SetEquals(set2), "Sets with same elements should be equal");
 	}
 
 	[TestMethod]
@@ -551,7 +551,7 @@ public class OrderedSetTests
 		OrderedSet<int> set1 = new([1, 2, 3]);
 		int[] set2 = [1, 2, 4];
 
-		Assert.IsFalse(set1.SetEquals(set2));
+		Assert.IsFalse(set1.SetEquals(set2), "Sets with different elements should not be equal");
 	}
 
 	[TestMethod]
@@ -560,7 +560,7 @@ public class OrderedSetTests
 		OrderedSet<int> set1 = new([1, 2, 3]);
 		int[] set2 = [1, 2, 3, 4];
 
-		Assert.IsFalse(set1.SetEquals(set2));
+		Assert.IsFalse(set1.SetEquals(set2), "Sets with different sizes should not be equal");
 	}
 
 	[TestMethod]
@@ -582,8 +582,8 @@ public class OrderedSetTests
 		// Verify they are independent
 		clone.Add(4);
 		Assert.AreNotEqual(original.Count, clone.Count);
-		Assert.IsFalse(original.Contains(4));
-		Assert.IsTrue(clone.Contains(4));
+		Assert.DoesNotContain(4, original);
+		Assert.Contains(4, clone);
 	}
 
 	[TestMethod]
