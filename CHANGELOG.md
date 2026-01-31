@@ -1,6 +1,9 @@
-## v1.0.9
+## v1.0.10-pre.1 (prerelease)
 
-No significant changes detected since v1.0.9.
+Changes since v1.0.9:
+
+- Sync COPYRIGHT.md ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\update-winget-manifests.ps1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
 ## v1.0.9 (patch)
 
 Changes since v1.0.8:
