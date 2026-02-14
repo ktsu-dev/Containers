@@ -1,15 +1,35 @@
+## v1.0.10 (patch)
+
+Changes since v1.0.9:
+
+- Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync global.json ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\update-winget-manifests.ps1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\update-winget-manifests.ps1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync global.json ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync global.json ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync global.json ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync global.json ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync COPYRIGHT.md ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\update-winget-manifests.ps1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync COPYRIGHT.md ([@ktsu[bot]](https://github.com/ktsu[bot]))
+
 ## v1.0.10-pre.7 (prerelease)
 
 Changes since v1.0.10-pre.6:
 
 - Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
 - Sync scripts\update-winget-manifests.ps1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
-## v1.0.10-pre.7 (prerelease)
 
-Changes since v1.0.10-pre.6:
-
-- Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Sync scripts\update-winget-manifests.ps1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
 ## v1.0.10-pre.6 (prerelease)
 
 Changes since v1.0.10-pre.5:
@@ -17,145 +37,169 @@ Changes since v1.0.10-pre.5:
 - Sync scripts\update-winget-manifests.ps1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
 - Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
 - Sync global.json ([@ktsu[bot]](https://github.com/ktsu[bot]))
+
 ## v1.0.10-pre.5 (prerelease)
 
 Changes since v1.0.10-pre.4:
 
-- Sync global.json ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
 - Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync global.json ([@ktsu[bot]](https://github.com/ktsu[bot]))
+
 ## v1.0.10-pre.4 (prerelease)
 
 Changes since v1.0.10-pre.3:
 
-- Sync global.json ([@ktsu[bot]](https://github.com/ktsu[bot]))
 - Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync global.json ([@ktsu[bot]](https://github.com/ktsu[bot]))
+
 ## v1.0.10-pre.3 (prerelease)
 
 Changes since v1.0.10-pre.2:
 
+- Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
 - Sync global.json ([@ktsu[bot]](https://github.com/ktsu[bot]))
 - Sync COPYRIGHT.md ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
+
 ## v1.0.10-pre.2 (prerelease)
 
 Changes since v1.0.10-pre.1:
 
-- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
 - Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+
 ## v1.0.10-pre.1 (prerelease)
 
 Changes since v1.0.9:
 
-- Sync COPYRIGHT.md ([@ktsu[bot]](https://github.com/ktsu[bot]))
 - Sync scripts\update-winget-manifests.ps1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync COPYRIGHT.md ([@ktsu[bot]](https://github.com/ktsu[bot]))
+
 ## v1.0.9 (patch)
 
 Changes since v1.0.8:
 
-- Update .NET workflow and package configurations ([@matt-edmondson](https://github.com/matt-edmondson))
+- Refactor exception handling in container classes to use ArgumentOutOfRangeException and Ensure.NotNull ([@matt-edmondson](https://github.com/matt-edmondson))
 - Refactor assertions in unit tests for improved clarity and consistency ([@matt-edmondson](https://github.com/matt-edmondson))
+- Update .NET workflow and package configurations ([@matt-edmondson](https://github.com/matt-edmondson))
+
 ## v1.0.9-pre.1 (prerelease)
 
-Incremental prerelease update.
+No significant changes detected since v1.0.9.
+
 ## v1.0.8 (patch)
 
 Changes since v1.0.7:
 
 - Add AssemblyInfo, update test assertions, and enhance project configuration ([@matt-edmondson](https://github.com/matt-edmondson))
 - Add CLAUDE.md for project guidance and update target frameworks to net10.0 ([@matt-edmondson](https://github.com/matt-edmondson))
+
 ## v1.0.8-pre.3 (prerelease)
 
 Changes since v1.0.8-pre.2:
 
 - Sync scripts\update-winget-manifests.ps1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+
 ## v1.0.8-pre.2 (prerelease)
 
 Changes since v1.0.8-pre.1:
 
 - Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
+
 ## v1.0.8-pre.1 (prerelease)
 
-Incremental prerelease update.
+No significant changes detected since v1.0.8.
+
 ## v1.0.7 (patch)
 
 Changes since v1.0.6:
 
 - "Claude Code Review workflow" ([@matt-edmondson](https://github.com/matt-edmondson))
 - "Claude PR Assistant workflow" ([@matt-edmondson](https://github.com/matt-edmondson))
+
 ## v1.0.7-pre.1 (prerelease)
 
-Incremental prerelease update.
+No significant changes detected since v1.0.7.
+
 ## v1.0.6 (patch)
 
 Changes since v1.0.5:
 
 - Fix multi-targeting build errors and add framework polyfills ([@matt-edmondson](https://github.com/matt-edmondson))
-- Update project configuration and dependencies ([@matt-edmondson](https://github.com/matt-edmondson))
 - Enhance project configuration and workflows ([@matt-edmondson](https://github.com/matt-edmondson))
+- Update project configuration and dependencies ([@matt-edmondson](https://github.com/matt-edmondson))
+
 ## v1.0.5 (patch)
 
 Changes since v1.0.4:
 
 - Add script to automate winget manifest updates ([@matt-edmondson](https://github.com/matt-edmondson))
+
 ## v1.0.4 (patch)
 
 Changes since v1.0.3:
 
 - Update project configuration and dependencies ([@matt-edmondson](https://github.com/matt-edmondson))
+
 ## v1.0.3 (patch)
 
 Changes since v1.0.2:
 
-- Enhance ktsu.Containers with new benchmarks and tests ([@matt-edmondson](https://github.com/matt-edmondson))
 - Fix IDE0052 errors by removing unused private members in derived cursor rules ([@matt-edmondson](https://github.com/matt-edmondson))
-- Add new collection types and update documentation ([@matt-edmondson](https://github.com/matt-edmondson))
-- Refactor RingBuffer to improve efficiency and documentation ([@matt-edmondson](https://github.com/matt-edmondson))
-- Add OrderedMap and its benchmarks to ktsu.Containers ([@matt-edmondson](https://github.com/matt-edmondson))
 - Fix compilation errors in ContiguousSetBenchmarks and improve collection initialization ([@matt-edmondson](https://github.com/matt-edmondson))
 - Fix compilation errors and improve tests in collection classes ([@matt-edmondson](https://github.com/matt-edmondson))
-- Refactor collection classes to use properties for Count ([@matt-edmondson](https://github.com/matt-edmondson))
 - Implement equality logic and XML documentation for ContiguousMap.Entry ([@matt-edmondson](https://github.com/matt-edmondson))
+- Refactor collection classes to use properties for Count ([@matt-edmondson](https://github.com/matt-edmondson))
+- Enhance ktsu.Containers with new benchmarks and tests ([@matt-edmondson](https://github.com/matt-edmondson))
+- Add new collection types and update documentation ([@matt-edmondson](https://github.com/matt-edmondson))
+- Add OrderedMap and its benchmarks to ktsu.Containers ([@matt-edmondson](https://github.com/matt-edmondson))
 - Add OrderedSet and benchmarking framework for ktsu.Containers ([@matt-edmondson](https://github.com/matt-edmondson))
+- Refactor RingBuffer to improve efficiency and documentation ([@matt-edmondson](https://github.com/matt-edmondson))
+
 ## v1.0.2 (patch)
 
 Changes since v1.0.1:
 
 - Add configuration files and implement new features ([@matt-edmondson](https://github.com/matt-edmondson))
+
 ## v1.0.2-pre.2 (prerelease)
 
 Changes since v1.0.2-pre.1:
 
-- Sync .gitattributes ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
 - Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Sync .gitignore ([@ktsu[bot]](https://github.com/ktsu[bot]))
 - Sync .editorconfig ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .gitattributes ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .gitignore ([@ktsu[bot]](https://github.com/ktsu[bot]))
 - Sync .mailmap ([@ktsu[bot]](https://github.com/ktsu[bot]))
 - Sync .runsettings ([@ktsu[bot]](https://github.com/ktsu[bot]))
-- Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
+
 ## v1.0.2-pre.1 (prerelease)
 
-Incremental prerelease update.
+No significant changes detected since v1.0.2.
+
 ## v1.0.1 (patch)
 
 Changes since v1.0.0:
 
 - Add Clear method to RingBuffer and update documentation ([@matt-edmondson](https://github.com/matt-edmondson))
+
 ## v1.0.0 (major)
 
-- Remove locking to simplify, I can make a concurrent one if I need that ([@matt-edmondson](https://github.com/matt-edmondson))
-- Code chaneg to force a build ([@matt-edmondson](https://github.com/matt-edmondson))
-- Improve tag handling in Get-VersionInfoFromGit function ([@matt-edmondson](https://github.com/matt-edmondson))
-- Reset licence file ([@matt-edmondson](https://github.com/matt-edmondson))
-- Initial Commit ([@matt-edmondson](https://github.com/matt-edmondson))
-- Update SDK versions and enhance documentation tags ([@matt-edmondson](https://github.com/matt-edmondson))
-- Refactor locking mechanism in RingBuffer class ([@matt-edmondson](https://github.com/matt-edmondson))
 - Refactor PSBuild.psm1 to improve array handling ([@matt-edmondson](https://github.com/matt-edmondson))
-- Enhance documentation and update project files ([@matt-edmondson](https://github.com/matt-edmondson))
-- Rename from collections to containers, and implement standard interfaces ([@matt-edmondson](https://github.com/matt-edmondson))
-- Refactor tag handling and error management in PSBuild.psm1 ([@matt-edmondson](https://github.com/matt-edmondson))
+- Code chaneg to force a build ([@matt-edmondson](https://github.com/matt-edmondson))
+- Reset licence file ([@matt-edmondson](https://github.com/matt-edmondson))
 - Enhance versioning logic in PSBuild.psm1 ([@matt-edmondson](https://github.com/matt-edmondson))
+- Refactor tag handling and error management in PSBuild.psm1 ([@matt-edmondson](https://github.com/matt-edmondson))
+- Improve tag handling in Get-VersionInfoFromGit function ([@matt-edmondson](https://github.com/matt-edmondson))
+- Enhance documentation and update project files ([@matt-edmondson](https://github.com/matt-edmondson))
+- Update SDK versions and enhance documentation tags ([@matt-edmondson](https://github.com/matt-edmondson))
+- Rename library from ktsu.Collections to ktsu.Containers ([@matt-edmondson](https://github.com/matt-edmondson))
+- Rename from collections to containers, and implement standard interfaces ([@matt-edmondson](https://github.com/matt-edmondson))
 - Add tests and constructors for RingBuffer functionality ([@matt-edmondson](https://github.com/matt-edmondson))
 - Refactor RingBuffer class and add unit tests ([@matt-edmondson](https://github.com/matt-edmondson))
-- Rename library from ktsu.Collections to ktsu.Containers ([@matt-edmondson](https://github.com/matt-edmondson))
+- Remove locking to simplify, I can make a concurrent one if I need that ([@matt-edmondson](https://github.com/matt-edmondson))
+- Refactor locking mechanism in RingBuffer class ([@matt-edmondson](https://github.com/matt-edmondson))
+- Initial Commit ([@matt-edmondson](https://github.com/matt-edmondson))
+
