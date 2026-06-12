@@ -1,7 +1,33 @@
-## v1.0.13-pre.1 (prerelease)
+## v1.1.0 (minor)
 
-Changes since v1.0.13-pre.1:
+Changes since v1.0.0:
 
+- Add real-time-safe SPSC ring buffer and denormal-aware delay line ([@Claude](https://github.com/Claude))
+- Remove legacy build scripts ([@matt-edmondson](https://github.com/matt-edmondson))
+- Refactor exception handling in container classes to use ArgumentOutOfRangeException and Ensure.NotNull ([@matt-edmondson](https://github.com/matt-edmondson))
+- Refactor assertions in unit tests for improved clarity and consistency ([@matt-edmondson](https://github.com/matt-edmondson))
+- Update .NET workflow and package configurations ([@matt-edmondson](https://github.com/matt-edmondson))
+- Add AssemblyInfo, update test assertions, and enhance project configuration ([@matt-edmondson](https://github.com/matt-edmondson))
+- Add CLAUDE.md for project guidance and update target frameworks to net10.0 ([@matt-edmondson](https://github.com/matt-edmondson))
+- "Claude Code Review workflow" ([@matt-edmondson](https://github.com/matt-edmondson))
+- "Claude PR Assistant workflow" ([@matt-edmondson](https://github.com/matt-edmondson))
+- Fix multi-targeting build errors and add framework polyfills ([@matt-edmondson](https://github.com/matt-edmondson))
+- Enhance project configuration and workflows ([@matt-edmondson](https://github.com/matt-edmondson))
+- Update project configuration and dependencies ([@matt-edmondson](https://github.com/matt-edmondson))
+- Add script to automate winget manifest updates ([@matt-edmondson](https://github.com/matt-edmondson))
+- Update project configuration and dependencies ([@matt-edmondson](https://github.com/matt-edmondson))
+- Fix IDE0052 errors by removing unused private members in derived cursor rules ([@matt-edmondson](https://github.com/matt-edmondson))
+- Fix compilation errors in ContiguousSetBenchmarks and improve collection initialization ([@matt-edmondson](https://github.com/matt-edmondson))
+- Fix compilation errors and improve tests in collection classes ([@matt-edmondson](https://github.com/matt-edmondson))
+- Implement equality logic and XML documentation for ContiguousMap.Entry ([@matt-edmondson](https://github.com/matt-edmondson))
+- Refactor collection classes to use properties for Count ([@matt-edmondson](https://github.com/matt-edmondson))
+- Enhance ktsu.Containers with new benchmarks and tests ([@matt-edmondson](https://github.com/matt-edmondson))
+- Add new collection types and update documentation ([@matt-edmondson](https://github.com/matt-edmondson))
+- Add OrderedMap and its benchmarks to ktsu.Containers ([@matt-edmondson](https://github.com/matt-edmondson))
+- Add OrderedSet and benchmarking framework for ktsu.Containers ([@matt-edmondson](https://github.com/matt-edmondson))
+- Refactor RingBuffer to improve efficiency and documentation ([@matt-edmondson](https://github.com/matt-edmondson))
+- Add configuration files and implement new features ([@matt-edmondson](https://github.com/matt-edmondson))
+- Add Clear method to RingBuffer and update documentation ([@matt-edmondson](https://github.com/matt-edmondson))
 
 ## v1.0.13-pre.1 (prerelease)
 
