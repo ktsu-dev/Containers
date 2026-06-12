@@ -1,6 +1,11 @@
-## v1.1.1 (patch)
+## v1.1.2 (patch)
 
-Changes since v1.1.0:
+Changes since v1.1.1:
 
-- Add compatibility suppressions for package validation ([@matt-edmondson](https://github.com/matt-edmondson))
+- Sync .github\workflows\update-sdks.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .github\dependabot.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .gitignore ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .gitattributes ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync global.json ([@ktsu[bot]](https://github.com/ktsu[bot]))
 
