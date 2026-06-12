@@ -2,6 +2,7 @@
 
 Changes since v1.0.0:
 
+- Update code coverage package and fix nullability issues ([@matt-edmondson](https://github.com/matt-edmondson))
 - Add real-time-safe SPSC ring buffer and denormal-aware delay line ([@Claude](https://github.com/Claude))
 - Remove legacy build scripts ([@matt-edmondson](https://github.com/matt-edmondson))
 - Refactor exception handling in container classes to use ArgumentOutOfRangeException and Ensure.NotNull ([@matt-edmondson](https://github.com/matt-edmondson))
