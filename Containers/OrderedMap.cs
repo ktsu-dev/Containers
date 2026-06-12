@@ -305,7 +305,11 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 			return true;
 		}
 
+#if NET5_0_OR_GREATER
+		value = default;
+#else
 		value = default!;
+#endif
 		return false;
 	}
 

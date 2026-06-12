@@ -313,7 +313,11 @@ public class InsertionOrderMap<TKey, TValue>
 			return true;
 		}
 
+#if NET5_0_OR_GREATER
+		value = default;
+#else
 		value = default!;
+#endif
 		return false;
 	}
 
