@@ -6,6 +6,15 @@
     <Nullable>enable</Nullable>
     <AssemblyName>Containers.Benchmarks</AssemblyName>
     <RootNamespace>ktsu.Containers.Benchmarks</RootNamespace>
+    <!--
+      Exclude the benchmark harness from SonarQube/SonarCloud analysis. Benchmarks are
+      deliberately written in a non-idiomatic style: explicit foreach/counter loops are kept
+      identical across competing collections so the comparisons stay fair, which Sonar reports
+      as S3267 ("use Where"), and operations on intentionally-empty collections read as S4158.
+      Benchmark code is also never executed by the test suite, so it can only ever drag the
+      new-code coverage gate to 0%. It is not shipped in the package.
+    -->
+    <SonarQubeExclude>true</SonarQubeExclude>
   </PropertyGroup>
 
   <ItemGroup>

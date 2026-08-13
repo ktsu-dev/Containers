@@ -525,4 +525,56 @@ public class ContiguousMapTests
 		Assert.IsTrue(map.TryGetValue(1, out string? value), "TryGetValue should return true for key with null value");
 		Assert.IsNull(value);
 	}
+
+	[TestMethod]
+	public void Entry_Equals_SameKeyAndValue_ReturnsTrue()
+	{
+		// Arrange
+		ContiguousMap<int, string>.Entry left = new(1, "one");
+		ContiguousMap<int, string>.Entry right = new(1, "one");
+
+		// Act & Assert
+		Assert.IsTrue(left.Equals(right), "Entries with the same key and value should be equal");
+		Assert.IsTrue(left.Equals((object)right), "Equals(object) should agree with Equals(Entry)");
+		Assert.IsTrue(left == right, "operator == should report equality");
+		Assert.IsFalse(left != right, "operator != should report equality");
+		Assert.AreEqual(left.GetHashCode(), right.GetHashCode());
+	}
+
+	[TestMethod]
+	public void Entry_Equals_DifferentKeyOrValue_ReturnsFalse()
+	{
+		// Arrange
+		ContiguousMap<int, string>.Entry entry = new(1, "one");
+		ContiguousMap<int, string>.Entry differentKey = new(2, "one");
+		ContiguousMap<int, string>.Entry differentValue = new(1, "two");
+
+		// Act & Assert
+		Assert.IsFalse(entry.Equals(differentKey), "Entries with different keys should not be equal");
+		Assert.IsFalse(entry.Equals(differentValue), "Entries with different values should not be equal");
+		Assert.IsTrue(entry != differentKey, "operator != should report inequality");
+		Assert.IsFalse(entry == differentValue, "operator == should report inequality");
+	}
+
+	[TestMethod]
+	public void Entry_Equals_NonEntryObject_ReturnsFalse()
+	{
+		// Arrange
+		ContiguousMap<int, string>.Entry entry = new(1, "one");
+
+		// Act & Assert
+		Assert.IsFalse(entry.Equals(null), "An entry should not equal null");
+		Assert.IsFalse(entry.Equals("not an entry"), "An entry should not equal an unrelated type");
+	}
+
+	[TestMethod]
+	public void Entry_KeyAndValue_ExposeConstructorArguments()
+	{
+		// Arrange & Act
+		ContiguousMap<int, string>.Entry entry = new(7, "seven");
+
+		// Assert
+		Assert.AreEqual(7, entry.Key);
+		Assert.AreEqual("seven", entry.Value);
+	}
 }
