@@ -30,7 +30,7 @@ using System.Diagnostics.CodeAnalysis;
 	"CA1710:Identifiers should have correct suffix",
 	Justification = "InsertionOrderCollection is a known collection name"
 )]
-public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyCollection<T>, IReadOnlyList<T>
+public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyList<T>
 {
 	/// <summary>
 	/// The internal list that stores elements in insertion order.

@@ -31,7 +31,7 @@ using System.Linq;
 	"CA1710:Identifiers should have correct suffix",
 	Justification = "RingBuffer is a known collection name"
 )]
-public class RingBuffer<T> : IEnumerable<T>, IReadOnlyCollection<T>, IReadOnlyList<T>
+public class RingBuffer<T> : IReadOnlyList<T>
 {
 	/// <summary>
 	/// Gets or sets the internal buffer array.

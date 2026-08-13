@@ -14,7 +14,6 @@ public class OrderedMapBenchmarks
 	private readonly Random random = new(42);
 	private int[] keys = [];
 	private string[] values = [];
-	private KeyValuePair<int, string>[] keyValuePairs = [];
 
 	/// <summary>
 	/// Gets or sets the number of elements to use in benchmarks.
@@ -30,7 +29,6 @@ public class OrderedMapBenchmarks
 	{
 		keys = [.. Enumerable.Range(1, ElementCount).OrderBy(x => random.Next())];
 		values = [.. keys.Select(k => $"value{k}")];
-		keyValuePairs = [.. keys.Zip(values, (k, v) => new KeyValuePair<int, string>(k, v))];
 	}
 
 	/// <summary>

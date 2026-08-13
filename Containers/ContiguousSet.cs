@@ -47,8 +47,9 @@ using System.Runtime.CompilerServices;
 public class ContiguousSet<T> : ISet<T>
 #if NET5_0_OR_GREATER
 		, IReadOnlySet<T>
-#endif
+#else
 		, IReadOnlyCollection<T>
+#endif
 {
 	/// <summary>
 	/// The backing array that stores elements in contiguous memory.
