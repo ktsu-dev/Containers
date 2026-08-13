@@ -52,7 +52,7 @@ public class InsertionOrderMapTests
 
 		// Verify insertion order
 		int[] expectedOrder = [3, 1, 4, 2];
-		CollectionAssert.AreEqual(expectedOrder, map.Keys.ToArray());
+		Assert.AreSequenceEqual(expectedOrder, map.Keys);
 	}
 
 	[TestMethod]
@@ -242,7 +242,7 @@ public class InsertionOrderMapTests
 
 		// Verify order maintained
 		int[] expectedOrder = [1, 3];
-		CollectionAssert.AreEqual(expectedOrder, map.Keys.ToArray());
+		Assert.AreSequenceEqual(expectedOrder, map.Keys);
 	}
 
 	[TestMethod]
@@ -294,7 +294,7 @@ public class InsertionOrderMapTests
 
 		// Assert
 		int[] expectedOrder = [3, 1, 4, 2];
-		CollectionAssert.AreEqual(expectedOrder, keys);
+		Assert.AreSequenceEqual(expectedOrder, keys);
 	}
 
 	[TestMethod]
@@ -312,7 +312,7 @@ public class InsertionOrderMapTests
 
 		// Assert
 		string[] expectedOrder = ["three", "one", "four", "two"];
-		CollectionAssert.AreEqual(expectedOrder, values);
+		Assert.AreSequenceEqual(expectedOrder, values);
 	}
 
 	[TestMethod]
@@ -406,7 +406,7 @@ public class InsertionOrderMapTests
 
 		// Assert
 		int[] expectedOrder = [5, 2, 4]; // Insertion order minus removed items
-		CollectionAssert.AreEqual(expectedOrder, map.Keys.ToArray());
+		Assert.AreSequenceEqual(expectedOrder, map.Keys);
 	}
 
 	[TestMethod]
@@ -422,6 +422,6 @@ public class InsertionOrderMapTests
 
 		// Assert
 		string[] expectedKeyOrder = ["charlie", "alpha", "bravo"];
-		CollectionAssert.AreEqual(expectedKeyOrder, map.Keys.ToArray());
+		Assert.AreSequenceEqual(expectedKeyOrder, map.Keys);
 	}
 }

@@ -9,6 +9,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 [TestClass]
 public class SpscRingBufferTests
 {
+	/// <summary>
+	/// Gets or sets the test context, used to obtain the cancellation token for background tasks.
+	/// </summary>
+	public TestContext TestContext { get; set; } = null!;
+
 	[TestMethod]
 	public void Constructor_NonPositiveCapacity_Throws()
 	{
@@ -20,7 +25,7 @@ public class SpscRingBufferTests
 	public void Capacity_IsAtLeastRequested()
 	{
 		SpscRingBuffer<int> buffer = new(5);
-		Assert.IsTrue(buffer.Capacity >= 5, "Usable capacity must be at least the requested amount.");
+		Assert.IsGreaterThanOrEqualTo(5, buffer.Capacity, "Usable capacity must be at least the requested amount.");
 	}
 
 	[TestMethod]
@@ -60,7 +65,7 @@ public class SpscRingBufferTests
 			enqueued++;
 		}
 
-		Assert.IsTrue(enqueued >= 4, "Should accept at least the requested capacity before reporting full.");
+		Assert.IsGreaterThanOrEqualTo(4, enqueued, "Should accept at least the requested capacity before reporting full.");
 		Assert.IsFalse(buffer.TryEnqueue(999));
 	}
 
@@ -114,7 +119,7 @@ public class SpscRingBufferTests
 					Thread.SpinWait(1);
 				}
 			}
-		});
+		}, TestContext.CancellationToken);
 
 		Task<bool> consumer = Task.Run(() =>
 		{
@@ -137,7 +142,7 @@ public class SpscRingBufferTests
 			}
 
 			return true;
-		});
+		}, TestContext.CancellationToken);
 
 		await Task.WhenAll(producer, consumer).ConfigureAwait(false);
 		Assert.IsTrue(await consumer.ConfigureAwait(false), "All items must be received exactly once and in order.");

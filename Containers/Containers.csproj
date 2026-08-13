@@ -2,7 +2,7 @@
   <Sdk Name="ktsu.Sdk" />
 
   <ItemGroup>
-    <PackageReference Include="Polyfill" />
+    <PackageReference Include="Polyfill" PrivateAssets="all" />
     <PackageReference Include="System.Memory" />
   </ItemGroup>
 </Project>

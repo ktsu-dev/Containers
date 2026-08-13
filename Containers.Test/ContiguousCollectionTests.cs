@@ -351,7 +351,7 @@ public class ContiguousCollectionTests
 		}
 
 		// Assert
-		CollectionAssert.AreEqual(expected, enumerated);
+		Assert.AreSequenceEqual(expected, enumerated);
 	}
 
 	[TestMethod]
@@ -364,7 +364,7 @@ public class ContiguousCollectionTests
 		Span<int> span = collection.AsSpan();
 
 		// Assert
-		Assert.AreEqual(4, span.Length);
+		Assert.HasCount(4, span);
 		Assert.AreEqual(3, span[0]);
 		Assert.AreEqual(1, span[1]);
 		Assert.AreEqual(4, span[2]);
@@ -381,7 +381,7 @@ public class ContiguousCollectionTests
 		ReadOnlySpan<int> span = collection.AsReadOnlySpan();
 
 		// Assert
-		Assert.AreEqual(4, span.Length);
+		Assert.HasCount(4, span);
 		Assert.AreEqual(3, span[0]);
 		Assert.AreEqual(1, span[1]);
 		Assert.AreEqual(4, span[2]);
@@ -486,7 +486,7 @@ public class ContiguousCollectionTests
 
 		// Test span access (only possible with contiguous memory)
 		ReadOnlySpan<int> span = collection.AsReadOnlySpan();
-		Assert.AreEqual(1000, span.Length);
+		Assert.HasCount(1000, span);
 		for (int i = 0; i < 1000; i++)
 		{
 			Assert.AreEqual(i, span[i]);

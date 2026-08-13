@@ -37,7 +37,7 @@ public class OrderedMapTests
 		};
 
 		string[] expectedOrder = ["three", "two", "one"];
-		CollectionAssert.AreEqual(expectedOrder, map.Values.ToArray());
+		Assert.AreSequenceEqual(expectedOrder, map.Values);
 	}
 
 	/// <summary>
@@ -68,8 +68,8 @@ public class OrderedMapTests
 		Assert.AreEqual(3, map.Count);
 		int[] expectedKeys = [1, 2, 3];
 		string[] expectedValues = ["one", "two", "three"];
-		CollectionAssert.AreEqual(expectedKeys, map.Keys.ToArray());
-		CollectionAssert.AreEqual(expectedValues, map.Values.ToArray());
+		Assert.AreSequenceEqual(expectedKeys, map.Keys);
+		Assert.AreSequenceEqual(expectedValues, map.Values);
 	}
 
 	/// <summary>
@@ -87,8 +87,8 @@ public class OrderedMapTests
 
 		int[] expectedKeys = [1, 2, 3];
 		string[] expectedValues = ["one", "two", "three"];
-		CollectionAssert.AreEqual(expectedKeys, map.Keys.ToArray());
-		CollectionAssert.AreEqual(expectedValues, map.Values.ToArray());
+		Assert.AreSequenceEqual(expectedKeys, map.Keys);
+		Assert.AreSequenceEqual(expectedValues, map.Values);
 	}
 
 	/// <summary>
@@ -165,7 +165,7 @@ public class OrderedMapTests
 
 		Assert.AreEqual(3, map.Count);
 		int[] expectedKeys = [1, 2, 3];
-		CollectionAssert.AreEqual(expectedKeys, map.Keys.ToArray());
+		Assert.AreSequenceEqual(expectedKeys, map.Keys);
 	}
 
 	/// <summary>
@@ -237,7 +237,7 @@ public class OrderedMapTests
 		Assert.AreEqual(2, map.Count);
 		Assert.IsFalse(map.ContainsKey(2), "Removed key should no longer exist");
 		int[] expectedKeys = [1, 3];
-		CollectionAssert.AreEqual(expectedKeys, map.Keys.ToArray());
+		Assert.AreSequenceEqual(expectedKeys, map.Keys);
 	}
 
 	/// <summary>
@@ -304,7 +304,7 @@ public class OrderedMapTests
 		};
 
 		int[] expectedKeys = [1, 2, 3];
-		CollectionAssert.AreEqual(expectedKeys, map.Keys.ToArray());
+		Assert.AreSequenceEqual(expectedKeys, map.Keys);
 	}
 
 	/// <summary>
@@ -321,7 +321,7 @@ public class OrderedMapTests
 		};
 
 		string[] expectedValues = ["one", "two", "three"];
-		CollectionAssert.AreEqual(expectedValues, map.Values.ToArray());
+		Assert.AreSequenceEqual(expectedValues, map.Values);
 	}
 
 	/// <summary>
@@ -381,8 +381,8 @@ public class OrderedMapTests
 		OrderedMap<int, string> clone = map.Clone();
 
 		Assert.AreEqual(map.Count, clone.Count);
-		CollectionAssert.AreEqual(map.Keys.ToArray(), clone.Keys.ToArray());
-		CollectionAssert.AreEqual(map.Values.ToArray(), clone.Values.ToArray());
+		Assert.AreSequenceEqual(map.Keys, clone.Keys);
+		Assert.AreSequenceEqual(map.Values, clone.Values);
 
 		// Verify they are independent
 		clone.Add(3, "three");

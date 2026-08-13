@@ -69,7 +69,8 @@ dotnet run --project Containers.Benchmarks --configuration Release -- --filter "
 ## Testing Conventions
 
 - Use MSTest framework (`[TestClass]`, `[TestMethod]`)
-- Use `CollectionAssert.AreEqual` for collection equality (use `.ToArray()` if type inference issues arise)
+- Use `Assert.AreSequenceEqual` for collection equality; `CollectionAssert.AreEqual` is flagged by MSTEST0068. It accepts any `IEnumerable<T>`, so no `.ToArray()` is needed
+- Use `Assert.HasCount` rather than asserting `.Count`/`.Length` via `Assert.AreEqual` (MSTEST0037)
 - Test edge cases: empty containers, boundary conditions, constructor validation
 
 ## Benchmarking Standards

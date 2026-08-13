@@ -411,7 +411,7 @@ public class ContiguousMapTests
 		ReadOnlySpan<int> keysSpan = map.GetKeysSpan();
 
 		// Assert
-		Assert.AreEqual(4, keysSpan.Length);
+		Assert.HasCount(4, keysSpan);
 
 		// Verify all keys are in the span
 		HashSet<int> spanKeys = [];
@@ -440,7 +440,7 @@ public class ContiguousMapTests
 		ReadOnlySpan<string> valuesSpan = map.GetValuesSpan();
 
 		// Assert
-		Assert.AreEqual(4, valuesSpan.Length);
+		Assert.HasCount(4, valuesSpan);
 
 		// Verify all values are in the span
 		HashSet<string> spanValues = [];
@@ -478,8 +478,8 @@ public class ContiguousMapTests
 		// Test span access (only possible with contiguous memory)
 		ReadOnlySpan<int> keysSpan = map.GetKeysSpan();
 		ReadOnlySpan<string> valuesSpan = map.GetValuesSpan();
-		Assert.AreEqual(1000, keysSpan.Length);
-		Assert.AreEqual(1000, valuesSpan.Length);
+		Assert.HasCount(1000, keysSpan);
+		Assert.HasCount(1000, valuesSpan);
 
 		// Verify all keys are in the span
 		HashSet<int> spanKeys = [];
