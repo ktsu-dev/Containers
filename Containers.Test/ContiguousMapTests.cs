@@ -411,7 +411,7 @@ public class ContiguousMapTests
 		ReadOnlySpan<int> keysSpan = map.GetKeysSpan();
 
 		// Assert
-		Assert.AreEqual(4, keysSpan.Length);
+		Assert.HasCount(4, keysSpan);
 
 		// Verify all keys are in the span
 		HashSet<int> spanKeys = [];
@@ -440,7 +440,7 @@ public class ContiguousMapTests
 		ReadOnlySpan<string> valuesSpan = map.GetValuesSpan();
 
 		// Assert
-		Assert.AreEqual(4, valuesSpan.Length);
+		Assert.HasCount(4, valuesSpan);
 
 		// Verify all values are in the span
 		HashSet<string> spanValues = [];
@@ -478,8 +478,8 @@ public class ContiguousMapTests
 		// Test span access (only possible with contiguous memory)
 		ReadOnlySpan<int> keysSpan = map.GetKeysSpan();
 		ReadOnlySpan<string> valuesSpan = map.GetValuesSpan();
-		Assert.AreEqual(1000, keysSpan.Length);
-		Assert.AreEqual(1000, valuesSpan.Length);
+		Assert.HasCount(1000, keysSpan);
+		Assert.HasCount(1000, valuesSpan);
 
 		// Verify all keys are in the span
 		HashSet<int> spanKeys = [];
@@ -524,5 +524,57 @@ public class ContiguousMapTests
 		Assert.AreEqual("two", map[2]);
 		Assert.IsTrue(map.TryGetValue(1, out string? value), "TryGetValue should return true for key with null value");
 		Assert.IsNull(value);
+	}
+
+	[TestMethod]
+	public void Entry_Equals_SameKeyAndValue_ReturnsTrue()
+	{
+		// Arrange
+		ContiguousMap<int, string>.Entry left = new(1, "one");
+		ContiguousMap<int, string>.Entry right = new(1, "one");
+
+		// Act & Assert
+		Assert.IsTrue(left.Equals(right), "Entries with the same key and value should be equal");
+		Assert.IsTrue(left.Equals((object)right), "Equals(object) should agree with Equals(Entry)");
+		Assert.IsTrue(left == right, "operator == should report equality");
+		Assert.IsFalse(left != right, "operator != should report equality");
+		Assert.AreEqual(left.GetHashCode(), right.GetHashCode());
+	}
+
+	[TestMethod]
+	public void Entry_Equals_DifferentKeyOrValue_ReturnsFalse()
+	{
+		// Arrange
+		ContiguousMap<int, string>.Entry entry = new(1, "one");
+		ContiguousMap<int, string>.Entry differentKey = new(2, "one");
+		ContiguousMap<int, string>.Entry differentValue = new(1, "two");
+
+		// Act & Assert
+		Assert.IsFalse(entry.Equals(differentKey), "Entries with different keys should not be equal");
+		Assert.IsFalse(entry.Equals(differentValue), "Entries with different values should not be equal");
+		Assert.IsTrue(entry != differentKey, "operator != should report inequality");
+		Assert.IsFalse(entry == differentValue, "operator == should report inequality");
+	}
+
+	[TestMethod]
+	public void Entry_Equals_NonEntryObject_ReturnsFalse()
+	{
+		// Arrange
+		ContiguousMap<int, string>.Entry entry = new(1, "one");
+
+		// Act & Assert
+		Assert.IsFalse(entry.Equals(null), "An entry should not equal null");
+		Assert.IsFalse(entry.Equals("not an entry"), "An entry should not equal an unrelated type");
+	}
+
+	[TestMethod]
+	public void Entry_KeyAndValue_ExposeConstructorArguments()
+	{
+		// Arrange & Act
+		ContiguousMap<int, string>.Entry entry = new(7, "seven");
+
+		// Assert
+		Assert.AreEqual(7, entry.Key);
+		Assert.AreEqual("seven", entry.Value);
 	}
 }

@@ -42,7 +42,7 @@ using System.Runtime.CompilerServices;
 	"CA1710:Identifiers should have correct suffix",
 	Justification = "ContiguousCollection is a known collection name"
 )]
-public class ContiguousCollection<T> : ICollection<T>, IReadOnlyCollection<T>, IReadOnlyList<T>
+public class ContiguousCollection<T> : ICollection<T>, IReadOnlyList<T>
 {
 	/// <summary>
 	/// The backing array that stores elements in contiguous memory.

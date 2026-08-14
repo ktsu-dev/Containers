@@ -462,7 +462,7 @@ public class CrossCollectionComparisonBenchmarks
 			if (cache.Count > 10 && random.Next(5) == 0)
 			{
 				int index = random.Next(Math.Min(cache.Count, 10));
-				int value = cache[index]; // Access recent item
+				_ = cache[index]; // Access recent item; result intentionally unused
 			}
 		}
 

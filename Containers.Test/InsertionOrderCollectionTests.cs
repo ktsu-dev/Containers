@@ -342,7 +342,7 @@ public class InsertionOrderCollectionTests
 		}
 
 		// Assert
-		CollectionAssert.AreEqual(expected, enumerated);
+		Assert.AreSequenceEqual(expected, enumerated);
 	}
 
 	[TestMethod]

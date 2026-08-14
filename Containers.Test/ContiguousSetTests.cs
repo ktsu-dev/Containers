@@ -227,7 +227,7 @@ public class ContiguousSetTests
 		ReadOnlySpan<int> span = set.AsReadOnlySpan();
 
 		// Assert
-		Assert.AreEqual(4, span.Length);
+		Assert.HasCount(4, span);
 
 		// Verify all elements are in the span
 		HashSet<int> spanElements = [];
@@ -429,7 +429,7 @@ public class ContiguousSetTests
 
 		// Test span access (only possible with contiguous memory)
 		ReadOnlySpan<int> span = set.AsReadOnlySpan();
-		Assert.AreEqual(1000, span.Length);
+		Assert.HasCount(1000, span);
 
 		// Verify all elements are in the span
 		HashSet<int> spanElements = [];

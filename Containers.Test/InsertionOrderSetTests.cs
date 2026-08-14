@@ -200,7 +200,7 @@ public class InsertionOrderSetTests
 		}
 
 		// Assert
-		CollectionAssert.AreEqual(expected, enumerated); // No duplicates, insertion order
+		Assert.AreSequenceEqual(expected, enumerated); // No duplicates, insertion order
 	}
 
 	[TestMethod]

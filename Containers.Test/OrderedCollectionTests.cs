@@ -429,7 +429,7 @@ public class OrderedCollectionTests
 		List<int> actual = [.. collection];
 
 		// Assert
-		CollectionAssert.AreEqual(expected, actual);
+		Assert.AreSequenceEqual(expected, actual);
 	}
 
 	[TestMethod]

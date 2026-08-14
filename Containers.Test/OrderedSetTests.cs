@@ -48,7 +48,7 @@ public class OrderedSetTests
 
 		Assert.AreEqual(7, set.Count); // Duplicates removed
 		int[] expected = [1, 2, 3, 4, 5, 6, 9];
-		CollectionAssert.AreEqual(expected, set.ToArray());
+		Assert.AreSequenceEqual(expected, set);
 	}
 
 	[TestMethod]
@@ -59,7 +59,7 @@ public class OrderedSetTests
 
 		Assert.AreEqual(3, set.Count); // "apple" and "Apple" are treated as same
 		string[] expected = ["apple", "BANANA", "cherry"];
-		CollectionAssert.AreEqual(expected, set.ToArray());
+		Assert.AreSequenceEqual(expected, set);
 	}
 
 	[TestMethod]
@@ -111,7 +111,7 @@ public class OrderedSetTests
 		Assert.AreEqual(4, set.Count);
 
 		int[] expected = [1, 2, 5, 8];
-		CollectionAssert.AreEqual(expected, set.ToArray());
+		Assert.AreSequenceEqual(expected, set);
 	}
 
 	[TestMethod]
@@ -176,7 +176,7 @@ public class OrderedSetTests
 		set.CopyTo(array, 0);
 
 		int[] expected = [1, 3, 4, 5]; // Note: only 4 unique elements
-		CollectionAssert.AreEqual(expected, array[0..4]);
+		Assert.AreSequenceEqual(expected, array[0..4]);
 	}
 
 	[TestMethod]
@@ -213,7 +213,7 @@ public class OrderedSetTests
 		Assert.DoesNotContain(3, set);
 
 		int[] expected = [1, 2, 4, 5];
-		CollectionAssert.AreEqual(expected, set.ToArray());
+		Assert.AreSequenceEqual(expected, set);
 	}
 
 	[TestMethod]
@@ -277,7 +277,7 @@ public class OrderedSetTests
 		}
 
 		int[] expected = [1, 2, 5, 8, 9];
-		CollectionAssert.AreEqual(expected, result);
+		Assert.AreSequenceEqual(expected, result);
 	}
 
 	[TestMethod]
@@ -293,7 +293,7 @@ public class OrderedSetTests
 		}
 
 		object[] expected = [1, 2, 5, 8, 9];
-		CollectionAssert.AreEqual(expected, result);
+		Assert.AreSequenceEqual(expected, result);
 	}
 
 	[TestMethod]
@@ -306,7 +306,7 @@ public class OrderedSetTests
 
 		Assert.AreEqual(6, set1.Count);
 		int[] expected = [1, 2, 3, 4, 5, 6];
-		CollectionAssert.AreEqual(expected, set1.ToArray());
+		Assert.AreSequenceEqual(expected, set1);
 	}
 
 	[TestMethod]
@@ -319,7 +319,7 @@ public class OrderedSetTests
 
 		Assert.AreEqual(5, set1.Count);
 		int[] expected = [1, 3, 4, 5, 6];
-		CollectionAssert.AreEqual(expected, set1.ToArray());
+		Assert.AreSequenceEqual(expected, set1);
 	}
 
 	[TestMethod]
@@ -339,7 +339,7 @@ public class OrderedSetTests
 
 		Assert.AreEqual(3, set1.Count);
 		int[] expected = [3, 4, 5];
-		CollectionAssert.AreEqual(expected, set1.ToArray());
+		Assert.AreSequenceEqual(expected, set1);
 	}
 
 	[TestMethod]
@@ -370,7 +370,7 @@ public class OrderedSetTests
 
 		Assert.AreEqual(3, set1.Count);
 		int[] expected = [1, 3, 5];
-		CollectionAssert.AreEqual(expected, set1.ToArray());
+		Assert.AreSequenceEqual(expected, set1);
 	}
 
 	[TestMethod]
@@ -390,7 +390,7 @@ public class OrderedSetTests
 
 		Assert.AreEqual(4, set1.Count);
 		int[] expected = [1, 2, 5, 6];
-		CollectionAssert.AreEqual(expected, set1.ToArray());
+		Assert.AreSequenceEqual(expected, set1);
 	}
 
 	[TestMethod]
@@ -575,7 +575,7 @@ public class OrderedSetTests
 		OrderedSet<int> clone = original.Clone();
 
 		// Verify they have the same content
-		CollectionAssert.AreEqual(original.ToArray(), clone.ToArray());
+		Assert.AreSequenceEqual(original, clone);
 
 		// Verify they are independent
 		clone.Add(4);

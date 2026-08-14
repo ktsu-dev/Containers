@@ -80,6 +80,15 @@ public class ContiguousMap<TKey, TValue>
 			&& EqualityComparer<TValue>.Default.Equals(Value, other.Value);
 
 		/// <summary>
+		/// Determines whether the current entry is equal to another entry.
+		/// </summary>
+		/// <param name="other">An entry to compare with this entry.</param>
+		/// <returns>true if the current entry is equal to the other parameter; otherwise, false.</returns>
+		public bool Equals(Entry other) =>
+			EqualityComparer<TKey>.Default.Equals(Key, other.Key)
+			&& EqualityComparer<TValue>.Default.Equals(Value, other.Value);
+
+		/// <summary>
 		/// Returns the hash code for this entry.
 		/// </summary>
 		/// <returns>A 32-bit signed integer hash code.</returns>
@@ -94,15 +103,6 @@ public class ContiguousMap<TKey, TValue>
 			return HashCode.Combine(Key, Value);
 #endif
 		}
-
-		/// <summary>
-		/// Determines whether the current entry is equal to another entry.
-		/// </summary>
-		/// <param name="other">An entry to compare with this entry.</param>
-		/// <returns>true if the current entry is equal to the other parameter; otherwise, false.</returns>
-		public bool Equals(Entry other) =>
-			EqualityComparer<TKey>.Default.Equals(Key, other.Key)
-			&& EqualityComparer<TValue>.Default.Equals(Value, other.Value);
 
 		/// <summary>
 		/// Determines whether two entries are equal.

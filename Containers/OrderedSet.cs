@@ -36,8 +36,9 @@ using System.Diagnostics.CodeAnalysis;
 public class OrderedSet<T> : ISet<T>
 #if NET5_0_OR_GREATER
 		, IReadOnlySet<T>
-#endif
+#else
 		, IReadOnlyCollection<T>
+#endif
 {
 	/// <summary>
 	/// The internal list that stores elements in sorted order.
