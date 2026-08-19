@@ -2,6 +2,14 @@
 
 A high-performance collection library for .NET providing specialized container implementations with focus on performance, memory efficiency, and developer experience.
 
+[![License](https://img.shields.io/github/license/ktsu-dev/Containers.svg?label=License&logo=nuget)](LICENSE.md)
+[![NuGet Version](https://img.shields.io/nuget/v/ktsu.Containers?label=Stable&logo=nuget)](https://nuget.org/packages/ktsu.Containers)
+[![NuGet Version](https://img.shields.io/nuget/vpre/ktsu.Containers?label=Latest&logo=nuget)](https://nuget.org/packages/ktsu.Containers)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/ktsu.Containers?label=Downloads&logo=nuget)](https://nuget.org/packages/ktsu.Containers)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/ktsu-dev/Containers?label=Commits&logo=github)](https://github.com/ktsu-dev/Containers/commits/main)
+[![GitHub contributors](https://img.shields.io/github/contributors/ktsu-dev/Containers?label=Contributors&logo=github)](https://github.com/ktsu-dev/Containers/graphs/contributors)
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/ktsu-dev/Containers/dotnet.yml?label=Build&logo=github)](https://github.com/ktsu-dev/Containers/actions)
+
 ## 🚀 Features
 
 -   **OrderedCollection<T>**: Maintains elements in sorted order with efficient binary search operations
