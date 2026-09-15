@@ -176,7 +176,7 @@ public class OrderedSetTests
 		set.CopyTo(array, 0);
 
 		int[] expected = [1, 3, 4, 5]; // Note: only 4 unique elements
-		Assert.AreSequenceEqual(expected, array[0..4]);
+		Assert.AreSequenceEqual(expected, array.Take(4));
 	}
 
 	[TestMethod]
