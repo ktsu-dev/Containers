@@ -65,7 +65,7 @@ public class ProjectConventionTests
 			.Elements()
 			.Where(element => element.Name.LocalName == "Sdk")
 			.Select(element => element.Attribute("Name")?.Value)
-			.Any(name => name is not null && name.StartsWith("ktsu.Sdk", StringComparison.Ordinal)) == true;
+			.Any(name => name is not null && name.StartsWith("ktsu.Sdk", StringComparison.Ordinal)) ?? false;
 	}
 
 	[TestMethod]
