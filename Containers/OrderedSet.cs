@@ -312,6 +312,19 @@ public class OrderedSet<T> : ISet<T>
 	}
 
 	/// <summary>
+	/// Materializes <paramref name="other"/> into a set that uses this set's comparer.
+	/// </summary>
+	/// <param name="other">The collection to materialize.</param>
+	/// <returns>A set containing the distinct elements of <paramref name="other"/>, as this set defines distinctness.</returns>
+	/// <remarks>
+	/// The set operations need both membership tests and a cardinality for <paramref name="other"/>.
+	/// Building a <see cref="HashSet{T}"/> here would answer both with <see cref="EqualityComparer{T}.Default"/>,
+	/// which disagrees with <see cref="Contains"/> whenever a custom comparer was supplied, so the
+	/// temporary set is built with <see cref="Comparer"/> instead.
+	/// </remarks>
+	private OrderedSet<T> ToComparerSet(IEnumerable<T> other) => new(other, Comparer);
+
+	/// <summary>
 	/// Returns an enumerator that iterates through the set in sorted order.
 	/// </summary>
 	/// <returns>An enumerator for the set.</returns>
@@ -348,7 +361,7 @@ public class OrderedSet<T> : ISet<T>
 	{
 		Ensure.NotNull(other);
 
-		HashSet<T> otherSet = [.. other];
+		OrderedSet<T> otherSet = ToComparerSet(other);
 
 		for (int i = items.Count - 1; i >= 0; i--)
 		{
@@ -383,7 +396,7 @@ public class OrderedSet<T> : ISet<T>
 	{
 		Ensure.NotNull(other);
 
-		HashSet<T> otherSet = [.. other];
+		OrderedSet<T> otherSet = ToComparerSet(other);
 
 		// Create a list of items to remove from otherSet as we find them
 		List<T> toRemoveFromOther = [];
@@ -421,7 +434,7 @@ public class OrderedSet<T> : ISet<T>
 	{
 		Ensure.NotNull(other);
 
-		HashSet<T> otherSet = [.. other];
+		OrderedSet<T> otherSet = ToComparerSet(other);
 		return items.All(otherSet.Contains);
 	}
 
@@ -448,8 +461,8 @@ public class OrderedSet<T> : ISet<T>
 	{
 		Ensure.NotNull(other);
 
-		HashSet<T> otherSet = [.. other];
-		return Count < otherSet.Count && IsSubsetOf(otherSet);
+		OrderedSet<T> otherSet = ToComparerSet(other);
+		return Count < otherSet.Count && items.All(otherSet.Contains);
 	}
 
 	/// <summary>
@@ -462,7 +475,7 @@ public class OrderedSet<T> : ISet<T>
 	{
 		Ensure.NotNull(other);
 
-		HashSet<T> otherSet = [.. other];
+		OrderedSet<T> otherSet = ToComparerSet(other);
 		return Count > otherSet.Count && IsSupersetOf(otherSet);
 	}
 
@@ -489,8 +502,8 @@ public class OrderedSet<T> : ISet<T>
 	{
 		Ensure.NotNull(other);
 
-		HashSet<T> otherSet = [.. other];
-		return Count == otherSet.Count && IsSubsetOf(otherSet);
+		OrderedSet<T> otherSet = ToComparerSet(other);
+		return Count == otherSet.Count && items.All(otherSet.Contains);
 	}
 
 	/// <summary>
