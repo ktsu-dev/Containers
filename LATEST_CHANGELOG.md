@@ -1,6 +1,6 @@
-## v1.1.18 (patch)
+## v1.1.19 (patch)
 
-Changes since v1.1.17:
+Changes since v1.1.18:
 
-- Gate Dependabot auto-merge on CI actually being green ([@Claude](https://github.com/Claude))
+- Bump the ktsu group with 9 updates ([@dependabot[bot]](https://github.com/dependabot[bot]))
 
