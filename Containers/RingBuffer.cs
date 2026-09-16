@@ -78,6 +78,7 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// Initializes a new instance of the <see cref="RingBuffer{T}"/> class with the specified length.
 	/// </summary>
 	/// <param name="length">The number of elements the buffer should store.</param>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one.</exception>
 	public RingBuffer(int length) => AllocateBuffer(length);
 
 	/// <summary>
@@ -86,6 +87,7 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// </summary>
 	/// <param name="items">The items to prefill the buffer with.</param>
 	/// <param name="length">The number of elements the buffer should store.</param>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one.</exception>
 	public RingBuffer(IEnumerable<T> items, int length)
 		: this(length)
 	{
@@ -111,6 +113,7 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// </summary>
 	/// <param name="value">The value to prefill the buffer with.</param>
 	/// <param name="length">The number of elements the buffer should store.</param>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one.</exception>
 	public RingBuffer(T value, int length)
 		: this(length)
 	{
@@ -124,8 +127,11 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// Allocates and initializes the internal buffer with the specified length.
 	/// </summary>
 	/// <param name="length">The number of elements to allocate space for.</param>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one.</exception>
 	private void AllocateBuffer(int length)
 	{
+		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(length);
+
 		Length = length;
 		Capacity = NextPower2(Length);
 		Buffer = new T[Capacity];
@@ -218,6 +224,7 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// Resizes the buffer to the specified length, discarding all current contents.
 	/// </summary>
 	/// <param name="length">The new length of the buffer.</param>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one.</exception>
 	public void Resize(int length) => AllocateBuffer(length);
 
 	/// <summary>
@@ -234,6 +241,7 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// If the buffer is empty, this method will resize the buffer without adding any elements.
 	/// </remarks>
 	/// <param name="length">The new length of the buffer.</param>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one.</exception>
 	public void Resample(int length)
 	{
 		// Save the current count of valid elements

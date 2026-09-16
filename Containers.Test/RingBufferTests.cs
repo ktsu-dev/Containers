@@ -259,4 +259,53 @@ public class RingBufferTests
 		Assert.AreEqual(1, buffer.Count);
 		Assert.AreEqual(7, buffer.At(0));
 	}
+
+	[TestMethod]
+	public void Constructor_NonPositiveLength_Throws()
+	{
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new RingBuffer<int>(0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new RingBuffer<int>(-1));
+	}
+
+	[TestMethod]
+	public void Constructor_PrefillValue_NonPositiveLength_Throws()
+	{
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new RingBuffer<int>(42, 0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new RingBuffer<int>(42, -1));
+	}
+
+	[TestMethod]
+	public void Constructor_PrefillItems_NonPositiveLength_Throws()
+	{
+		int[] items = [1, 2, 3];
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new RingBuffer<int>(items, 0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new RingBuffer<int>(items, -1));
+	}
+
+	[TestMethod]
+	public void Resize_NonPositiveLength_Throws()
+	{
+		RingBuffer<int> buffer = new(3);
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => buffer.Resize(0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => buffer.Resize(-1));
+	}
+
+	[TestMethod]
+	public void Resample_NonPositiveLength_Throws()
+	{
+		RingBuffer<int> buffer = new(3);
+		buffer.PushBack(1);
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => buffer.Resample(0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => buffer.Resample(-1));
+	}
+
+	[TestMethod]
+	public void Constructor_MinimumLength_IsUsable()
+	{
+		RingBuffer<int> buffer = new(1);
+		buffer.PushBack(1);
+		buffer.PushBack(2);
+		Assert.AreEqual(1, buffer.Count);
+		Assert.AreEqual(2, buffer.At(0));
+	}
 }
