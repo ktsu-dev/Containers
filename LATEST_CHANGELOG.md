@@ -1,7 +1,6 @@
-## v1.1.20 (patch)
+## v1.1.21 (patch)
 
-Changes since v1.1.19:
+Changes since v1.1.20:
 
-- fix: reject non-positive lengths in RingBuffer<T> [patch] ([@Claude](https://github.com/Claude))
-- fix: honor OrderedSet's own comparer in the set operations [patch] ([@Claude](https://github.com/Claude))
+- Bump MSTest.Sdk from 4.4.0 to 4.4.1 ([@dependabot[bot]](https://github.com/dependabot[bot]))
 
