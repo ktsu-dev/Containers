@@ -624,6 +624,86 @@ public class OrderedSetTests
 		Assert.HasCount(result.Length, result.Distinct(), "All elements should be unique");
 	}
 
+	/// <summary>
+	/// Builds a set whose notion of equality is case-insensitive, so that the set's own comparer
+	/// and <see cref="EqualityComparer{T}.Default"/> disagree about which strings are the same.
+	/// </summary>
+	private static OrderedSet<string> CaseInsensitiveSet(params string[] items) =>
+		new(items, StringComparer.OrdinalIgnoreCase);
+
+	[TestMethod]
+	public void IntersectWith_CustomComparer_KeepsElementsThatMatchUnderThatComparer()
+	{
+		OrderedSet<string> set = CaseInsensitiveSet("Hello", "World");
+
+		set.IntersectWith(["HELLO"]);
+
+		Assert.HasCount(1, set, "Only the element matching under the set's comparer should remain");
+		Assert.IsTrue(set.Contains("Hello"), "\"Hello\" matches \"HELLO\" under the set's comparer and must survive");
+	}
+
+	[TestMethod]
+	public void IsSubsetOf_CustomComparer_MatchesUnderThatComparer()
+	{
+		OrderedSet<string> set = CaseInsensitiveSet("Hello");
+
+		Assert.IsTrue(set.IsSubsetOf(["HELLO", "World"]), "\"Hello\" is contained in the collection under the set's comparer");
+	}
+
+	[TestMethod]
+	public void IsProperSubsetOf_CustomComparer_MatchesUnderThatComparer()
+	{
+		OrderedSet<string> set = CaseInsensitiveSet("Hello");
+
+		Assert.IsTrue(set.IsProperSubsetOf(["HELLO", "World"]), "The set is a strictly smaller subset under its own comparer");
+	}
+
+	[TestMethod]
+	public void IsProperSubsetOf_CustomComparer_CountsDistinctElementsUnderThatComparer()
+	{
+		OrderedSet<string> set = CaseInsensitiveSet("Hello");
+
+		Assert.IsFalse(
+			set.IsProperSubsetOf(["HELLO", "hello"]),
+			"The collection holds one distinct element under the set's comparer, so the set is not strictly smaller"
+		);
+	}
+
+	[TestMethod]
+	public void IsProperSupersetOf_CustomComparer_CountsDistinctElementsUnderThatComparer()
+	{
+		OrderedSet<string> set = CaseInsensitiveSet("Hello", "World");
+
+		Assert.IsTrue(
+			set.IsProperSupersetOf(["HELLO", "hello"]),
+			"The collection holds one distinct element under the set's comparer, so the set is strictly larger"
+		);
+	}
+
+	[TestMethod]
+	public void SetEquals_CustomComparer_CountsDistinctElementsUnderThatComparer()
+	{
+		OrderedSet<string> set = CaseInsensitiveSet("Hello", "World");
+
+		Assert.IsTrue(
+			set.SetEquals(["HELLO", "hello", "WORLD"]),
+			"The collection holds the same two distinct elements under the set's comparer"
+		);
+	}
+
+	[TestMethod]
+	public void SymmetricExceptWith_CustomComparer_TreatsMatchesUnderThatComparerAsCommon()
+	{
+		OrderedSet<string> set = CaseInsensitiveSet("Hello", "World");
+
+		set.SymmetricExceptWith(["HELLO", "Foo"]);
+
+		Assert.HasCount(2, set, "The common element should be dropped and the unmatched one added");
+		Assert.IsFalse(set.Contains("Hello"), "\"Hello\" is common to both under the set's comparer and must be dropped");
+		Assert.IsTrue(set.Contains("World"), "\"World\" is only in the set and must remain");
+		Assert.IsTrue(set.Contains("Foo"), "\"Foo\" is only in the other collection and must be added");
+	}
+
 	[TestMethod]
 	public void StressTest_MultipleOperations()
 	{
