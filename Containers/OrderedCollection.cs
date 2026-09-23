@@ -345,11 +345,14 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 	/// <param name="startIndex">The zero-based starting index of the range.</param>
 	/// <param name="count">The number of elements in the range.</param>
 	/// <returns>A new OrderedCollection containing the elements in the specified range.</returns>
+	/// <remarks>
+	/// As with <see cref="List{T}.GetRange"/>, a <paramref name="startIndex"/> equal to
+	/// <see cref="Count"/> is valid when <paramref name="count"/> is zero, and returns an empty collection.
+	/// </remarks>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when parameters are out of range.</exception>
 	public OrderedCollection<T> GetRange(int startIndex, int count)
 	{
 		ArgumentOutOfRangeException.ThrowIfNegative(startIndex);
-		ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(startIndex, Count);
 		ArgumentOutOfRangeException.ThrowIfNegative(count);
 		ArgumentOutOfRangeException.ThrowIfGreaterThan(startIndex + count, Count);
 
