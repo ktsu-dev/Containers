@@ -472,6 +472,45 @@ public class OrderedCollectionTests
 	}
 
 	[TestMethod]
+	public void GetRange_ZeroCountAtEnd_ReturnsEmpty()
+	{
+		// Arrange
+		OrderedCollection<int> collection = new([1, 2, 3]);
+
+		// Act: startIndex == Count is valid when count is zero, as it is for List<T>.GetRange
+		OrderedCollection<int> range = collection.GetRange(collection.Count, 0);
+
+		// Assert
+		Assert.AreEqual(0, range.Count);
+	}
+
+	[TestMethod]
+	public void GetRange_ZeroCountOnEmptyCollection_ReturnsEmpty()
+	{
+		// Arrange
+		OrderedCollection<int> collection = [];
+
+		// Act: the only range an empty collection has is the empty one at index 0
+		OrderedCollection<int> range = collection.GetRange(0, 0);
+
+		// Assert
+		Assert.AreEqual(0, range.Count);
+	}
+
+	[TestMethod]
+	public void GetRange_ZeroCountMidCollection_ReturnsEmpty()
+	{
+		// Arrange
+		OrderedCollection<int> collection = new([1, 2, 3]);
+
+		// Act
+		OrderedCollection<int> range = collection.GetRange(1, 0);
+
+		// Assert
+		Assert.AreEqual(0, range.Count);
+	}
+
+	[TestMethod]
 	public void GetRange_InvalidStartIndex_ThrowsArgumentOutOfRangeException()
 	{
 		// Arrange
