@@ -1,6 +1,4 @@
-## v1.1.25 (patch)
+## v1.1.25
 
-Changes since v1.1.24:
-
-- fix: let OrderedCollection.GetRange take a zero-length range at the end [patch] ([@Claude](https://github.com/Claude))
+No significant changes detected since v1.1.25.
 
