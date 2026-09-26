@@ -158,6 +158,22 @@ public class ContiguousMapTests
 	}
 
 	[TestMethod]
+	public void Indexer_SetExistingKeyWithDifferentSpelling_KeepsOriginalKey()
+	{
+		// Arrange
+		ContiguousMap<string, int> map = new(StringComparer.OrdinalIgnoreCase) { ["Apple"] = 1 };
+
+		// Act
+		map["APPLE"] = 2;
+
+		// Assert
+		Assert.AreSequenceEqual(["Apple"], map.Keys);
+		Assert.AreEqual("Apple", map.AsSpan()[0].Key);
+		Assert.AreEqual(new KeyValuePair<string, int>("Apple", 2), map.Single());
+		Assert.AreEqual(2, map["apple"]);
+	}
+
+	[TestMethod]
 	public void Indexer_SetNewKey_AddsKeyValuePair()
 	{
 		// Arrange
