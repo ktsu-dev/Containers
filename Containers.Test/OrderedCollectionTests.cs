@@ -593,4 +593,63 @@ public class OrderedCollectionTests
 		Assert.ThrowsExactly<ArgumentException>(() => new OrderedCollection<object>(10));
 		Assert.ThrowsExactly<ArgumentException>(() => new OrderedCollection<object>([]));
 	}
+
+	[TestMethod]
+	public void IndexOf_OddLengthDuplicateRun_ReturnsFirstOccurrence()
+	{
+		// Arrange
+		OrderedCollection<int> collection = [1, 1, 1];
+
+		// Act & Assert
+		Assert.AreEqual(0, collection.IndexOf(1));
+	}
+
+	[TestMethod]
+	public void IndexOf_EvenLengthDuplicateRun_ReturnsFirstOccurrence()
+	{
+		// Arrange
+		OrderedCollection<int> collection = [0, 2, 2, 2, 2, 3];
+
+		// Act & Assert
+		Assert.AreEqual(1, collection.IndexOf(2));
+	}
+
+	[TestMethod]
+	public void Remove_KeyComparerWithDuplicateKeys_RemovesTheElementPassedIn()
+	{
+		// Arrange
+		IComparer<(int Key, string Name)> byKey = Comparer<(int Key, string Name)>.Create((x, y) => x.Key.CompareTo(y.Key));
+		OrderedCollection<(int Key, string Name)> collection = new(byKey)
+		{
+			(1, "a"), (1, "b"), (1, "c"), (1, "d"), (0, "zero"), (2, "two"),
+		};
+
+		// Act
+		bool removed = collection.Remove((1, "c"));
+
+		// Assert
+		Assert.IsTrue(removed);
+		Assert.HasCount(5, collection);
+		Assert.DoesNotContain((1, "c"), collection.ToList());
+	}
+
+	[TestMethod]
+	public void Remove_KeyComparerWithNoExactMatch_RemovesFirstOccurrence()
+	{
+		// Arrange
+		IComparer<(int Key, string Name)> byKey = Comparer<(int Key, string Name)>.Create((x, y) => x.Key.CompareTo(y.Key));
+		OrderedCollection<(int Key, string Name)> collection = new(byKey)
+		{
+			(0, "zero"), (1, "a"), (1, "b"), (1, "c"), (1, "d"), (2, "two"),
+		};
+		List<(int Key, string Name)> expected = [.. collection];
+		expected.RemoveAt(1);
+
+		// Act
+		bool removed = collection.Remove((1, "missing"));
+
+		// Assert
+		Assert.IsTrue(removed);
+		Assert.AreSequenceEqual(expected, collection);
+	}
 }
