@@ -466,8 +466,8 @@ public class ContiguousSetTests
 		Assert.IsTrue(removed);
 		Assert.HasCount(1, set);
 		Assert.IsFalse(set.Contains("apple"));
-		string[] expected = ["Banana"];
-		Assert.AreSequenceEqual(expected, set);
+		string[] expectedItems = ["Banana"];
+		Assert.AreSequenceEqual(expectedItems, set);
 	}
 
 	[TestMethod]
@@ -482,7 +482,7 @@ public class ContiguousSetTests
 
 		// Assert
 		Assert.HasCount(1, set);
-		string[] expected = ["apple"];
-		Assert.AreSequenceEqual(expected, set);
+		string[] expectedItems = ["apple"];
+		Assert.AreSequenceEqual(expectedItems, set);
 	}
 }
