@@ -5,6 +5,9 @@ namespace ktsu.Containers;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+#if NET5_0_OR_GREATER
+using System.Runtime.CompilerServices;
+#endif
 
 /// <summary>
 /// Represents a fixed-size circular buffer (ring buffer) for storing elements of type <typeparamref name="T"/>.
@@ -303,6 +306,16 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// </remarks>
 	public void Clear()
 	{
+#if NET5_0_OR_GREATER
+		if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
+#else
+		if (!typeof(T).IsValueType)
+#endif
+		{
+			// Clear references so cleared elements can be collected
+			Array.Clear(Buffer, 0, Buffer.Length);
+		}
+
 		BackIndex = 0;
 		FrontIndex = 0;
 		Count = 0;
