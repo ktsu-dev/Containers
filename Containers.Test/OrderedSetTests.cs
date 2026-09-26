@@ -374,6 +374,16 @@ public class OrderedSetTests
 	}
 
 	[TestMethod]
+	public void ExceptWith_Self_EmptiesSet()
+	{
+		OrderedSet<int> set = [.. new int[] { 1, 2, 3, 4 }];
+
+		set.ExceptWith(set);
+
+		Assert.IsEmpty(set);
+	}
+
+	[TestMethod]
 	public void ExceptWith_NullCollection_ThrowsArgumentNullException()
 	{
 		OrderedSet<int> set = new([1, 2, 3]);

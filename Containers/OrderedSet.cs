@@ -381,6 +381,13 @@ public class OrderedSet<T> : ISet<T>
 	{
 		Ensure.NotNull(other);
 
+		// Removing while enumerating this set would skip or throw; excepting a set from itself empties it
+		if (ReferenceEquals(other, this))
+		{
+			Clear();
+			return;
+		}
+
 		foreach (T item in other)
 		{
 			Remove(item);
