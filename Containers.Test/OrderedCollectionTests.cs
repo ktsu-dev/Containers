@@ -485,6 +485,16 @@ public class OrderedCollectionTests
 	}
 
 	[TestMethod]
+	public void GetRange_CountOverflowingStartIndex_ThrowsArgumentOutOfRangeException()
+	{
+		// Arrange
+		OrderedCollection<int> collection = new([1, 2, 3]);
+
+		// Act & Assert: startIndex + count overflows int
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.GetRange(1, int.MaxValue));
+	}
+
+	[TestMethod]
 	public void GetRange_ZeroCountOnEmptyCollection_ReturnsEmpty()
 	{
 		// Arrange

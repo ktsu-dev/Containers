@@ -194,7 +194,7 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyList<T>
 	{
 		ArgumentOutOfRangeException.ThrowIfNegative(startIndex);
 		ArgumentOutOfRangeException.ThrowIfNegative(count);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(startIndex + count, Count);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(count, Count - startIndex);
 
 		return [.. items.GetRange(startIndex, count)];
 	}
