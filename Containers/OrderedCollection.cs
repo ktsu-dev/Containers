@@ -256,17 +256,32 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 	/// <returns>true if the element was found and removed; otherwise, false.</returns>
 	/// <remarks>
 	/// This operation uses binary search to locate the element and has O(n) time complexity
-	/// due to the need to shift elements after removal.
+	/// due to the need to shift elements after removal. When several elements compare equal to
+	/// <paramref name="item"/>, the first of them that also equals it is removed, so a key-based
+	/// comparer does not cause a different element with the same key to be removed. If none of
+	/// them equals it, the first element that compares equal is removed.
 	/// </remarks>
 	public bool Remove(T item)
 	{
-		int index = BinarySearch(item);
-		if (index >= 0)
+		int first = FindFirst(item);
+		if (first < 0)
 		{
-			items.RemoveAt(index);
-			return true;
+			return false;
 		}
-		return false;
+
+		int index = first;
+		EqualityComparer<T> equality = EqualityComparer<T>.Default;
+		for (int i = first; i < items.Count && comparer.Compare(items[i], item) == 0; i++)
+		{
+			if (equality.Equals(items[i], item))
+			{
+				index = i;
+				break;
+			}
+		}
+
+		items.RemoveAt(index);
+		return true;
 	}
 
 	/// <summary>
@@ -286,9 +301,14 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 	/// </summary>
 	/// <param name="item">The element to search for.</param>
 	/// <returns>
-	/// The zero-based index of the element if found; otherwise, a negative number that is the
-	/// bitwise complement of the index where the element should be inserted.
+	/// The zero-based index of an element that compares equal to <paramref name="item"/> if found;
+	/// otherwise, a negative number that is the bitwise complement of the index where the element
+	/// should be inserted.
 	/// </returns>
+	/// <remarks>
+	/// When the collection holds several elements that compare equal to <paramref name="item"/>,
+	/// the index of any one of them may be returned. Use <see cref="IndexOf(T)"/> for the first.
+	/// </remarks>
 	public int BinarySearch(T item)
 	{
 		int left = 0;
@@ -323,8 +343,42 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 	/// <returns>The zero-based index of the first occurrence if found; otherwise, -1.</returns>
 	public int IndexOf(T item)
 	{
-		int index = BinarySearch(item);
+		int index = FindFirst(item);
 		return index >= 0 ? index : -1;
+	}
+
+	/// <summary>
+	/// Binary searches for the leftmost element that compares equal to the specified element.
+	/// </summary>
+	/// <param name="item">The element to search for.</param>
+	/// <returns>The index of the first matching element, or -1 if there is none.</returns>
+	private int FindFirst(T item)
+	{
+		int left = 0;
+		int right = items.Count - 1;
+		int found = -1;
+
+		while (left <= right)
+		{
+			int mid = left + ((right - left) / 2);
+			int comparison = comparer.Compare(items[mid], item);
+
+			if (comparison == 0)
+			{
+				found = mid;
+				right = mid - 1;
+			}
+			else if (comparison < 0)
+			{
+				left = mid + 1;
+			}
+			else
+			{
+				right = mid - 1;
+			}
+		}
+
+		return found;
 	}
 
 	/// <summary>
