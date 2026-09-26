@@ -267,7 +267,8 @@ public class RingBuffer<T> : IReadOnlyList<T>
 		for (int i = 0; i < length; i++)
 		{
 			// Map the new index to the old data range
-			double oldIndex = i * (oldCount - 1) / (double)Math.Max(length - 1, 1);
+			// Multiply in double: the int product overflows once length * oldCount passes int.MaxValue
+			double oldIndex = (double)i * (oldCount - 1) / Math.Max(length - 1, 1);
 			int index = (int)Math.Round(oldIndex);
 
 			// Ensure we don't go out of bounds

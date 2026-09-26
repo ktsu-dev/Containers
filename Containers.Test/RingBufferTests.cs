@@ -291,6 +291,29 @@ public class RingBufferTests
 	}
 
 	[TestMethod]
+	public void Resample_LargeBufferToSameLength_KeepsContents()
+	{
+		const int length = 50_000;
+		RingBuffer<int> buffer = new(Enumerable.Range(0, length), length);
+
+		buffer.Resample(length);
+
+		Assert.AreSequenceEqual(Enumerable.Range(0, length), buffer);
+	}
+
+	[TestMethod]
+	public void Resample_UpsampleToMillionsOfElements_Succeeds()
+	{
+		RingBuffer<int> buffer = new(Enumerable.Range(0, 1000), 1000);
+
+		buffer.Resample(3_000_000);
+
+		Assert.HasCount(3_000_000, buffer);
+		Assert.AreEqual(0, buffer.Front());
+		Assert.AreEqual(999, buffer.Back());
+	}
+
+	[TestMethod]
 	public void Resample_NonPositiveLength_Throws()
 	{
 		RingBuffer<int> buffer = new(3);
