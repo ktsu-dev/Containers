@@ -79,10 +79,7 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 	/// <exception cref="ArgumentException">Thrown when T does not implement IComparable{T}.</exception>
 	public OrderedCollection()
 	{
-		if (
-			!typeof(IComparable<T>).IsAssignableFrom(typeof(T))
-			&& !typeof(IComparable).IsAssignableFrom(typeof(T))
-		)
+		if (!Comparability.HasDefaultOrdering<T>())
 		{
 			throw new ArgumentException(
 				$"Type {typeof(T)} must implement IComparable<T> or IComparable when no comparer is provided."
@@ -116,10 +113,7 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 	{
 		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 
-		if (
-			!typeof(IComparable<T>).IsAssignableFrom(typeof(T))
-			&& !typeof(IComparable).IsAssignableFrom(typeof(T))
-		)
+		if (!Comparability.HasDefaultOrdering<T>())
 		{
 			throw new ArgumentException(
 				$"Type {typeof(T)} must implement IComparable<T> or IComparable when no comparer is provided."
@@ -156,10 +150,7 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 	{
 		Ensure.NotNull(collection);
 
-		if (
-			!typeof(IComparable<T>).IsAssignableFrom(typeof(T))
-			&& !typeof(IComparable).IsAssignableFrom(typeof(T))
-		)
+		if (!Comparability.HasDefaultOrdering<T>())
 		{
 			throw new ArgumentException(
 				$"Type {typeof(T)} must implement IComparable<T> or IComparable when no comparer is provided."
