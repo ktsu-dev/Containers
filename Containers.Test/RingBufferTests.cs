@@ -2,6 +2,7 @@
 
 namespace ktsu.Containers.Tests;
 
+using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 [TestClass]
@@ -258,6 +259,34 @@ public class RingBufferTests
 		buffer.PushBack(7);
 		Assert.AreEqual(1, buffer.Count);
 		Assert.AreEqual(7, buffer.At(0));
+	}
+
+	[TestMethod]
+	public void Clear_ReleasesReferencesToClearedElements()
+	{
+		RingBuffer<object> buffer = new(4);
+		WeakReference[] references = FillWithUnreferencedObjects(buffer, 3);
+
+		buffer.Clear();
+		GC.Collect();
+		GC.WaitForPendingFinalizers();
+		GC.Collect();
+
+		Assert.IsFalse(references.Any(r => r.IsAlive));
+	}
+
+	[MethodImpl(MethodImplOptions.NoInlining)]
+	private static WeakReference[] FillWithUnreferencedObjects(RingBuffer<object> buffer, int count)
+	{
+		WeakReference[] references = new WeakReference[count];
+		for (int i = 0; i < count; i++)
+		{
+			object item = new();
+			buffer.PushBack(item);
+			references[i] = new WeakReference(item);
+		}
+
+		return references;
 	}
 
 	[TestMethod]
