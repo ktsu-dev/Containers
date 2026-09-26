@@ -174,8 +174,8 @@ public class ContiguousMap<TKey, TValue>
 
 			if (keyToIndex.TryGetValue(key, out int index))
 			{
-				// Key exists, update the value
-				items[index] = new Entry(key, value);
+				// Key exists, update the value and keep the key that was stored first
+				items[index] = new Entry(items[index].Key, value);
 			}
 			else
 			{
