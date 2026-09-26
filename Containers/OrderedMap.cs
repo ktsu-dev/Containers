@@ -53,8 +53,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// </summary>
 	private readonly List<Entry> items =
 		comparer is null
-		&& !typeof(IComparable<TKey>).IsAssignableFrom(typeof(TKey))
-		&& !typeof(IComparable).IsAssignableFrom(typeof(TKey))
+		&& !Comparability.HasDefaultOrdering<TKey>()
 			? throw new ArgumentException(
 				$"Type {typeof(TKey)} must implement IComparable<TKey> or IComparable when no comparer is provided."
 			)
@@ -145,10 +144,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	{
 		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 
-		if (
-			!typeof(IComparable<TKey>).IsAssignableFrom(typeof(TKey))
-			&& !typeof(IComparable).IsAssignableFrom(typeof(TKey))
-		)
+		if (!Comparability.HasDefaultOrdering<TKey>())
 		{
 			throw new ArgumentException(
 				$"Type {typeof(TKey)} must implement IComparable<TKey> or IComparable when no comparer is provided."
@@ -187,10 +183,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	{
 		Ensure.NotNull(dictionary);
 
-		if (
-			!typeof(IComparable<TKey>).IsAssignableFrom(typeof(TKey))
-			&& !typeof(IComparable).IsAssignableFrom(typeof(TKey))
-		)
+		if (!Comparability.HasDefaultOrdering<TKey>())
 		{
 			throw new ArgumentException(
 				$"Type {typeof(TKey)} must implement IComparable<TKey> or IComparable when no comparer is provided."

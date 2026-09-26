@@ -63,6 +63,22 @@ public class OrderedSetTests
 	}
 
 	[TestMethod]
+	public void Constructor_NullableTypeWithoutComparer_SortsNullFirst()
+	{
+		OrderedSet<int?> set = [3, null, 1, null];
+		OrderedSet<int?> withCapacity = new(10) { 2, null };
+		OrderedSet<int?> fromCollection = new([2, null, 2]);
+
+		Assert.AreSequenceEqual([null, 1, 3], set);
+		Assert.AreSequenceEqual([null, 2], withCapacity);
+		Assert.AreSequenceEqual([null, 2], fromCollection);
+	}
+
+	[TestMethod]
+	public void Constructor_NullableOfNonComparableTypeWithoutComparer_ThrowsArgumentException() =>
+		Assert.ThrowsExactly<ArgumentException>(() => _ = new OrderedSet<KeyValuePair<int, int>?>());
+
+	[TestMethod]
 	public void Constructor_NonComparableTypeWithoutComparer_ThrowsArgumentException()
 	{
 		Assert.ThrowsExactly<ArgumentException>(() => _ = new OrderedSet<object>());

@@ -596,6 +596,22 @@ public class OrderedCollectionTests
 	}
 
 	[TestMethod]
+	public void Constructor_WithNullableType_WithoutComparer_SortsNullFirst()
+	{
+		OrderedCollection<int?> collection = [3, null, 1];
+		OrderedCollection<int?> withCapacity = new(10) { 2, null };
+		OrderedCollection<int?> fromCollection = new([2, null, 2]);
+
+		Assert.AreSequenceEqual([null, 1, 3], collection);
+		Assert.AreSequenceEqual([null, 2], withCapacity);
+		Assert.AreSequenceEqual([null, 2, 2], fromCollection);
+	}
+
+	[TestMethod]
+	public void Constructor_WithNullableOfNonComparableType_WithoutComparer_ThrowsArgumentException() =>
+		Assert.ThrowsExactly<ArgumentException>(() => new OrderedCollection<KeyValuePair<int, int>?>());
+
+	[TestMethod]
 	public void Constructor_WithNonComparableType_WithoutComparer_ThrowsArgumentException()
 	{
 		// Arrange & Act & Assert

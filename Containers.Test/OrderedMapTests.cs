@@ -420,6 +420,24 @@ public class OrderedMapTests
 	/// <summary>
 	/// Tests error handling for constructor with non-comparable type.
 	/// </summary>
+	// OrderedMap constrains TKey to notnull, as Dictionary does, so a nullable key type draws a nullability
+	// warning at compile time. It must still construct and order keys at run time.
+#pragma warning disable CS8714 // Nullability of type argument doesn't match 'notnull' constraint
+	[TestMethod]
+	public void Constructor_NullableKeyType_SortsKeys()
+	{
+		OrderedMap<int?, string> map = new() { [3] = "three", [1] = "one" };
+		OrderedMap<int?, string> withCapacity = new(10) { [5] = "five", [2] = "two" };
+
+		Assert.AreSequenceEqual([1, 3], map.Keys);
+		Assert.AreSequenceEqual([2, 5], withCapacity.Keys);
+	}
+
+	[TestMethod]
+	public void Constructor_NullableOfNonComparableKeyType_ThrowsArgumentException() =>
+		Assert.ThrowsExactly<ArgumentException>(() => new OrderedMap<KeyValuePair<int, int>?, string>());
+#pragma warning restore CS8714
+
 	[TestMethod]
 	public void Constructor_NonComparableType_ThrowsArgumentException()
 	{
