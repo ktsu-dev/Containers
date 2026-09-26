@@ -354,7 +354,7 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 	{
 		ArgumentOutOfRangeException.ThrowIfNegative(startIndex);
 		ArgumentOutOfRangeException.ThrowIfNegative(count);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(startIndex + count, Count);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(count, Count - startIndex);
 
 		List<T> rangeItems = items.GetRange(startIndex, count);
 		return new OrderedCollection<T>(rangeItems, comparer);

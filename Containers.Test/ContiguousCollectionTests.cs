@@ -418,6 +418,29 @@ public class ContiguousCollectionTests
 	}
 
 	[TestMethod]
+	public void GetRange_CountOverflowingStartIndex_ThrowsArgumentOutOfRangeException()
+	{
+		// Arrange
+		ContiguousCollection<int> collection = [.. new int[] { 1, 2, 3 }];
+
+		// Act & Assert: startIndex + count overflows int
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => collection.GetRange(1, int.MaxValue));
+	}
+
+	[TestMethod]
+	public void GetRange_ZeroCountAtEnd_ReturnsEmpty()
+	{
+		// Arrange
+		ContiguousCollection<int> collection = [.. new int[] { 1, 2, 3 }];
+
+		// Act
+		ContiguousCollection<int> range = collection.GetRange(collection.Count, 0);
+
+		// Assert
+		Assert.IsEmpty(range);
+	}
+
+	[TestMethod]
 	public void Clone_CreatesShallowCopy()
 	{
 		// Arrange
