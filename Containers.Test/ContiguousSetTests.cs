@@ -298,6 +298,16 @@ public class ContiguousSetTests
 	}
 
 	[TestMethod]
+	public void ExceptWith_Self_EmptiesSet()
+	{
+		ContiguousSet<int> set = [.. new int[] { 1, 2, 3, 4 }];
+
+		set.ExceptWith(set);
+
+		Assert.IsEmpty(set);
+	}
+
+	[TestMethod]
 	public void SymmetricExceptWith_KeepsUniqueElements()
 	{
 		// Arrange
