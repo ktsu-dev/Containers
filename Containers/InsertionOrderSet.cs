@@ -237,7 +237,15 @@ public class InsertionOrderSet<T> : ISet<T>
 			return false;
 		}
 
-		items.Remove(item);
+		// Match with the set's comparer so an item that is equal only under a custom comparer
+		// is removed from the list as well as the hash set
+		IEqualityComparer<T> comparer = uniquenessSet.Comparer;
+		int index = items.FindIndex(x => comparer.Equals(x, item));
+		if (index >= 0)
+		{
+			items.RemoveAt(index);
+		}
+
 		return true;
 	}
 

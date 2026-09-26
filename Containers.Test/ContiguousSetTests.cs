@@ -452,4 +452,37 @@ public class ContiguousSetTests
 		Assert.Contains("alpha", set);
 		Assert.Contains("bravo", set);
 	}
+
+	[TestMethod]
+	public void Remove_WithCustomComparer_RemovesItemEqualOnlyUnderComparer()
+	{
+		// Arrange
+		ContiguousSet<string> set = new(StringComparer.OrdinalIgnoreCase) { "Apple", "Banana" };
+
+		// Act
+		bool removed = set.Remove("APPLE");
+
+		// Assert
+		Assert.IsTrue(removed);
+		Assert.HasCount(1, set);
+		Assert.IsFalse(set.Contains("apple"));
+		string[] expectedItems = ["Banana"];
+		Assert.AreSequenceEqual(expectedItems, set);
+	}
+
+	[TestMethod]
+	public void Remove_WithCustomComparer_ThenAdd_KeepsSingleElement()
+	{
+		// Arrange
+		ContiguousSet<string> set = new(StringComparer.OrdinalIgnoreCase) { "Apple" };
+
+		// Act
+		set.Remove("APPLE");
+		set.Add("apple");
+
+		// Assert
+		Assert.HasCount(1, set);
+		string[] expectedItems = ["apple"];
+		Assert.AreSequenceEqual(expectedItems, set);
+	}
 }

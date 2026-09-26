@@ -281,8 +281,19 @@ public class ContiguousSet<T> : ISet<T>
 			return false;
 		}
 
-		// Find and remove from the array
-		int index = Array.IndexOf(items, item, 0, Count);
+		// Find and remove from the array, matching with the set's comparer so an item that is
+		// equal only under a custom comparer is removed from storage as well as the hash set
+		IEqualityComparer<T> comparer = uniquenessSet.Comparer;
+		int index = -1;
+		for (int i = 0; i < Count; i++)
+		{
+			if (comparer.Equals(items[i], item))
+			{
+				index = i;
+				break;
+			}
+		}
+
 		if (index >= 0)
 		{
 			Count--;
