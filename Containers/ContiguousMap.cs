@@ -513,22 +513,18 @@ public class ContiguousMap<TKey, TValue>
 	/// <remarks>
 	/// Enumeration benefits from the contiguous memory layout with optimal cache performance.
 	/// </remarks>
-	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => Enumerate(version);
+
+	private IEnumerator<KeyValuePair<TKey, TValue>> Enumerate(int expected)
 	{
-		int expected = version;
-		return Enumerate();
-
-		IEnumerator<KeyValuePair<TKey, TValue>> Enumerate()
+		for (int i = 0; i < Count; i++)
 		{
-			for (int i = 0; i < Count; i++)
-			{
-				Entry entry = items[i];
-				Enumeration.ThrowIfModified(expected, version);
-				yield return new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
-			}
-
 			Enumeration.ThrowIfModified(expected, version);
+			Entry entry = items[i];
+			yield return new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
 		}
+
+		Enumeration.ThrowIfModified(expected, version);
 	}
 
 	/// <summary>
@@ -699,21 +695,17 @@ public class ContiguousMap<TKey, TValue>
 			}
 		}
 
-		public IEnumerator<TKey> GetEnumerator()
+		public IEnumerator<TKey> GetEnumerator() => Enumerate(map.version);
+
+		private IEnumerator<TKey> Enumerate(int expected)
 		{
-			int expected = map.version;
-			return Enumerate();
-
-			IEnumerator<TKey> Enumerate()
+			for (int i = 0; i < map.Count; i++)
 			{
-				for (int i = 0; i < map.Count; i++)
-				{
-					Enumeration.ThrowIfModified(expected, map.version);
-					yield return map.items[i].Key;
-				}
-
 				Enumeration.ThrowIfModified(expected, map.version);
+				yield return map.items[i].Key;
 			}
+
+			Enumeration.ThrowIfModified(expected, map.version);
 		}
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -762,21 +754,17 @@ public class ContiguousMap<TKey, TValue>
 			}
 		}
 
-		public IEnumerator<TValue> GetEnumerator()
+		public IEnumerator<TValue> GetEnumerator() => Enumerate(map.version);
+
+		private IEnumerator<TValue> Enumerate(int expected)
 		{
-			int expected = map.version;
-			return Enumerate();
-
-			IEnumerator<TValue> Enumerate()
+			for (int i = 0; i < map.Count; i++)
 			{
-				for (int i = 0; i < map.Count; i++)
-				{
-					Enumeration.ThrowIfModified(expected, map.version);
-					yield return map.items[i].Value;
-				}
-
 				Enumeration.ThrowIfModified(expected, map.version);
+				yield return map.items[i].Value;
 			}
+
+			Enumeration.ThrowIfModified(expected, map.version);
 		}
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

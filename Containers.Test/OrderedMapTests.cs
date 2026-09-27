@@ -519,56 +519,14 @@ public class OrderedMapTests
 	}
 
 	[TestMethod]
-	public void Enumerate_RemovingDuringForeach_Throws()
-	{
-		OrderedMap<int, string> map = new() { [1] = "one", [2] = "two", [3] = "three", [4] = "four" };
-
-		Assert.ThrowsExactly<InvalidOperationException>(() =>
-		{
-			foreach (KeyValuePair<int, string> pair in map)
-			{
-				map.Remove(pair.Key);
-			}
-		});
-	}
+	public void Enumerate_RemovingDuringForeach_Throws() =>
+		Tests.MapEnumerationAssertions.RemovingDuringForeachThrows(() => new OrderedMap<int, string>());
 
 	[TestMethod]
-	public void Enumerate_ChangesMadeThroughEveryMutator_Throw()
-	{
-		Action<OrderedMap<int, string>>[] mutations =
-		[
-			m => m.Add(9, "nine"),
-			m => m[9] = "nine",
-			m => m[1] = "uno",
-			m => m.Remove(1),
-			m => m.Remove(new KeyValuePair<int, string>(1, "one")),
-			m => m.Clear(),
-		];
-
-		foreach (Action<OrderedMap<int, string>> mutate in mutations)
-		{
-			OrderedMap<int, string> map = new() { [1] = "one", [2] = "two" };
-			using IEnumerator<KeyValuePair<int, string>> pairs = map.GetEnumerator();
-			using IEnumerator<int> keys = map.Keys.GetEnumerator();
-			using IEnumerator<string> values = map.Values.GetEnumerator();
-			Assert.IsTrue(pairs.MoveNext());
-			Assert.IsTrue(keys.MoveNext());
-			Assert.IsTrue(values.MoveNext());
-
-			mutate(map);
-
-			Assert.ThrowsExactly<InvalidOperationException>(() => pairs.MoveNext());
-			Assert.ThrowsExactly<InvalidOperationException>(() => keys.MoveNext());
-			Assert.ThrowsExactly<InvalidOperationException>(() => values.MoveNext());
-		}
-	}
+	public void Enumerate_ChangesMadeThroughEveryMutator_Throw() =>
+		Tests.MapEnumerationAssertions.EveryMutatorInvalidatesEnumerators(() => new OrderedMap<int, string>());
 
 	[TestMethod]
-	public void Enumerate_Unchanged_VisitsEveryEntry()
-	{
-		OrderedMap<int, string> map = new() { [1] = "one", [2] = "two" };
-
-		Assert.AreSequenceEqual([1, 2], map.Keys);
-		Assert.AreSequenceEqual(["one", "two"], map.Values);
-	}
+	public void Enumerate_Unchanged_VisitsEveryEntry() =>
+		Tests.MapEnumerationAssertions.UnchangedEnumerationVisitsEveryEntry(() => new OrderedMap<int, string>());
 }

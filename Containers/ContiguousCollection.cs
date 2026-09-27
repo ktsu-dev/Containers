@@ -349,21 +349,17 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyList<T>
 	/// <remarks>
 	/// Enumeration benefits from the contiguous memory layout with optimal cache performance.
 	/// </remarks>
-	public IEnumerator<T> GetEnumerator()
+	public IEnumerator<T> GetEnumerator() => Enumerate(version);
+
+	private IEnumerator<T> Enumerate(int expected)
 	{
-		int expected = version;
-		return Enumerate();
-
-		IEnumerator<T> Enumerate()
+		for (int i = 0; i < Count; i++)
 		{
-			for (int i = 0; i < Count; i++)
-			{
-				Enumeration.ThrowIfModified(expected, version);
-				yield return items[i];
-			}
-
 			Enumeration.ThrowIfModified(expected, version);
+			yield return items[i];
 		}
+
+		Enumeration.ThrowIfModified(expected, version);
 	}
 
 	/// <summary>
