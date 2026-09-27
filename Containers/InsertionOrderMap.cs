@@ -51,6 +51,11 @@ public class InsertionOrderMap<TKey, TValue>
 	private readonly List<Entry> items;
 
 	/// <summary>
+	/// Incremented by every change, so an enumerator can tell the collection changed under it.
+	/// </summary>
+	private int version;
+
+	/// <summary>
 	/// The internal dictionary used for fast key-based lookups.
 	/// </summary>
 	private readonly Dictionary<TKey, int> keyToIndex;
@@ -92,12 +97,14 @@ public class InsertionOrderMap<TKey, TValue>
 				Entry entry = items[index];
 				entry.Value = value;
 				items[index] = entry;
+				version++;
 			}
 			else
 			{
 				// Key doesn't exist, add new entry
 				index = items.Count;
 				items.Add(new Entry(key, value));
+				version++;
 				keyToIndex[key] = index;
 			}
 		}
@@ -237,6 +244,7 @@ public class InsertionOrderMap<TKey, TValue>
 
 		int index = items.Count;
 		items.Add(new Entry(key, value));
+		version++;
 		keyToIndex[key] = index;
 	}
 
@@ -260,6 +268,7 @@ public class InsertionOrderMap<TKey, TValue>
 
 		// Remove from the list
 		items.RemoveAt(index);
+		version++;
 		keyToIndex.Remove(key);
 
 		// Update indices in the dictionary for all elements after the removed one
@@ -332,6 +341,7 @@ public class InsertionOrderMap<TKey, TValue>
 	public void Clear()
 	{
 		items.Clear();
+		version++;
 		keyToIndex.Clear();
 	}
 
@@ -382,10 +392,19 @@ public class InsertionOrderMap<TKey, TValue>
 	/// <returns>An enumerator for the map.</returns>
 	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
 	{
-		for (int i = 0; i < items.Count; i++)
+		int expected = version;
+		return Enumerate();
+
+		IEnumerator<KeyValuePair<TKey, TValue>> Enumerate()
 		{
-			Entry entry = items[i];
-			yield return new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
+			for (int i = 0; i < items.Count; i++)
+			{
+				Entry entry = items[i];
+				Enumeration.ThrowIfModified(expected, version);
+				yield return new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
+			}
+
+			Enumeration.ThrowIfModified(expected, version);
 		}
 	}
 
@@ -440,9 +459,18 @@ public class InsertionOrderMap<TKey, TValue>
 
 		public IEnumerator<TKey> GetEnumerator()
 		{
-			for (int i = 0; i < map.items.Count; i++)
+			int expected = map.version;
+			return Enumerate();
+
+			IEnumerator<TKey> Enumerate()
 			{
-				yield return map.items[i].Key;
+				for (int i = 0; i < map.items.Count; i++)
+				{
+					Enumeration.ThrowIfModified(expected, map.version);
+					yield return map.items[i].Key;
+				}
+
+				Enumeration.ThrowIfModified(expected, map.version);
 			}
 		}
 
@@ -485,9 +513,18 @@ public class InsertionOrderMap<TKey, TValue>
 
 		public IEnumerator<TValue> GetEnumerator()
 		{
-			for (int i = 0; i < map.items.Count; i++)
+			int expected = map.version;
+			return Enumerate();
+
+			IEnumerator<TValue> Enumerate()
 			{
-				yield return map.items[i].Value;
+				for (int i = 0; i < map.items.Count; i++)
+				{
+					Enumeration.ThrowIfModified(expected, map.version);
+					yield return map.items[i].Value;
+				}
+
+				Enumeration.ThrowIfModified(expected, map.version);
 			}
 		}
 

@@ -50,6 +50,11 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyList<T>
 	private T[] items;
 
 	/// <summary>
+	/// Incremented by every change, so an enumerator can tell the collection changed under it.
+	/// </summary>
+	private int version;
+
+	/// <summary>
 	/// The default initial capacity for the collection.
 	/// </summary>
 	private const int DefaultCapacity = 4;
@@ -88,6 +93,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyList<T>
 			ArgumentOutOfRangeException.ThrowIfNegative(index);
 			ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
 			items[index] = value;
+			version++;
 		}
 	}
 
@@ -158,6 +164,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyList<T>
 
 		items[Count] = item;
 		Count++;
+		version++;
 	}
 
 	/// <summary>
@@ -175,6 +182,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyList<T>
 			Array.Clear(items, 0, Count);
 		}
 		Count = 0;
+		version++;
 	}
 
 	/// <summary>
@@ -241,6 +249,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyList<T>
 		ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
 
 		Count--;
+		version++;
 		if (index < Count)
 		{
 			Array.Copy(items, index + 1, items, index, Count - index);
@@ -294,6 +303,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyList<T>
 
 		items[index] = item;
 		Count++;
+		version++;
 	}
 
 	/// <summary>
@@ -341,9 +351,18 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyList<T>
 	/// </remarks>
 	public IEnumerator<T> GetEnumerator()
 	{
-		for (int i = 0; i < Count; i++)
+		int expected = version;
+		return Enumerate();
+
+		IEnumerator<T> Enumerate()
 		{
-			yield return items[i];
+			for (int i = 0; i < Count; i++)
+			{
+				Enumeration.ThrowIfModified(expected, version);
+				yield return items[i];
+			}
+
+			Enumeration.ThrowIfModified(expected, version);
 		}
 	}
 
