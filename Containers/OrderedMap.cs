@@ -36,7 +36,8 @@ using System.Diagnostics.CodeAnalysis;
 )]
 public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	: IDictionary<TKey, TValue>,
-		IReadOnlyDictionary<TKey, TValue>
+		IReadOnlyDictionary<TKey, TValue>,
+		IVersionedEntries<TKey, TValue>
 	where TKey : notnull
 {
 	/// <summary>
@@ -63,6 +64,15 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// Incremented by every change, so an enumerator can tell the collection changed under it.
 	/// </summary>
 	private int version;
+
+	/// <inheritdoc />
+	int IVersionedEntries<TKey, TValue>.Version => version;
+
+	/// <inheritdoc />
+	TKey IVersionedEntries<TKey, TValue>.KeyAt(int index) => items[index].Key;
+
+	/// <inheritdoc />
+	TValue IVersionedEntries<TKey, TValue>.ValueAt(int index) => items[index].Value;
 
 	/// <summary>
 	/// The comparer used to maintain sorted order by key.
@@ -403,19 +413,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// Returns an enumerator that iterates through the map.
 	/// </summary>
 	/// <returns>An enumerator that can be used to iterate through the map.</returns>
-	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => Enumerate(version);
-
-	private IEnumerator<KeyValuePair<TKey, TValue>> Enumerate(int expected)
-	{
-		for (int i = 0; i < items.Count; i++)
-		{
-			Enumeration.ThrowIfModified(expected, version);
-			Entry entry = items[i];
-			yield return new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
-		}
-
-		Enumeration.ThrowIfModified(expected, version);
-	}
+	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => Enumeration.Pairs(this);
 
 	/// <summary>
 	/// Returns an enumerator that iterates through the map.
@@ -508,18 +506,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 			}
 		}
 
-		public IEnumerator<TKey> GetEnumerator() => Enumerate(map.version);
-
-		private IEnumerator<TKey> Enumerate(int expected)
-		{
-			for (int i = 0; i < map.items.Count; i++)
-			{
-				Enumeration.ThrowIfModified(expected, map.version);
-				yield return map.items[i].Key;
-			}
-
-			Enumeration.ThrowIfModified(expected, map.version);
-		}
+		public IEnumerator<TKey> GetEnumerator() => Enumeration.Keys(map);
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
@@ -565,18 +552,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 			}
 		}
 
-		public IEnumerator<TValue> GetEnumerator() => Enumerate(map.version);
-
-		private IEnumerator<TValue> Enumerate(int expected)
-		{
-			for (int i = 0; i < map.items.Count; i++)
-			{
-				Enumeration.ThrowIfModified(expected, map.version);
-				yield return map.items[i].Value;
-			}
-
-			Enumeration.ThrowIfModified(expected, map.version);
-		}
+		public IEnumerator<TValue> GetEnumerator() => Enumeration.Values(map);
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
