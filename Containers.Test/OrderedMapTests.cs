@@ -517,4 +517,16 @@ public class OrderedMapTests
 			Assert.AreEqual(i + 1, keys[i]);
 		}
 	}
+
+	[TestMethod]
+	public void Enumerate_RemovingDuringForeach_Throws() =>
+		Tests.MapEnumerationAssertions.RemovingDuringForeachThrows(() => new OrderedMap<int, string>());
+
+	[TestMethod]
+	public void Enumerate_ChangesMadeThroughEveryMutator_Throw() =>
+		Tests.MapEnumerationAssertions.EveryMutatorInvalidatesEnumerators(() => new OrderedMap<int, string>());
+
+	[TestMethod]
+	public void Enumerate_Unchanged_VisitsEveryEntry() =>
+		Tests.MapEnumerationAssertions.UnchangedEnumerationVisitsEveryEntry(() => new OrderedMap<int, string>());
 }

@@ -33,7 +33,8 @@ using System.Diagnostics.CodeAnalysis;
 )]
 public class InsertionOrderMap<TKey, TValue>
 	: IDictionary<TKey, TValue>,
-		IReadOnlyDictionary<TKey, TValue>
+		IReadOnlyDictionary<TKey, TValue>,
+		IVersionedEntries<TKey, TValue>
 	where TKey : notnull
 {
 	/// <summary>
@@ -49,6 +50,20 @@ public class InsertionOrderMap<TKey, TValue>
 	/// The internal list that stores key-value pairs in insertion order by key.
 	/// </summary>
 	private readonly List<Entry> items;
+
+	/// <summary>
+	/// Incremented by every change, so an enumerator can tell the collection changed under it.
+	/// </summary>
+	private int version;
+
+	/// <inheritdoc />
+	int IVersionedEntries<TKey, TValue>.Version => version;
+
+	/// <inheritdoc />
+	TKey IVersionedEntries<TKey, TValue>.KeyAt(int index) => items[index].Key;
+
+	/// <inheritdoc />
+	TValue IVersionedEntries<TKey, TValue>.ValueAt(int index) => items[index].Value;
 
 	/// <summary>
 	/// The internal dictionary used for fast key-based lookups.
@@ -92,12 +107,14 @@ public class InsertionOrderMap<TKey, TValue>
 				Entry entry = items[index];
 				entry.Value = value;
 				items[index] = entry;
+				version++;
 			}
 			else
 			{
 				// Key doesn't exist, add new entry
 				index = items.Count;
 				items.Add(new Entry(key, value));
+				version++;
 				keyToIndex[key] = index;
 			}
 		}
@@ -237,6 +254,7 @@ public class InsertionOrderMap<TKey, TValue>
 
 		int index = items.Count;
 		items.Add(new Entry(key, value));
+		version++;
 		keyToIndex[key] = index;
 	}
 
@@ -260,6 +278,7 @@ public class InsertionOrderMap<TKey, TValue>
 
 		// Remove from the list
 		items.RemoveAt(index);
+		version++;
 		keyToIndex.Remove(key);
 
 		// Update indices in the dictionary for all elements after the removed one
@@ -332,6 +351,7 @@ public class InsertionOrderMap<TKey, TValue>
 	public void Clear()
 	{
 		items.Clear();
+		version++;
 		keyToIndex.Clear();
 	}
 
@@ -380,14 +400,7 @@ public class InsertionOrderMap<TKey, TValue>
 	/// Returns an enumerator that iterates through the map in insertion order.
 	/// </summary>
 	/// <returns>An enumerator for the map.</returns>
-	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-	{
-		for (int i = 0; i < items.Count; i++)
-		{
-			Entry entry = items[i];
-			yield return new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
-		}
-	}
+	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => Enumeration.Pairs(this);
 
 	/// <summary>
 	/// Returns an enumerator that iterates through the map.
@@ -438,13 +451,7 @@ public class InsertionOrderMap<TKey, TValue>
 			}
 		}
 
-		public IEnumerator<TKey> GetEnumerator()
-		{
-			for (int i = 0; i < map.items.Count; i++)
-			{
-				yield return map.items[i].Key;
-			}
-		}
+		public IEnumerator<TKey> GetEnumerator() => Enumeration.Keys(map);
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
@@ -483,13 +490,7 @@ public class InsertionOrderMap<TKey, TValue>
 			}
 		}
 
-		public IEnumerator<TValue> GetEnumerator()
-		{
-			for (int i = 0; i < map.items.Count; i++)
-			{
-				yield return map.items[i].Value;
-			}
-		}
+		public IEnumerator<TValue> GetEnumerator() => Enumeration.Values(map);
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}

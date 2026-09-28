@@ -36,7 +36,8 @@ using System.Diagnostics.CodeAnalysis;
 )]
 public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	: IDictionary<TKey, TValue>,
-		IReadOnlyDictionary<TKey, TValue>
+		IReadOnlyDictionary<TKey, TValue>,
+		IVersionedEntries<TKey, TValue>
 	where TKey : notnull
 {
 	/// <summary>
@@ -58,6 +59,20 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 				$"Type {typeof(TKey)} must implement IComparable<TKey> or IComparable when no comparer is provided."
 			)
 			: [];
+
+	/// <summary>
+	/// Incremented by every change, so an enumerator can tell the collection changed under it.
+	/// </summary>
+	private int version;
+
+	/// <inheritdoc />
+	int IVersionedEntries<TKey, TValue>.Version => version;
+
+	/// <inheritdoc />
+	TKey IVersionedEntries<TKey, TValue>.KeyAt(int index) => items[index].Key;
+
+	/// <inheritdoc />
+	TValue IVersionedEntries<TKey, TValue>.ValueAt(int index) => items[index].Value;
 
 	/// <summary>
 	/// The comparer used to maintain sorted order by key.
@@ -103,12 +118,14 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 				Entry entry = items[index];
 				entry.Value = value;
 				items[index] = entry;
+				version++;
 			}
 			else
 			{
 				// Key doesn't exist, add new entry
 				index = ~index; // Convert to insertion point
 				items.Insert(index, new Entry(key, value));
+				version++;
 			}
 		}
 	}
@@ -239,6 +256,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 
 		index = ~index; // Convert to insertion point
 		items.Insert(index, new Entry(key, value));
+		version++;
 	}
 
 	/// <summary>
@@ -258,6 +276,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 		}
 
 		items.RemoveAt(index);
+		version++;
 		return true;
 	}
 
@@ -315,7 +334,11 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <summary>
 	/// Removes all key-value pairs from the map.
 	/// </summary>
-	public void Clear() => items.Clear();
+	public void Clear()
+	{
+		items.Clear();
+		version++;
+	}
 
 	/// <summary>
 	/// Determines whether the map contains a specific key-value pair.
@@ -382,6 +405,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 		}
 
 		items.RemoveAt(index);
+		version++;
 		return true;
 	}
 
@@ -389,14 +413,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// Returns an enumerator that iterates through the map.
 	/// </summary>
 	/// <returns>An enumerator that can be used to iterate through the map.</returns>
-	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-	{
-		for (int i = 0; i < items.Count; i++)
-		{
-			Entry entry = items[i];
-			yield return new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
-		}
-	}
+	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => Enumeration.Pairs(this);
 
 	/// <summary>
 	/// Returns an enumerator that iterates through the map.
@@ -489,13 +506,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 			}
 		}
 
-		public IEnumerator<TKey> GetEnumerator()
-		{
-			for (int i = 0; i < map.items.Count; i++)
-			{
-				yield return map.items[i].Key;
-			}
-		}
+		public IEnumerator<TKey> GetEnumerator() => Enumeration.Keys(map);
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
@@ -541,13 +552,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 			}
 		}
 
-		public IEnumerator<TValue> GetEnumerator()
-		{
-			for (int i = 0; i < map.items.Count; i++)
-			{
-				yield return map.items[i].Value;
-			}
-		}
+		public IEnumerator<TValue> GetEnumerator() => Enumeration.Values(map);
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}

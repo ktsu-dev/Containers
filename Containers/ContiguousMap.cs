@@ -46,7 +46,8 @@ using System.Runtime.CompilerServices;
 )]
 public class ContiguousMap<TKey, TValue>
 	: IDictionary<TKey, TValue>,
-		IReadOnlyDictionary<TKey, TValue>
+		IReadOnlyDictionary<TKey, TValue>,
+		IVersionedEntries<TKey, TValue>
 	where TKey : notnull
 {
 	/// <summary>
@@ -127,6 +128,20 @@ public class ContiguousMap<TKey, TValue>
 	private Entry[] items;
 
 	/// <summary>
+	/// Incremented by every change, so an enumerator can tell the collection changed under it.
+	/// </summary>
+	private int version;
+
+	/// <inheritdoc />
+	int IVersionedEntries<TKey, TValue>.Version => version;
+
+	/// <inheritdoc />
+	TKey IVersionedEntries<TKey, TValue>.KeyAt(int index) => items[index].Key;
+
+	/// <inheritdoc />
+	TValue IVersionedEntries<TKey, TValue>.ValueAt(int index) => items[index].Value;
+
+	/// <summary>
 	/// The internal dictionary used for fast key-based lookups to array indices.
 	/// </summary>
 	private readonly Dictionary<TKey, int> keyToIndex;
@@ -176,6 +191,7 @@ public class ContiguousMap<TKey, TValue>
 			{
 				// Key exists, update the value and keep the key that was stored first
 				items[index] = new Entry(items[index].Key, value);
+				version++;
 			}
 			else
 			{
@@ -189,6 +205,7 @@ public class ContiguousMap<TKey, TValue>
 				items[index] = new Entry(key, value);
 				keyToIndex[key] = index;
 				Count++;
+				version++;
 			}
 		}
 	}
@@ -342,6 +359,7 @@ public class ContiguousMap<TKey, TValue>
 		items[index] = new Entry(key, value);
 		keyToIndex[key] = index;
 		Count++;
+		version++;
 	}
 
 	/// <summary>
@@ -365,6 +383,7 @@ public class ContiguousMap<TKey, TValue>
 
 		// Remove from the array by shifting elements
 		Count--;
+		version++;
 		if (index < Count)
 		{
 			Array.Copy(items, index + 1, items, index, Count - index);
@@ -442,6 +461,7 @@ public class ContiguousMap<TKey, TValue>
 	/// </summary>
 	public void Clear()
 	{
+		version++;
 #if NET5_0_OR_GREATER
 		if (RuntimeHelpers.IsReferenceOrContainsReferences<Entry>())
 #else
@@ -503,14 +523,7 @@ public class ContiguousMap<TKey, TValue>
 	/// <remarks>
 	/// Enumeration benefits from the contiguous memory layout with optimal cache performance.
 	/// </remarks>
-	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-	{
-		for (int i = 0; i < Count; i++)
-		{
-			Entry entry = items[i];
-			yield return new KeyValuePair<TKey, TValue>(entry.Key, entry.Value);
-		}
-	}
+	public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => Enumeration.Pairs(this);
 
 	/// <summary>
 	/// Returns an enumerator that iterates through the map.
@@ -680,13 +693,7 @@ public class ContiguousMap<TKey, TValue>
 			}
 		}
 
-		public IEnumerator<TKey> GetEnumerator()
-		{
-			for (int i = 0; i < map.Count; i++)
-			{
-				yield return map.items[i].Key;
-			}
-		}
+		public IEnumerator<TKey> GetEnumerator() => Enumeration.Keys(map);
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}
@@ -734,13 +741,7 @@ public class ContiguousMap<TKey, TValue>
 			}
 		}
 
-		public IEnumerator<TValue> GetEnumerator()
-		{
-			for (int i = 0; i < map.Count; i++)
-			{
-				yield return map.items[i].Value;
-			}
-		}
+		public IEnumerator<TValue> GetEnumerator() => Enumeration.Values(map);
 
 		IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 	}

@@ -528,4 +528,90 @@ public class ContiguousCollectionTests
 		Assert.AreEqual("alpha", collection[1]);
 		Assert.AreEqual("bravo", collection[2]);
 	}
+
+	[TestMethod]
+	public void Enumerate_RemovingDuringForeach_Throws()
+	{
+		ContiguousCollection<int> collection = [1, 2, 3, 4];
+
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
+		{
+			foreach (int item in collection)
+			{
+				collection.Remove(item);
+			}
+		});
+	}
+
+	[TestMethod]
+	public void Enumerate_AddingDuringForeach_Throws()
+	{
+		ContiguousCollection<int> collection = [1, 2];
+
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
+		{
+			foreach (int item in collection)
+			{
+				collection.Add(item);
+			}
+		});
+	}
+
+	[TestMethod]
+	public void Enumerate_ChangesMadeThroughEveryMutator_Throw()
+	{
+		Action<ContiguousCollection<int>>[] mutations =
+		[
+			c => c.Add(9),
+			c => c.Insert(0, 9),
+			c => c.Remove(1),
+			c => c.RemoveAt(0),
+			c => c.Clear(),
+			c => c[0] = 9,
+		];
+
+		foreach (Action<ContiguousCollection<int>> mutate in mutations)
+		{
+			ContiguousCollection<int> collection = [1, 2, 3];
+			using IEnumerator<int> enumerator = collection.GetEnumerator();
+			Assert.IsTrue(enumerator.MoveNext());
+
+			mutate(collection);
+
+			Assert.ThrowsExactly<InvalidOperationException>(() => enumerator.MoveNext());
+		}
+	}
+
+	[TestMethod]
+	public void Enumerate_ChangedBeforeTheFirstMoveNext_Throws()
+	{
+		ContiguousCollection<int> collection = [1, 2, 3];
+		using IEnumerator<int> enumerator = collection.GetEnumerator();
+
+		collection.Add(4);
+
+		Assert.ThrowsExactly<InvalidOperationException>(() => enumerator.MoveNext());
+	}
+
+	[TestMethod]
+	public void Enumerate_ChangedAfterTheLastElement_Throws()
+	{
+		ContiguousCollection<int> collection = [1, 2];
+		using IEnumerator<int> enumerator = collection.GetEnumerator();
+		Assert.IsTrue(enumerator.MoveNext());
+		Assert.IsTrue(enumerator.MoveNext());
+
+		collection.Add(3);
+
+		Assert.ThrowsExactly<InvalidOperationException>(() => enumerator.MoveNext());
+	}
+
+	[TestMethod]
+	public void Enumerate_Unchanged_VisitsEveryElement()
+	{
+		ContiguousCollection<int> collection = [1, 2, 3];
+		collection.Add(4);
+
+		Assert.AreSequenceEqual([1, 2, 3, 4], collection);
+	}
 }

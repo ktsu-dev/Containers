@@ -593,4 +593,16 @@ public class ContiguousMapTests
 		Assert.AreEqual(7, entry.Key);
 		Assert.AreEqual("seven", entry.Value);
 	}
+
+	[TestMethod]
+	public void Enumerate_RemovingDuringForeach_Throws() =>
+		MapEnumerationAssertions.RemovingDuringForeachThrows(() => new ContiguousMap<int, string>());
+
+	[TestMethod]
+	public void Enumerate_ChangesMadeThroughEveryMutator_Throw() =>
+		MapEnumerationAssertions.EveryMutatorInvalidatesEnumerators(() => new ContiguousMap<int, string>());
+
+	[TestMethod]
+	public void Enumerate_Unchanged_VisitsEveryEntry() =>
+		MapEnumerationAssertions.UnchangedEnumerationVisitsEveryEntry(() => new ContiguousMap<int, string>());
 }

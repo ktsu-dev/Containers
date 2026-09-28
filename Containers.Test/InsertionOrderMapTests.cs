@@ -424,4 +424,16 @@ public class InsertionOrderMapTests
 		string[] expectedKeyOrder = ["charlie", "alpha", "bravo"];
 		Assert.AreSequenceEqual(expectedKeyOrder, map.Keys);
 	}
+
+	[TestMethod]
+	public void Enumerate_RemovingDuringForeach_Throws() =>
+		MapEnumerationAssertions.RemovingDuringForeachThrows(() => new InsertionOrderMap<int, string>());
+
+	[TestMethod]
+	public void Enumerate_ChangesMadeThroughEveryMutator_Throw() =>
+		MapEnumerationAssertions.EveryMutatorInvalidatesEnumerators(() => new InsertionOrderMap<int, string>());
+
+	[TestMethod]
+	public void Enumerate_Unchanged_VisitsEveryEntry() =>
+		MapEnumerationAssertions.UnchangedEnumerationVisitsEveryEntry(() => new InsertionOrderMap<int, string>());
 }

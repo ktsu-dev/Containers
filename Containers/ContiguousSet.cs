@@ -57,6 +57,11 @@ public class ContiguousSet<T> : ISet<T>
 	private T[] items;
 
 	/// <summary>
+	/// Incremented by every change, so an enumerator can tell the collection changed under it.
+	/// </summary>
+	private int version;
+
+	/// <summary>
 	/// The internal hash set used for fast uniqueness checks.
 	/// </summary>
 	private readonly HashSet<T> uniquenessSet;
@@ -208,6 +213,7 @@ public class ContiguousSet<T> : ISet<T>
 
 		items[Count] = item;
 		Count++;
+		version++;
 		return true;
 	}
 
@@ -232,6 +238,7 @@ public class ContiguousSet<T> : ISet<T>
 			Array.Clear(items, 0, Count);
 		}
 		Count = 0;
+		version++;
 		uniquenessSet.Clear();
 	}
 
@@ -297,6 +304,7 @@ public class ContiguousSet<T> : ISet<T>
 		if (index >= 0)
 		{
 			Count--;
+			version++;
 			if (index < Count)
 			{
 				Array.Copy(items, index + 1, items, index, Count - index);
@@ -322,12 +330,17 @@ public class ContiguousSet<T> : ISet<T>
 	/// <remarks>
 	/// Enumeration benefits from the contiguous memory layout with optimal cache performance.
 	/// </remarks>
-	public IEnumerator<T> GetEnumerator()
+	public IEnumerator<T> GetEnumerator() => Enumerate(version);
+
+	private IEnumerator<T> Enumerate(int expected)
 	{
 		for (int i = 0; i < Count; i++)
 		{
+			Enumeration.ThrowIfModified(expected, version);
 			yield return items[i];
 		}
+
+		Enumeration.ThrowIfModified(expected, version);
 	}
 
 	/// <summary>

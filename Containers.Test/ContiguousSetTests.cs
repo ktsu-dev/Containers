@@ -495,4 +495,67 @@ public class ContiguousSetTests
 		string[] expectedItems = ["apple"];
 		Assert.AreSequenceEqual(expectedItems, set);
 	}
+
+	[TestMethod]
+	public void Enumerate_RemovingDuringForeach_Throws()
+	{
+		ContiguousSet<int> set = [1, 2, 3, 4];
+
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
+		{
+			foreach (int item in set)
+			{
+				set.Remove(item);
+			}
+		});
+	}
+
+	[TestMethod]
+	public void Enumerate_ChangesMadeThroughEveryMutator_Throw()
+	{
+		Action<ContiguousSet<int>>[] mutations =
+		[
+			s => s.Add(9),
+			s => s.Remove(1),
+			s => s.Clear(),
+		];
+
+		foreach (Action<ContiguousSet<int>> mutate in mutations)
+		{
+			ContiguousSet<int> set = [1, 2, 3];
+			using IEnumerator<int> enumerator = set.GetEnumerator();
+			Assert.IsTrue(enumerator.MoveNext());
+
+			mutate(set);
+
+			Assert.ThrowsExactly<InvalidOperationException>(() => enumerator.MoveNext());
+		}
+	}
+
+	[TestMethod]
+	public void Enumerate_AddingADuplicateOrRemovingAMissingItem_DoesNotThrow()
+	{
+		// Neither changes the set, so an enumeration in progress is still valid.
+		ContiguousSet<int> set = [1, 2, 3];
+		List<int> seen = [];
+
+		foreach (int item in set)
+		{
+			set.Add(item);
+			set.Remove(99);
+			seen.Add(item);
+		}
+
+		Assert.AreSequenceEqual([1, 2, 3], seen);
+	}
+
+	[TestMethod]
+	public void UnionWith_Itself_DoesNotThrow()
+	{
+		ContiguousSet<int> set = [1, 2, 3];
+
+		set.UnionWith(set);
+
+		Assert.AreSequenceEqual([1, 2, 3], set);
+	}
 }
