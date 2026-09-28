@@ -192,17 +192,11 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 	/// <param name="item">The element to add.</param>
 	/// <remarks>
 	/// This operation has O(n) time complexity due to the need to maintain sorted order.
-	/// The element is inserted at the appropriate position to maintain the sorted sequence.
+	/// The element is inserted after any elements that compare equal to it, so equal elements
+	/// keep the order they were added in, and rebuilding a collection from its own sequence
+	/// (as <see cref="Clone"/> and <see cref="GetRange"/> do) reproduces that sequence.
 	/// </remarks>
-	public void Add(T item)
-	{
-		int index = BinarySearch(item);
-		if (index < 0)
-		{
-			index = ~index; // Convert to insertion point
-		}
-		items.Insert(index, item);
-	}
+	public void Add(T item) => items.Insert(FindUpperBound(item), item);
 
 	/// <summary>
 	/// Removes all elements from the collection.
@@ -370,6 +364,32 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 		}
 
 		return found;
+	}
+
+	/// <summary>
+	/// Binary searches for the position just after the last element that compares equal to the specified element.
+	/// </summary>
+	/// <param name="item">The element to search for.</param>
+	/// <returns>The index of the first element that compares greater than <paramref name="item"/>, or <see cref="Count"/> if there is none.</returns>
+	private int FindUpperBound(T item)
+	{
+		int left = 0;
+		int right = items.Count;
+
+		while (left < right)
+		{
+			int mid = left + ((right - left) / 2);
+			if (comparer.Compare(items[mid], item) <= 0)
+			{
+				left = mid + 1;
+			}
+			else
+			{
+				right = mid;
+			}
+		}
+
+		return left;
 	}
 
 	/// <summary>

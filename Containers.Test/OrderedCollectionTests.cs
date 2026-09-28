@@ -678,4 +678,67 @@ public class OrderedCollectionTests
 		Assert.IsTrue(removed);
 		Assert.AreSequenceEqual(expected, collection);
 	}
+
+	private static readonly IComparer<(int Key, string Name)> ByKey =
+		Comparer<(int Key, string Name)>.Create((x, y) => x.Key.CompareTo(y.Key));
+
+	[TestMethod]
+	public void Add_KeyComparer_KeepsEqualElementsInInsertionOrder()
+	{
+		// Act
+		OrderedCollection<(int Key, string Name)> collection = new(ByKey)
+		{
+			(1, "a"), (1, "b"), (1, "c"), (0, "z"), (1, "d"), (2, "y"), (1, "e"),
+		};
+
+		// Assert
+		Assert.AreSequenceEqual(
+			[(0, "z"), (1, "a"), (1, "b"), (1, "c"), (1, "d"), (1, "e"), (2, "y")],
+			collection);
+	}
+
+	[TestMethod]
+	public void Clone_KeyComparer_IsSequenceEqualToSource()
+	{
+		// Arrange
+		OrderedCollection<(int Key, string Name)> collection = new(ByKey)
+		{
+			(1, "a"), (1, "b"), (1, "c"), (0, "z"), (1, "d"),
+		};
+
+		// Act
+		OrderedCollection<(int Key, string Name)> clone = collection.Clone();
+
+		// Assert
+		Assert.AreSequenceEqual(collection, clone);
+	}
+
+	[TestMethod]
+	public void GetRange_KeyComparer_IsSequenceEqualToSourceRange()
+	{
+		// Arrange
+		OrderedCollection<(int Key, string Name)> collection = new(ByKey)
+		{
+			(1, "a"), (1, "b"), (1, "c"), (0, "z"), (1, "d"),
+		};
+
+		// Act
+		OrderedCollection<(int Key, string Name)> range = collection.GetRange(1, 3);
+
+		// Assert
+		Assert.AreSequenceEqual(collection.Skip(1).Take(3), range);
+	}
+
+	[TestMethod]
+	public void Constructor_FromEnumerableWithKeyComparer_PreservesInputOrderOfEqualElements()
+	{
+		// Arrange
+		(int Key, string Name)[] source = [(1, "a"), (1, "b"), (1, "c"), (1, "d"), (1, "e")];
+
+		// Act
+		OrderedCollection<(int Key, string Name)> collection = new(source, ByKey);
+
+		// Assert
+		Assert.AreSequenceEqual(source, collection);
+	}
 }
