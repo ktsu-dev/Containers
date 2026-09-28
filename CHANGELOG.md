@@ -1,3 +1,9 @@
+## v1.1.29-pre.1 (prerelease)
+
+Changes since v1.1.28:
+
+- Bump Polyfill from 11.4.0 to 11.4.1 ([@dependabot[bot]](https://github.com/dependabot[bot]))
+
 ## v1.1.28 (patch)
 
 Changes since v1.1.27:
@@ -135,13 +141,17 @@ Changes since v1.1.8:
 - [patch] Cover ContiguousMap.Entry equality and exclude benchmarks from Sonar ([@matt-edmondson](https://github.com/matt-edmondson))
 - [patch] Fix SonarCloud issues in library and benchmark code ([@matt-edmondson](https://github.com/matt-edmondson))
 - [patch] Fix SonarCloud MSTest issues and unblock the build ([@matt-edmondson](https://github.com/matt-edmondson))
+- Sync .github\workflows\dotnet.yml ([@KtsuTools](https://github.com/KtsuTools))
 - Sync .editorconfig ([@KtsuTools](https://github.com/KtsuTools))
 - Sync global.json ([@KtsuTools](https://github.com/KtsuTools))
+- Sync .github\workflows\dotnet.yml ([@KtsuTools](https://github.com/KtsuTools))
 
 ## v1.1.8 (patch)
 
 Changes since v1.1.7:
 
+- Delete .github/workflows/claude-code-review.yml ([@matt-edmondson](https://github.com/matt-edmondson))
+- Delete .github/workflows/claude.yml ([@matt-edmondson](https://github.com/matt-edmondson))
 - chore: update ktsu.Sdk to 2.21.1 [patch] ([@matt-edmondson](https://github.com/matt-edmondson))
 
 ## v1.1.7 (patch)
@@ -203,6 +213,7 @@ Changes since v1.0.0:
 
 - Update code coverage package and fix nullability issues ([@matt-edmondson](https://github.com/matt-edmondson))
 - Add real-time-safe SPSC ring buffer and denormal-aware delay line ([@Claude](https://github.com/Claude))
+- Sync .github\workflows\dotnet.yml ([@KtsuTools](https://github.com/KtsuTools))
 - Remove legacy build scripts ([@matt-edmondson](https://github.com/matt-edmondson))
 - Refactor exception handling in container classes to use ArgumentOutOfRangeException and Ensure.NotNull ([@matt-edmondson](https://github.com/matt-edmondson))
 - Refactor assertions in unit tests for improved clarity and consistency ([@matt-edmondson](https://github.com/matt-edmondson))
@@ -247,7 +258,11 @@ Changes since v1.0.11:
 
 ## v1.0.12-pre.1 (prerelease)
 
-No significant changes detected since v1.0.12.
+Changes since v1.0.11:
+
+- Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
 
 ## v1.0.11 (patch)
 
@@ -328,7 +343,10 @@ Changes since v1.0.10-pre.1:
 
 ## v1.0.10-pre.1 (prerelease)
 
-No significant changes detected since v1.0.10.
+Changes since v1.0.9:
+
+- Sync scripts\update-winget-manifests.ps1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync COPYRIGHT.md ([@ktsu[bot]](https://github.com/ktsu[bot]))
 
 ## v1.0.9 (patch)
 
@@ -340,7 +358,10 @@ Changes since v1.0.8:
 
 ## v1.0.9-pre.1 (prerelease)
 
-No significant changes detected since v1.0.9.
+Changes since v1.0.8:
+
+- Merge remote-tracking branch 'refs/remotes/origin/main' ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync scripts\update-winget-manifests.ps1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
 
 ## v1.0.8 (patch)
 
@@ -363,7 +384,10 @@ Changes since v1.0.8-pre.1:
 
 ## v1.0.8-pre.1 (prerelease)
 
-No significant changes detected since v1.0.8.
+Changes since v1.0.7:
+
+- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .github\workflows\dotnet.yml ([@ktsu[bot]](https://github.com/ktsu[bot]))
 
 ## v1.0.7 (patch)
 
@@ -374,7 +398,9 @@ Changes since v1.0.6:
 
 ## v1.0.7-pre.1 (prerelease)
 
-No significant changes detected since v1.0.7.
+Changes since v1.0.6:
+
+- Sync .specstory\.gitignore ([@ktsu[bot]](https://github.com/ktsu[bot]))
 
 ## v1.0.6 (patch)
 
@@ -431,7 +457,14 @@ Changes since v1.0.2-pre.1:
 
 ## v1.0.2-pre.1 (prerelease)
 
-No significant changes detected since v1.0.2.
+Changes since v1.0.1:
+
+- Sync scripts\PSBuild.psm1 ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .editorconfig ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .gitattributes ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .gitignore ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .mailmap ([@ktsu[bot]](https://github.com/ktsu[bot]))
+- Sync .runsettings ([@ktsu[bot]](https://github.com/ktsu[bot]))
 
 ## v1.0.1 (patch)
 
