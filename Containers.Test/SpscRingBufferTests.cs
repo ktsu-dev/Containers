@@ -2,6 +2,7 @@
 
 namespace ktsu.Containers.Tests;
 
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -147,6 +148,51 @@ public class SpscRingBufferTests
 		await Task.WhenAll(producer, consumer).ConfigureAwait(false);
 		Assert.IsTrue(await consumer.ConfigureAwait(false), "All items must be received exactly once and in order.");
 		Assert.IsTrue(buffer.IsEmpty);
+	}
+
+	[TestMethod]
+	public async Task Count_ReadFromThirdThread_NeverExceedsTrueCount()
+	{
+		// The producer only enqueues into an empty buffer, so the true count is always 0 or 1.
+		SpscRingBuffer<int> buffer = new(1023);
+		TimeSpan duration = TimeSpan.FromSeconds(2);
+		int stop = 0;
+
+		Task producer = Task.Run(() =>
+		{
+			int next = 0;
+			while (Volatile.Read(ref stop) == 0)
+			{
+				if (buffer.IsEmpty)
+				{
+					buffer.TryEnqueue(next++);
+				}
+			}
+		}, TestContext.CancellationToken);
+
+		Task consumer = Task.Run(() =>
+		{
+			while (Volatile.Read(ref stop) == 0)
+			{
+				buffer.TryDequeue(out _);
+			}
+		}, TestContext.CancellationToken);
+
+		Task<int> observer = Task.Run(() =>
+		{
+			int maxObserved = 0;
+			Stopwatch stopwatch = Stopwatch.StartNew();
+			while (stopwatch.Elapsed < duration)
+			{
+				maxObserved = Math.Max(maxObserved, buffer.Count);
+			}
+
+			Volatile.Write(ref stop, 1);
+			return maxObserved;
+		}, TestContext.CancellationToken);
+
+		await Task.WhenAll(producer, consumer, observer).ConfigureAwait(false);
+		Assert.IsLessThanOrEqualTo(1, await observer.ConfigureAwait(false), "Count must never report more elements than the buffer held.");
 	}
 
 	[TestMethod]
