@@ -1,7 +1,6 @@
-## v1.1.29 (patch)
+## v1.1.30 (patch)
 
-Changes since v1.1.28:
+Changes since v1.1.29:
 
-- fix: stop SpscRingBuffer.Count reporting a count the buffer never held [patch] ([@Claude](https://github.com/Claude))
-- fix: keep elements that compare equal in insertion order in OrderedCollection [patch] ([@Claude](https://github.com/Claude))
+- Move CI onto the shared ci-shared.yml pipeline ([@Claude](https://github.com/Claude))
 
