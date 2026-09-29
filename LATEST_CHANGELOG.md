@@ -1,6 +1,7 @@
-## v1.1.29-pre.1 (prerelease)
+## v1.1.29 (patch)
 
 Changes since v1.1.28:
 
-- Bump Polyfill from 11.4.0 to 11.4.1 ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- fix: stop SpscRingBuffer.Count reporting a count the buffer never held [patch] ([@Claude](https://github.com/Claude))
+- fix: keep elements that compare equal in insertion order in OrderedCollection [patch] ([@Claude](https://github.com/Claude))
 
