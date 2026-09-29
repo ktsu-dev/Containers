@@ -107,15 +107,28 @@ public sealed class SpscRingBuffer<T>
 	/// </summary>
 	/// <remarks>
 	/// This is a best-effort snapshot intended for diagnostics/metering. Under concurrent access
-	/// the true count may have changed by the time the value is returned.
+	/// the true count may have changed by the time the value is returned, but it is always a count
+	/// the buffer actually held while the property was being read, even when read from a thread
+	/// that is neither the producer nor the consumer.
 	/// </remarks>
 	public int Count
 	{
 		get
 		{
-			int currentTail = Volatile.Read(ref tail.Value);
-			int currentHead = Volatile.Read(ref head.Value);
-			return (currentTail - currentHead) & mask;
+			// Head and tail are read one after the other, so between the two reads the producer and
+			// consumer can both move on. If head passed the tail that was read, the masked difference
+			// would wrap to a value near Capacity that the buffer never held. Reading head on both
+			// sides of tail, and retrying until it did not move, gives a tail observed while head
+			// held that value, so the difference is a count the buffer really had.
+			while (true)
+			{
+				int currentHead = Volatile.Read(ref head.Value);
+				int currentTail = Volatile.Read(ref tail.Value);
+				if (Volatile.Read(ref head.Value) == currentHead)
+				{
+					return (currentTail - currentHead) & mask;
+				}
+			}
 		}
 	}
 
