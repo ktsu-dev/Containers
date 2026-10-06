@@ -158,9 +158,13 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// <param name="o">The element to add.</param>
 	public void PushBack(T o)
 	{
-		Buffer[BackIndex] = o;
 		if (Count == Length)
 		{
+			// Clear the evicted slot so its element can be collected. When Length is not a power of two
+			// the slot lies outside the live window and would otherwise keep the element alive until it
+			// is next overwritten.
+			Buffer[FrontIndex] = default!;
+
 			// Advance front index with wraparound using bitwise AND for efficiency
 			FrontIndex = (FrontIndex + 1) & (Capacity - 1);
 		}
@@ -168,6 +172,9 @@ public class RingBuffer<T> : IReadOnlyList<T>
 		{
 			Count++;
 		}
+
+		// Write after clearing, because when Length equals Capacity the evicted slot is this one
+		Buffer[BackIndex] = o;
 
 		// Advance back index with wraparound using bitwise AND for efficiency
 		BackIndex = (BackIndex + 1) & (Capacity - 1);
