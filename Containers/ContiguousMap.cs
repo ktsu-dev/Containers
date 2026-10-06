@@ -4,9 +4,6 @@ namespace ktsu.Containers;
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-#if NET5_0_OR_GREATER
-using System.Runtime.CompilerServices;
-#endif
 
 /// <summary>
 /// Represents a generic map/dictionary that maintains key-value pairs in contiguous memory for optimal cache performance.
@@ -389,11 +386,7 @@ public class ContiguousMap<TKey, TValue>
 			Array.Copy(items, index + 1, items, index, Count - index);
 		}
 
-#if NET5_0_OR_GREATER
-		if (RuntimeHelpers.IsReferenceOrContainsReferences<Entry>())
-#else
-		if (!typeof(Entry).IsValueType)
-#endif
+		if (SlotClearing.IsNeeded<Entry>())
 		{
 			items[Count] = default;
 		}
@@ -462,11 +455,7 @@ public class ContiguousMap<TKey, TValue>
 	public void Clear()
 	{
 		version++;
-#if NET5_0_OR_GREATER
-		if (RuntimeHelpers.IsReferenceOrContainsReferences<Entry>())
-#else
-		if (!typeof(Entry).IsValueType)
-#endif
+		if (SlotClearing.IsNeeded<Entry>())
 		{
 			// Clear references to help GC
 			Array.Clear(items, 0, Count);

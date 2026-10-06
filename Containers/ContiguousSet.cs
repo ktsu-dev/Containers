@@ -4,9 +4,6 @@ namespace ktsu.Containers;
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-#if NET5_0_OR_GREATER
-using System.Runtime.CompilerServices;
-#endif
 
 /// <summary>
 /// Represents a generic set that maintains unique elements in contiguous memory for optimal cache performance.
@@ -228,11 +225,7 @@ public class ContiguousSet<T> : ISet<T>
 	/// </summary>
 	public void Clear()
 	{
-#if NET5_0_OR_GREATER
-		if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-#else
-		if (!typeof(T).IsValueType)
-#endif
+		if (SlotClearing.IsNeeded<T>())
 		{
 			// Clear references to help GC
 			Array.Clear(items, 0, Count);
@@ -310,11 +303,7 @@ public class ContiguousSet<T> : ISet<T>
 				Array.Copy(items, index + 1, items, index, Count - index);
 			}
 
-#if NET5_0_OR_GREATER
-			if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-#else
-			if (!typeof(T).IsValueType)
-#endif
+			if (SlotClearing.IsNeeded<T>())
 			{
 				items[Count] = default!;
 			}
