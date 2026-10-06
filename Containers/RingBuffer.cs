@@ -71,6 +71,11 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	public int Count { get; private set; } // Track number of valid elements
 
 	/// <summary>
+	/// Incremented by every change, so an enumerator can tell the buffer changed under it.
+	/// </summary>
+	private int version;
+
+	/// <summary>
 	/// Gets the element at the specified index in the buffer.
 	/// </summary>
 	/// <param name="index">The index of the element to get.</param>
@@ -141,6 +146,7 @@ public class RingBuffer<T> : IReadOnlyList<T>
 		BackIndex = 0;
 		FrontIndex = 0;
 		Count = 0;
+		version++;
 	}
 
 	/// <summary>
@@ -178,6 +184,7 @@ public class RingBuffer<T> : IReadOnlyList<T>
 
 		// Advance back index with wraparound using bitwise AND for efficiency
 		BackIndex = (BackIndex + 1) & (Capacity - 1);
+		version++;
 	}
 
 	/// <summary>
@@ -292,12 +299,18 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// Returns an enumerator that iterates through the buffer.
 	/// </summary>
 	/// <returns>An enumerator for the buffer.</returns>
-	public IEnumerator<T> GetEnumerator()
+	/// <exception cref="InvalidOperationException">The buffer was modified during enumeration.</exception>
+	public IEnumerator<T> GetEnumerator() => Enumerate(version);
+
+	private IEnumerator<T> Enumerate(int expected)
 	{
 		for (int i = 0; i < Count; i++)
 		{
+			Enumeration.ThrowIfModified(expected, version);
 			yield return At(i);
 		}
+
+		Enumeration.ThrowIfModified(expected, version);
 	}
 
 	/// <summary>
@@ -327,5 +340,6 @@ public class RingBuffer<T> : IReadOnlyList<T>
 		BackIndex = 0;
 		FrontIndex = 0;
 		Count = 0;
+		version++;
 	}
 }
