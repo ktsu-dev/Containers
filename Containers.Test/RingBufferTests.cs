@@ -360,4 +360,59 @@ public class RingBufferTests
 		Assert.AreEqual(1, buffer.Count);
 		Assert.AreEqual(2, buffer.At(0));
 	}
+
+	[TestMethod]
+	public void Enumerate_PushBackDuringForeach_Throws() =>
+		AssertModificationDuringForeachThrows(buffer => buffer.PushBack(5));
+
+	[TestMethod]
+	public void Enumerate_ClearDuringForeach_Throws() =>
+		AssertModificationDuringForeachThrows(buffer => buffer.Clear());
+
+	[TestMethod]
+	public void Enumerate_ResizeDuringForeach_Throws() =>
+		AssertModificationDuringForeachThrows(buffer => buffer.Resize(8));
+
+	[TestMethod]
+	public void Enumerate_ResampleDuringForeach_Throws() =>
+		AssertModificationDuringForeachThrows(buffer => buffer.Resample(8));
+
+	[TestMethod]
+	public void Enumerate_ModifiedAfterLastElement_ThrowsOnFinalMoveNext()
+	{
+		RingBuffer<int> buffer = new([1, 2], 2);
+		using IEnumerator<int> enumerator = buffer.GetEnumerator();
+		Assert.IsTrue(enumerator.MoveNext());
+		Assert.IsTrue(enumerator.MoveNext());
+
+		buffer.PushBack(3);
+
+		Assert.ThrowsExactly<InvalidOperationException>(() => enumerator.MoveNext());
+	}
+
+	[TestMethod]
+	public void Enumerate_ModifiedBetweenEnumerations_DoesNotThrow()
+	{
+		RingBuffer<int> buffer = new([1, 2, 3, 4], 4);
+		_ = buffer.ToArray();
+		buffer.PushBack(5);
+
+		Assert.AreSequenceEqual(Enumerable.Range(2, 4), buffer);
+	}
+
+	private static void AssertModificationDuringForeachThrows(Action<RingBuffer<int>> modify)
+	{
+		RingBuffer<int> buffer = new([1, 2, 3, 4], 4);
+
+		Assert.ThrowsExactly<InvalidOperationException>(() =>
+		{
+			foreach (int item in buffer)
+			{
+				if (item == 1)
+				{
+					modify(buffer);
+				}
+			}
+		});
+	}
 }
