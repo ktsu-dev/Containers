@@ -275,6 +275,39 @@ public class RingBufferTests
 		Assert.IsFalse(references.Any(r => r.IsAlive));
 	}
 
+	[TestMethod]
+	public void PushBack_ReleasesReferenceToEvictedElement()
+	{
+		// Length 5 is backed by a capacity of 8, so the evicted slot is not overwritten by the next push
+		RingBuffer<object> buffer = new(5);
+		WeakReference[] references = FillWithUnreferencedObjects(buffer, 1);
+		for (int i = 0; i < 5; i++)
+		{
+			buffer.PushBack(i);
+		}
+
+		GC.Collect();
+		GC.WaitForPendingFinalizers();
+		GC.Collect();
+
+		object[] expected = [0, 1, 2, 3, 4];
+		Assert.AreSequenceEqual(expected, buffer);
+		Assert.IsFalse(references[0].IsAlive);
+	}
+
+	[TestMethod]
+	public void PushBack_FullPowerOfTwoBuffer_KeepsNewestElements()
+	{
+		// Length equals capacity, so the evicted front slot is the one the new element is written to
+		RingBuffer<int> buffer = new([1, 2, 3, 4], 4);
+		buffer.PushBack(5);
+		buffer.PushBack(6);
+
+		Assert.AreSequenceEqual(Enumerable.Range(3, 4), buffer);
+		Assert.AreEqual(3, buffer.Front());
+		Assert.AreEqual(6, buffer.Back());
+	}
+
 	[MethodImpl(MethodImplOptions.NoInlining)]
 	private static WeakReference[] FillWithUnreferencedObjects(RingBuffer<object> buffer, int count)
 	{
