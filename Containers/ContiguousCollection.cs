@@ -4,9 +4,6 @@ namespace ktsu.Containers;
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
-#if NET5_0_OR_GREATER
-using System.Runtime.CompilerServices;
-#endif
 
 /// <summary>
 /// Represents a generic collection that guarantees contiguous memory allocation for optimal cache performance.
@@ -172,11 +169,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyList<T>
 	/// </summary>
 	public void Clear()
 	{
-#if NET5_0_OR_GREATER
-		if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-#else
-		if (!typeof(T).IsValueType)
-#endif
+		if (SlotClearing.IsNeeded<T>())
 		{
 			// Clear references to help GC
 			Array.Clear(items, 0, Count);
@@ -255,11 +248,7 @@ public class ContiguousCollection<T> : ICollection<T>, IReadOnlyList<T>
 			Array.Copy(items, index + 1, items, index, Count - index);
 		}
 
-#if NET5_0_OR_GREATER
-		if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-#else
-		if (!typeof(T).IsValueType)
-#endif
+		if (SlotClearing.IsNeeded<T>())
 		{
 			items[Count] = default!;
 		}
