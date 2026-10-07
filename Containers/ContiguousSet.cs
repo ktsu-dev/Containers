@@ -365,14 +365,7 @@ public class ContiguousSet<T> : ISet<T>
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
 
 		// Remove items that are not in the other collection
-		for (int i = Count - 1; i >= 0; i--)
-		{
-			T item = items[i];
-			if (!otherSet.Contains(item))
-			{
-				Remove(item);
-			}
-		}
+		RemoveWhere(item => !otherSet.Contains(item));
 	}
 
 	/// <summary>
@@ -409,21 +402,51 @@ public class ContiguousSet<T> : ISet<T>
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
 
 		// Remove items that are in both sets
-		for (int i = Count - 1; i >= 0; i--)
-		{
-			T item = items[i];
-			if (otherSet.Remove(item))
-			{
-				// Item exists in both - remove from current set
-				Remove(item);
-			}
-		}
+		RemoveWhere(otherSet.Remove);
 
 		// Add remaining items from other set (items that were only in other)
 		foreach (T item in otherSet)
 		{
 			Add(item);
 		}
+	}
+
+	/// <summary>
+	/// Removes every element that matches <paramref name="shouldRemove"/> in a single compaction pass.
+	/// </summary>
+	/// <param name="shouldRemove">Called once per element, in order; returns true to drop the element.</param>
+	/// <remarks>
+	/// O(n), and preserves the order of the elements that remain. Calling <see cref="Remove"/> once per
+	/// dropped element would rescan and shift the array each time, which is O(n²) when most elements go.
+	/// </remarks>
+	private void RemoveWhere(Func<T, bool> shouldRemove)
+	{
+		int write = 0;
+		for (int read = 0; read < Count; read++)
+		{
+			T item = items[read];
+			if (shouldRemove(item))
+			{
+				uniquenessSet.Remove(item);
+			}
+			else
+			{
+				items[write++] = item;
+			}
+		}
+
+		if (write == Count)
+		{
+			return;
+		}
+
+		if (SlotClearing.IsNeeded<T>())
+		{
+			Array.Clear(items, write, Count - write);
+		}
+
+		Count = write;
+		version++;
 	}
 
 	/// <summary>
