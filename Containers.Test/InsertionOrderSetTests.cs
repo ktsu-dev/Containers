@@ -2,6 +2,7 @@
 
 namespace ktsu.Containers.Tests;
 
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 [TestClass]
@@ -364,5 +365,50 @@ public class InsertionOrderSetTests
 		Assert.HasCount(1, set);
 		string[] expectedItems = ["apple"];
 		Assert.AreSequenceEqual(expectedItems, set);
+	}
+
+	// One RemoveAt per dropped element shifts the list tail each time, so dropping the lower half of
+	// 200k elements moves about 1e10 elements (seconds); a single RemoveAll pass takes milliseconds.
+	private const int LargeSetSize = 200_000;
+	private const int LargeSetBudgetMilliseconds = 1_500;
+
+	[TestMethod]
+	public void IntersectWith_LargeSetKeepingUpperHalf_RunsInLinearTime()
+	{
+		InsertionOrderSet<int> set = [.. Enumerable.Range(0, LargeSetSize)];
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		set.IntersectWith(Enumerable.Range(LargeSetSize / 2, LargeSetSize / 2));
+		stopwatch.Stop();
+
+		Assert.HasCount(LargeSetSize / 2, set);
+		Assert.AreEqual(LargeSetSize / 2, set.First());
+		Assert.IsLessThan(LargeSetBudgetMilliseconds, stopwatch.ElapsedMilliseconds);
+	}
+
+	[TestMethod]
+	public void SymmetricExceptWith_LargeSetRemovingLowerHalf_RunsInLinearTime()
+	{
+		InsertionOrderSet<int> set = [.. Enumerable.Range(0, LargeSetSize)];
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		set.SymmetricExceptWith(Enumerable.Range(0, LargeSetSize / 2));
+		stopwatch.Stop();
+
+		Assert.HasCount(LargeSetSize / 2, set);
+		Assert.AreEqual(LargeSetSize / 2, set.First());
+		Assert.IsLessThan(LargeSetBudgetMilliseconds, stopwatch.ElapsedMilliseconds);
+	}
+
+	[TestMethod]
+	public void SymmetricExceptWith_KeepsSurvivorsInOrderThenAppendsOtherOnlyItems()
+	{
+		InsertionOrderSet<int> set = [5, 1, 4, 2, 3];
+
+		set.SymmetricExceptWith([4, 9, 1]);
+
+		Assert.AreSequenceEqual([5, 2, 3, 9], set);
+		Assert.IsFalse(set.Contains(4));
+		Assert.IsTrue(set.Add(4));
 	}
 }

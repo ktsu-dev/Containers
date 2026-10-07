@@ -287,16 +287,8 @@ public class InsertionOrderSet<T> : ISet<T>
 
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
 
-		// Remove items that are not in the other collection
-		for (int i = items.Count - 1; i >= 0; i--)
-		{
-			T item = items[i];
-			if (!otherSet.Contains(item))
-			{
-				items.RemoveAt(i);
-				uniquenessSet.Remove(item);
-			}
-		}
+		// Remove items that are not in the other collection, in one pass rather than one RemoveAt each
+		items.RemoveAll(item => !otherSet.Contains(item) && uniquenessSet.Remove(item));
 	}
 
 	/// <summary>
@@ -333,17 +325,8 @@ public class InsertionOrderSet<T> : ISet<T>
 		// Use a temporary set to avoid modifying the collection while enumerating
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
 
-		// Remove items that are in both sets
-		for (int i = items.Count - 1; i >= 0; i--)
-		{
-			T item = items[i];
-			if (otherSet.Remove(item))
-			{
-				// Item exists in both - remove from current set
-				items.RemoveAt(i);
-				uniquenessSet.Remove(item);
-			}
-		}
+		// Remove items that are in both sets, in one pass rather than one RemoveAt each
+		items.RemoveAll(item => otherSet.Remove(item) && uniquenessSet.Remove(item));
 
 		// Add remaining items from other set (items that were only in other)
 		foreach (T item in otherSet)

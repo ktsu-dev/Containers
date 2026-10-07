@@ -2,6 +2,7 @@
 
 namespace ktsu.Containers.Tests;
 
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 [TestClass]
@@ -557,6 +558,75 @@ public class ContiguousSetTests
 		set.UnionWith(set);
 
 		Assert.AreSequenceEqual([1, 2, 3], set);
+	}
+
+	// Removing k of n elements one Remove at a time rescans and shifts the array per element: about
+	// 23 s for n = 100k in a Debug build. A single compaction pass takes milliseconds, so the bound
+	// below is far from both and does not depend on the machine.
+	private const int LargeSetSize = 100_000;
+	private const int LargeSetBudgetMilliseconds = 1_500;
+
+	[TestMethod]
+	public void IntersectWith_LargeSetWithEmpty_RunsInLinearTime()
+	{
+		ContiguousSet<int> set = [.. Enumerable.Range(0, LargeSetSize)];
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		set.IntersectWith([]);
+		stopwatch.Stop();
+
+		Assert.IsEmpty(set);
+		Assert.IsLessThan(LargeSetBudgetMilliseconds, stopwatch.ElapsedMilliseconds);
+	}
+
+	[TestMethod]
+	public void SymmetricExceptWith_LargeSetWithSameElements_RunsInLinearTime()
+	{
+		ContiguousSet<int> set = [.. Enumerable.Range(0, LargeSetSize)];
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		set.SymmetricExceptWith(Enumerable.Range(0, LargeSetSize));
+		stopwatch.Stop();
+
+		Assert.IsEmpty(set);
+		Assert.IsLessThan(LargeSetBudgetMilliseconds, stopwatch.ElapsedMilliseconds);
+	}
+
+	[TestMethod]
+	public void IntersectWith_KeepsSurvivorsInInsertionOrderAndUpdatesLookups()
+	{
+		ContiguousSet<int> set = [5, 1, 4, 2, 3];
+
+		set.IntersectWith([3, 4, 5, 9]);
+
+		Assert.AreSequenceEqual([5, 4, 3], set);
+		Assert.IsFalse(set.Contains(1));
+		Assert.IsTrue(set.Add(1));
+		Assert.AreSequenceEqual([5, 4, 3, 1], set);
+	}
+
+	[TestMethod]
+	public void SymmetricExceptWith_KeepsSurvivorsInOrderThenAppendsOtherOnlyItems()
+	{
+		ContiguousSet<int> set = [5, 1, 4, 2, 3];
+
+		set.SymmetricExceptWith([4, 9, 1]);
+
+		Assert.AreSequenceEqual([5, 2, 3, 9], set);
+		Assert.IsFalse(set.Contains(4));
+		Assert.IsTrue(set.Contains(9));
+	}
+
+	[TestMethod]
+	public void IntersectWith_RemovingElements_InvalidatesEnumerators()
+	{
+		ContiguousSet<int> set = [1, 2, 3];
+		using IEnumerator<int> enumerator = set.GetEnumerator();
+		Assert.IsTrue(enumerator.MoveNext());
+
+		set.IntersectWith([2]);
+
+		Assert.ThrowsExactly<InvalidOperationException>(() => enumerator.MoveNext());
 	}
 
 	[TestMethod]
