@@ -558,14 +558,15 @@ public class ContiguousSet<T> : ISet<T>
 	}
 
 	/// <summary>
-	/// Gets a span representing the elements in the set.
+	/// Gets a read-only span representing the elements in the set.
 	/// </summary>
-	/// <returns>A span over the set's elements.</returns>
+	/// <returns>A read-only span over the set's elements.</returns>
 	/// <remarks>
 	/// This method provides direct access to the contiguous memory, enabling high-performance
-	/// operations and interoperability with other APIs that work with spans.
+	/// operations and interoperability with other APIs that work with spans. The span is read-only
+	/// because writing an element through it would bypass the uniqueness index.
 	/// </remarks>
-	public Span<T> AsSpan() => new(items, 0, Count);
+	public ReadOnlySpan<T> AsSpan() => new(items, 0, Count);
 
 	/// <summary>
 	/// Gets a read-only span representing the elements in the set.

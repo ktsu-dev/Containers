@@ -4,6 +4,7 @@ namespace ktsu.Containers;
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 
 /// <summary>
 /// Represents a generic map/dictionary that maintains key-value pairs in contiguous memory for optimal cache performance.
@@ -55,24 +56,30 @@ public class ContiguousMap<TKey, TValue>
 	/// </remarks>
 	/// <param name="key">The key of the entry.</param>
 	/// <param name="value">The value of the entry.</param>
-	public readonly struct Entry(TKey key, TValue value) : IEquatable<Entry>
+	public struct Entry(TKey key, TValue value) : IEquatable<Entry>
 	{
+		/// <summary>
+		/// The value of the entry. A field rather than an auto-property so the map can hand out a
+		/// reference to it from <see cref="GetValueRefOrNullRef"/> without exposing the key.
+		/// </summary>
+		internal TValue storedValue = value;
+
 		/// <summary>
 		/// Gets the key of the entry.
 		/// </summary>
-		public TKey Key { get; } = key;
+		public readonly TKey Key { get; } = key;
 
 		/// <summary>
 		/// Gets the value of the entry.
 		/// </summary>
-		public TValue Value { get; } = value;
+		public readonly TValue Value => storedValue;
 
 		/// <summary>
 		/// Determines whether the specified object is equal to the current entry.
 		/// </summary>
 		/// <param name="obj">The object to compare with the current entry.</param>
 		/// <returns>true if the specified object is equal to the current entry; otherwise, false.</returns>
-		public override bool Equals(object? obj) =>
+		public override readonly bool Equals(object? obj) =>
 			obj is Entry other
 			&& EqualityComparer<TKey>.Default.Equals(Key, other.Key)
 			&& EqualityComparer<TValue>.Default.Equals(Value, other.Value);
@@ -82,7 +89,7 @@ public class ContiguousMap<TKey, TValue>
 		/// </summary>
 		/// <param name="other">An entry to compare with this entry.</param>
 		/// <returns>true if the current entry is equal to the other parameter; otherwise, false.</returns>
-		public bool Equals(Entry other) =>
+		public readonly bool Equals(Entry other) =>
 			EqualityComparer<TKey>.Default.Equals(Key, other.Key)
 			&& EqualityComparer<TValue>.Default.Equals(Value, other.Value);
 
@@ -90,7 +97,7 @@ public class ContiguousMap<TKey, TValue>
 		/// Returns the hash code for this entry.
 		/// </summary>
 		/// <returns>A 32-bit signed integer hash code.</returns>
-		public override int GetHashCode()
+		public override readonly int GetHashCode()
 		{
 #if NETSTANDARD2_0
 			int hash = 17;
@@ -557,14 +564,43 @@ public class ContiguousMap<TKey, TValue>
 	}
 
 	/// <summary>
-	/// Gets a span representing the entries in the map.
+	/// Gets a read-only span representing the entries in the map.
 	/// </summary>
-	/// <returns>A span over the map's entries.</returns>
+	/// <returns>A read-only span over the map's entries.</returns>
 	/// <remarks>
 	/// This method provides direct access to the contiguous memory, enabling high-performance
-	/// operations and interoperability with other APIs that work with spans.
+	/// operations and interoperability with other APIs that work with spans. The span is read-only
+	/// because writing an entry through it would change a key without updating the key index; use
+	/// <see cref="GetValueRefOrNullRef"/> to update a value in place.
 	/// </remarks>
-	public Span<Entry> AsSpan() => new(items, 0, Count);
+	public ReadOnlySpan<Entry> AsSpan() => new(items, 0, Count);
+
+	/// <summary>
+	/// Gets a reference to the value stored for the specified key, or a null reference if the key is not in the map.
+	/// </summary>
+	/// <param name="key">The key whose value to get.</param>
+	/// <returns>
+	/// A reference to the stored value, which can be read or written in place, or a null reference when
+	/// <paramref name="key"/> is not found. Test for the latter with <c>Unsafe.IsNullRef</c>.
+	/// </returns>
+	/// <exception cref="ArgumentNullException">Thrown when key is null.</exception>
+	/// <remarks>
+	/// The key cannot be changed through the returned reference, so the key index stays consistent.
+	/// The reference is valid only until the map is next added to or removed from, since either can move
+	/// the entry; writing through it does not invalidate enumerators, matching
+	/// <c>CollectionsMarshal.GetValueRefOrNullRef</c>.
+	/// </remarks>
+	public ref TValue GetValueRefOrNullRef(TKey key)
+	{
+		Ensure.NotNull((object?)key);
+
+		if (keyToIndex.TryGetValue(key, out int index))
+		{
+			return ref items[index].storedValue;
+		}
+
+		return ref MemoryMarshal.GetReference(Span<TValue>.Empty);
+	}
 
 	/// <summary>
 	/// Gets a read-only span representing the entries in the map.

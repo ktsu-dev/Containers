@@ -628,4 +628,23 @@ public class ContiguousSetTests
 
 		Assert.ThrowsExactly<InvalidOperationException>(() => enumerator.MoveNext());
 	}
+
+	[TestMethod]
+	public void AsSpan_IsReadOnly_SoElementsCannotBypassTheUniquenessIndex()
+	{
+		// A writable span would let a caller turn {1, 2, 3} into {2, 2, 3} while Contains(1) stayed true.
+		Type returnType = typeof(ContiguousSet<int>).GetMethod(nameof(ContiguousSet<>.AsSpan))!.ReturnType;
+
+		Assert.AreEqual(typeof(ReadOnlySpan<int>), returnType);
+	}
+
+	[TestMethod]
+	public void AsSpan_ReturnsElementsInInsertionOrder()
+	{
+		ContiguousSet<int> set = [3, 1, 2];
+
+		ReadOnlySpan<int> span = set.AsSpan();
+
+		Assert.AreSequenceEqual([3, 1, 2], span.ToArray());
+	}
 }
