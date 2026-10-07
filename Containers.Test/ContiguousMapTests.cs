@@ -2,6 +2,7 @@
 
 namespace ktsu.Containers.Tests;
 
+using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 [TestClass]
@@ -605,4 +606,57 @@ public class ContiguousMapTests
 	[TestMethod]
 	public void Enumerate_Unchanged_VisitsEveryEntry() =>
 		MapEnumerationAssertions.UnchangedEnumerationVisitsEveryEntry(() => new ContiguousMap<int, string>());
+
+	[TestMethod]
+	public void AsSpan_IsReadOnly_SoKeysCannotBypassTheKeyIndex()
+	{
+		// A writable span would let a caller overwrite entry "a" with key "b", after which map["a"] read the new value.
+		Type returnType = typeof(ContiguousMap<string, int>).GetMethod(nameof(ContiguousMap<,>.AsSpan))!.ReturnType;
+
+		Assert.AreEqual(typeof(ReadOnlySpan<ContiguousMap<string, int>.Entry>), returnType);
+	}
+
+	[TestMethod]
+	public void GetValueRefOrNullRef_ExistingKey_UpdatesValueInPlace()
+	{
+		ContiguousMap<string, int> map = new() { ["a"] = 1, ["b"] = 2 };
+
+		ref int value = ref map.GetValueRefOrNullRef("a");
+		value = 99;
+
+		Assert.AreEqual(99, map["a"]);
+		Assert.AreEqual(2, map["b"]);
+		Assert.AreSequenceEqual(["a", "b"], map.Keys);
+		Assert.AreEqual(99, map.AsSpan()[0].Value);
+	}
+
+	[TestMethod]
+	public void GetValueRefOrNullRef_ExistingKey_KeepsKeyIndexConsistent()
+	{
+		ContiguousMap<string, int> map = new(StringComparer.OrdinalIgnoreCase) { ["Apple"] = 1 };
+
+		map.GetValueRefOrNullRef("APPLE") += 41;
+
+		Assert.AreEqual(42, map["apple"]);
+		Assert.AreSequenceEqual(["Apple"], map.Keys);
+		Assert.IsTrue(map.Remove("Apple"));
+		Assert.IsEmpty(map);
+	}
+
+	[TestMethod]
+	public void GetValueRefOrNullRef_MissingKey_ReturnsNullRef()
+	{
+		ContiguousMap<string, int> map = new() { ["a"] = 1 };
+
+		Assert.IsTrue(Unsafe.IsNullRef(ref map.GetValueRefOrNullRef("z")));
+		Assert.IsFalse(Unsafe.IsNullRef(ref map.GetValueRefOrNullRef("a")));
+	}
+
+	[TestMethod]
+	public void GetValueRefOrNullRef_NullKey_ThrowsArgumentNullException()
+	{
+		ContiguousMap<string, int> map = [];
+
+		Assert.ThrowsExactly<ArgumentNullException>(() => map.GetValueRefOrNullRef(null!));
+	}
 }
