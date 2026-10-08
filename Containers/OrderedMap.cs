@@ -207,13 +207,8 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 			);
 		}
 
-		items = [];
 		comparer = Comparer<TKey>.Default;
-
-		foreach (KeyValuePair<TKey, TValue> pair in dictionary)
-		{
-			Add(pair.Key, pair.Value);
-		}
+		items = BuildSorted(dictionary, this.comparer);
 	}
 
 	/// <summary>
@@ -228,13 +223,44 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 		Ensure.NotNull(dictionary);
 		Ensure.NotNull(comparer);
 
-		items = [];
 		this.comparer = comparer;
+		items = BuildSorted(dictionary, this.comparer);
+	}
 
+	/// <summary>
+	/// Builds the backing list for a map from an existing dictionary.
+	/// </summary>
+	/// <param name="dictionary">The key-value pairs to add.</param>
+	/// <param name="comparer">The comparer that orders the keys and decides which are equal.</param>
+	/// <returns>The entries sorted by key.</returns>
+	/// <remarks>
+	/// Adding the pairs one at a time costs O(n) per insert, so O(n^2) in all. Sorting a copy costs O(n log n).
+	/// </remarks>
+	/// <exception cref="ArgumentNullException">Thrown when a key is null.</exception>
+	/// <exception cref="ArgumentException">Thrown when two keys compare equal under <paramref name="comparer"/>, as <see cref="Add(TKey, TValue)"/> would.</exception>
+	private static List<Entry> BuildSorted(IDictionary<TKey, TValue> dictionary, IComparer<TKey> comparer)
+	{
+		List<Entry> list = new(dictionary.Count);
 		foreach (KeyValuePair<TKey, TValue> pair in dictionary)
 		{
-			Add(pair.Key, pair.Value);
+			Ensure.NotNull((object?)pair.Key);
+			list.Add(new Entry(pair.Key, pair.Value));
 		}
+
+		Entry[] entries = [.. list];
+
+		StableSort.Sort(entries, Comparer<Entry>.Create((x, y) => comparer.Compare(x.Key, y.Key)));
+
+		for (int i = 1; i < entries.Length; i++)
+		{
+			if (comparer.Compare(entries[i - 1].Key, entries[i].Key) == 0)
+			{
+				// The stable sort keeps dictionary order, so this is the key Add would have rejected
+				throw new ArgumentException($"The key '{entries[i].Key}' already exists in the map.");
+			}
+		}
+
+		return [.. entries];
 	}
 
 	/// <summary>

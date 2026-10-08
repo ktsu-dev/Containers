@@ -147,13 +147,8 @@ public class OrderedSet<T> : ISet<T>
 			);
 		}
 
-		items = [];
 		Comparer = Comparer<T>.Default;
-
-		foreach (T item in collection)
-		{
-			Add(item);
-		}
+		items = BuildSortedDistinct(collection, Comparer);
 	}
 
 	/// <summary>
@@ -167,13 +162,37 @@ public class OrderedSet<T> : ISet<T>
 		Ensure.NotNull(collection);
 		Ensure.NotNull(comparer);
 
-		items = [];
 		Comparer = comparer;
+		items = BuildSortedDistinct(collection, comparer);
+	}
 
-		foreach (T item in collection)
+	/// <summary>
+	/// Builds the backing list for a set from an arbitrary sequence.
+	/// </summary>
+	/// <param name="collection">The elements to add.</param>
+	/// <param name="comparer">The comparer that orders the elements and decides which are equal.</param>
+	/// <returns>The distinct elements in sorted order, keeping the first of any that compare equal, as repeated calls to <see cref="Add"/> would.</returns>
+	/// <remarks>
+	/// Adding the elements one at a time costs O(n) per insert, so O(n^2) in all. Sorting a copy
+	/// stably and dropping adjacent duplicates costs O(n log n).
+	/// </remarks>
+	private static List<T> BuildSortedDistinct(IEnumerable<T> collection, IComparer<T> comparer)
+	{
+		T[] array = [.. collection];
+		StableSort.Sort(array, comparer);
+
+		int count = 0;
+		for (int i = 0; i < array.Length; i++)
 		{
-			Add(item);
+			if (count == 0 || comparer.Compare(array[count - 1], array[i]) != 0)
+			{
+				array[count++] = array[i];
+			}
 		}
+
+		List<T> list = new(count);
+		list.AddRange(new ArraySegment<T>(array, 0, count));
+		return list;
 	}
 
 	/// <summary>
@@ -313,7 +332,8 @@ public class OrderedSet<T> : ISet<T>
 	/// which disagrees with <see cref="Contains"/> whenever a custom comparer was supplied, so the
 	/// temporary set is built with <see cref="Comparer"/> instead.
 	/// </remarks>
-	private OrderedSet<T> ToComparerSet(IEnumerable<T> other) => new(other, Comparer);
+	private OrderedSet<T> ToComparerSet(IEnumerable<T> other) =>
+		other is OrderedSet<T> set && set.Comparer.Equals(Comparer) ? set : new(other, Comparer);
 
 	/// <summary>
 	/// Returns an enumerator that iterates through the set in sorted order.
@@ -354,13 +374,8 @@ public class OrderedSet<T> : ISet<T>
 
 		OrderedSet<T> otherSet = ToComparerSet(other);
 
-		for (int i = items.Count - 1; i >= 0; i--)
-		{
-			if (!otherSet.Contains(items[i]))
-			{
-				items.RemoveAt(i);
-			}
-		}
+		// Compacting in one pass keeps this linear, where removing one element at a time would not be
+		items.RemoveAll(item => !otherSet.Contains(item));
 	}
 
 	/// <summary>
@@ -395,31 +410,47 @@ public class OrderedSet<T> : ISet<T>
 		Ensure.NotNull(other);
 
 		OrderedSet<T> otherSet = ToComparerSet(other);
-
-		// Create a list of items to remove from otherSet as we find them
-		List<T> toRemoveFromOther = [];
-
-		// Remove items that are in both sets
-		for (int i = items.Count - 1; i >= 0; i--)
+		if (ReferenceEquals(otherSet, this))
 		{
-			if (otherSet.Contains(items[i]))
+			Clear();
+			return;
+		}
+
+		// Both sequences are sorted and distinct, so merge them, keeping the elements found in only one
+		List<T> otherItems = otherSet.items;
+		List<T> result = new(items.Count + otherItems.Count);
+		int i = 0;
+		int j = 0;
+		while (i < items.Count && j < otherItems.Count)
+		{
+			int comparison = Comparer.Compare(items[i], otherItems[j]);
+			if (comparison < 0)
 			{
-				toRemoveFromOther.Add(items[i]);
-				items.RemoveAt(i);
+				result.Add(items[i++]);
+			}
+			else if (comparison > 0)
+			{
+				result.Add(otherItems[j++]);
+			}
+			else
+			{
+				i++;
+				j++;
 			}
 		}
 
-		// Remove common items from other set
-		foreach (T item in toRemoveFromOther)
+		for (; i < items.Count; i++)
 		{
-			otherSet.Remove(item);
+			result.Add(items[i]);
 		}
 
-		// Add items that are only in the other set
-		foreach (T item in otherSet)
+		for (; j < otherItems.Count; j++)
 		{
-			Add(item);
+			result.Add(otherItems[j]);
 		}
+
+		items.Clear();
+		items.AddRange(result);
 	}
 
 	/// <summary>

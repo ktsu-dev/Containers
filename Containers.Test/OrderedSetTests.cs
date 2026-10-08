@@ -3,6 +3,7 @@
 namespace ktsu.Containers.Test;
 
 using System.Collections;
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 [TestClass]
@@ -762,5 +763,149 @@ public class OrderedSetTests
 		{
 			Assert.IsLessThan(result[i], result[i - 1], "Elements should remain sorted");
 		}
+	}
+
+	// Filling the backing list one binary-search insert at a time shifts the tail on every insert, so
+	// building from 1,000,000 descending items takes over a minute; a stable sort takes well under a second.
+	private const int BulkSize = 1_000_000;
+	private const int BulkBudgetMilliseconds = 5_000;
+
+	private static readonly IComparer<(int Key, int Index)> ByKey =
+		Comparer<(int Key, int Index)>.Create((x, y) => x.Key.CompareTo(y.Key));
+
+	[TestMethod]
+	public void Constructor_FromLargeDescendingSequence_RunsInLinearithmicTime()
+	{
+		int[] descending = [.. Enumerable.Range(0, BulkSize).Reverse()];
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		OrderedSet<int> set = new(descending, Comparer<int>.Default);
+		stopwatch.Stop();
+
+		Assert.HasCount(BulkSize, set);
+		Assert.AreSequenceEqual(Enumerable.Range(0, BulkSize), set);
+		Assert.IsLessThan(BulkBudgetMilliseconds, stopwatch.ElapsedMilliseconds);
+	}
+
+	[TestMethod]
+	public void IsSubsetOf_LargeDescendingArray_RunsInLinearithmicTime()
+	{
+		OrderedSet<int> set = [.. Enumerable.Range(0, BulkSize)];
+		int[] descending = [.. Enumerable.Range(0, BulkSize).Reverse()];
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		bool isSubset = set.IsSubsetOf(descending);
+		stopwatch.Stop();
+
+		Assert.IsTrue(isSubset);
+		Assert.IsLessThan(BulkBudgetMilliseconds, stopwatch.ElapsedMilliseconds);
+	}
+
+	[TestMethod]
+	public void SetEquals_LargeDescendingArray_RunsInLinearithmicTime()
+	{
+		OrderedSet<int> set = [.. Enumerable.Range(0, BulkSize)];
+		int[] descending = [.. Enumerable.Range(0, BulkSize).Reverse()];
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		bool equal = set.SetEquals(descending);
+		stopwatch.Stop();
+
+		Assert.IsTrue(equal);
+		Assert.IsLessThan(BulkBudgetMilliseconds, stopwatch.ElapsedMilliseconds);
+	}
+
+	[TestMethod]
+	public void SymmetricExceptWith_LargeDescendingArray_RunsInLinearithmicTime()
+	{
+		OrderedSet<int> set = [.. Enumerable.Range(0, BulkSize)];
+		int[] descending = [.. Enumerable.Range(BulkSize / 2, BulkSize).Reverse()];
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		set.SymmetricExceptWith(descending);
+		stopwatch.Stop();
+
+		Assert.AreSequenceEqual(Enumerable.Range(0, BulkSize / 2).Concat(Enumerable.Range(BulkSize, BulkSize / 2)), set);
+		Assert.IsLessThan(BulkBudgetMilliseconds, stopwatch.ElapsedMilliseconds);
+	}
+
+	[TestMethod]
+	public void IntersectWith_LargeDescendingArray_RunsInLinearithmicTime()
+	{
+		OrderedSet<int> set = [.. Enumerable.Range(0, BulkSize)];
+		int[] descending = [.. Enumerable.Range(BulkSize / 2, BulkSize).Reverse()];
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		set.IntersectWith(descending);
+		stopwatch.Stop();
+
+		Assert.AreSequenceEqual(Enumerable.Range(BulkSize / 2, BulkSize / 2), set);
+		Assert.IsLessThan(BulkBudgetMilliseconds, stopwatch.ElapsedMilliseconds);
+	}
+
+	[TestMethod]
+	public void Constructor_FromSequenceWithDuplicates_KeepsFirstOccurrence()
+	{
+		// Enough elements that the bulk path merges rather than only insertion sorting
+		(int Key, int Index)[] source = [.. Enumerable.Range(0, 1_000).Select(i => (i * 7 % 10, i))];
+
+		OrderedSet<(int Key, int Index)> set = new(source, ByKey);
+
+		(int Key, int Index)[] expected = [.. Enumerable.Range(0, 10).Select(key => source.First(item => item.Key == key))];
+		Assert.AreSequenceEqual(expected, set);
+	}
+
+	[TestMethod]
+	public void Constructor_FromSequenceWithCustomComparer_HonoursComparer()
+	{
+		OrderedSet<string> set = new(["b", "A", "a", "B", "c"], StringComparer.OrdinalIgnoreCase);
+
+		Assert.AreSequenceEqual(["A", "b", "c"], set);
+	}
+
+	[TestMethod]
+	public void Constructor_FromSequenceWithReverseComparer_SortsDescending()
+	{
+		OrderedSet<int> set = new(Enumerable.Range(0, 100), Comparer<int>.Create((x, y) => y.CompareTo(x)));
+
+		Assert.AreSequenceEqual(Enumerable.Range(0, 100).Reverse(), set);
+	}
+
+	[TestMethod]
+	public void Constructor_FromSequence_MatchesRepeatedAdd()
+	{
+		Random random = new(42);
+		int[] source = [.. Enumerable.Range(0, 5_000).Select(_ => random.Next(1_000))];
+		OrderedSet<int> added = [];
+		foreach (int item in source)
+		{
+			added.Add(item);
+		}
+
+		OrderedSet<int> built = new(source, Comparer<int>.Default);
+
+		Assert.AreSequenceEqual(added, built);
+	}
+
+	[TestMethod]
+	public void SymmetricExceptWith_Self_EmptiesSet()
+	{
+		OrderedSet<int> set = [1, 2, 3];
+
+		set.SymmetricExceptWith(set);
+
+		Assert.HasCount(0, set);
+	}
+
+	[TestMethod]
+	public void SymmetricExceptWith_OrderedSetWithSameComparer_KeepsElementsInOnlyOne()
+	{
+		OrderedSet<int> set = [1, 2, 3, 4];
+		OrderedSet<int> other = [3, 4, 5, 6];
+
+		set.SymmetricExceptWith(other);
+
+		Assert.AreSequenceEqual([1, 2, 5, 6], set);
+		Assert.AreSequenceEqual([3, 4, 5, 6], other);
 	}
 }
