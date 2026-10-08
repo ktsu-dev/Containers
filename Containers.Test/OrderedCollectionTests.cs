@@ -3,6 +3,7 @@
 namespace ktsu.Containers.Tests;
 
 using System.Collections;
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 [TestClass]
@@ -740,5 +741,31 @@ public class OrderedCollectionTests
 
 		// Assert
 		Assert.AreSequenceEqual(source, collection);
+	}
+
+	[TestMethod]
+	public void Constructor_FromLargeDescendingSequence_RunsInLinearithmicTime()
+	{
+		const int size = 1_000_000;
+		int[] descending = [.. Enumerable.Range(0, size).Reverse()];
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		OrderedCollection<int> collection = new(descending, Comparer<int>.Default);
+		stopwatch.Stop();
+
+		Assert.AreSequenceEqual(Enumerable.Range(0, size), collection);
+		Assert.IsLessThan(5_000, stopwatch.ElapsedMilliseconds);
+	}
+
+	[TestMethod]
+	public void Constructor_FromLargeSequenceWithKeyComparer_KeepsEqualElementsInInsertionOrder()
+	{
+		// Enough elements that the bulk path merges rather than only insertion sorting
+		(int Key, string Name)[] source = [.. Enumerable.Range(0, 1_000).Select(i => (i * 7 % 10, i.ToString(System.Globalization.CultureInfo.InvariantCulture)))];
+
+		OrderedCollection<(int Key, string Name)> collection = new(source, ByKey);
+
+		(int Key, string Name)[] expected = [.. source.OrderBy(item => item.Key)];
+		Assert.AreSequenceEqual(expected, collection);
 	}
 }

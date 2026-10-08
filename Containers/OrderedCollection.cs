@@ -157,13 +157,12 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 			);
 		}
 
-		items = [];
 		comparer = Comparer<T>.Default;
 
-		foreach (T item in collection)
-		{
-			Add(item);
-		}
+		// Inserting one at a time is O(n^2); a stable sort keeps equal elements in their original order, as Add does
+		T[] array = [.. collection];
+		StableSort.Sort(array, comparer);
+		items = [.. array];
 	}
 
 	/// <summary>
@@ -177,13 +176,12 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 		Ensure.NotNull(collection);
 		Ensure.NotNull(comparer);
 
-		items = [];
 		this.comparer = comparer;
 
-		foreach (T item in collection)
-		{
-			Add(item);
-		}
+		// Inserting one at a time is O(n^2); a stable sort keeps equal elements in their original order, as Add does
+		T[] array = [.. collection];
+		StableSort.Sort(array, this.comparer);
+		items = [.. array];
 	}
 
 	/// <summary>

@@ -3,6 +3,7 @@
 namespace ktsu.Containers.Test;
 
 using System.Collections;
+using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 /// <summary>
@@ -529,4 +530,46 @@ public class OrderedMapTests
 	[TestMethod]
 	public void Enumerate_Unchanged_VisitsEveryEntry() =>
 		Tests.MapEnumerationAssertions.UnchangedEnumerationVisitsEveryEntry(() => new OrderedMap<int, string>());
+
+	[TestMethod]
+	public void Constructor_FromLargeDictionary_RunsInLinearithmicTime()
+	{
+		const int size = 1_000_000;
+		Dictionary<int, int> dictionary = new(size);
+		for (int i = size - 1; i >= 0; i--)
+		{
+			dictionary.Add(i, -i);
+		}
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		OrderedMap<int, int> map = new(dictionary, Comparer<int>.Default);
+		stopwatch.Stop();
+
+		Assert.HasCount(size, map);
+		Assert.AreSequenceEqual(Enumerable.Range(0, size), map.Keys);
+		Assert.AreEqual(-123, map[123]);
+		Assert.IsLessThan(5_000, stopwatch.ElapsedMilliseconds);
+	}
+
+	[TestMethod]
+	public void Constructor_FromDictionaryWithKeysEqualUnderComparer_ThrowsLikeAdd()
+	{
+		Dictionary<string, int> dictionary = new() { ["a"] = 1, ["b"] = 2, ["A"] = 3 };
+
+		Assert.ThrowsExactly<ArgumentException>(() => _ = new OrderedMap<string, int>(dictionary, StringComparer.OrdinalIgnoreCase));
+
+		OrderedMap<string, int> map = new(StringComparer.OrdinalIgnoreCase) { ["a"] = 1, ["b"] = 2 };
+		Assert.ThrowsExactly<ArgumentException>(() => map.Add("A", 3));
+	}
+
+	[TestMethod]
+	public void Constructor_FromDictionaryWithCustomComparer_HonoursComparer()
+	{
+		Dictionary<int, string> dictionary = new() { [2] = "two", [1] = "one", [3] = "three" };
+
+		OrderedMap<int, string> map = new(dictionary, Comparer<int>.Create((x, y) => y.CompareTo(x)));
+
+		Assert.AreSequenceEqual([3, 2, 1], map.Keys);
+		Assert.AreSequenceEqual(["three", "two", "one"], map.Values);
+	}
 }
