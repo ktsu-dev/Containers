@@ -1,6 +1,6 @@
-## v2.0.2 (patch)
+## v2.0.3-pre.1 (prerelease)
 
-Changes since v2.0.1:
+Changes since v2.0.2:
 
-- fix: build OrderedSet/OrderedCollection/OrderedMap in O(n log n) and stop OrderedSet set operations going quadratic [patch] ([@Claude](https://github.com/Claude))
+- Bump MSTest.Sdk from 4.4.1 to 4.5.1 ([@dependabot[bot]](https://github.com/dependabot[bot]))
 
