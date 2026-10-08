@@ -228,10 +228,50 @@ public class RingBufferTests
 		// Resample to a larger size
 		buffer.Resample(5);
 
-		// Should interpolate to approximately: 10, 15, 20, 25, 30
-		Assert.AreEqual(10, buffer.At(0));
-		Assert.AreEqual(20, buffer.At(2));
-		Assert.AreEqual(30, buffer.At(4));
+		// Nearest-neighbour, not interpolation: five slots over three samples, so two of them
+		// appear twice and one once.
+		Assert.AreSequenceEqual([10, 10, 20, 30, 30], buffer);
+	}
+
+	[TestMethod]
+	[DataRow(new[] { 0, 1, 2, 3, 4 }, 9, new[] { 0, 0, 1, 1, 2, 3, 3, 4, 4 }, DisplayName = "5 to 9")]
+	[DataRow(new[] { 0, 10 }, 3, new[] { 0, 10, 10 }, DisplayName = "2 to 3")]
+	[DataRow(new[] { 0, 1, 2 }, 12, new[] { 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2 }, DisplayName = "3 to 12")]
+	[DataRow(new[] { 0, 1, 2, 3, 4, 5, 6, 7, 8 }, 3, new[] { 1, 4, 7 }, DisplayName = "9 to 3")]
+	public void Resample_PicksTheNearestSampleToEachSlotsCentre(int[] source, int length, int[] expected)
+	{
+		ArgumentNullException.ThrowIfNull(source);
+		RingBuffer<int> buffer = new(source, source.Length);
+
+		buffer.Resample(length);
+
+		Assert.AreSequenceEqual(expected, buffer);
+	}
+
+	[TestMethod]
+	public void Resample_Upsampling_RepeatsEverySampleEvenly()
+	{
+		for (int oldCount = 1; oldCount <= 12; oldCount++)
+		{
+			for (int length = oldCount; length <= 40; length++)
+			{
+				RingBuffer<int> buffer = new(Enumerable.Range(0, oldCount), oldCount);
+
+				buffer.Resample(length);
+
+				int fewest = length / oldCount;
+				int most = (length + oldCount - 1) / oldCount;
+				foreach (IGrouping<int, int> repeats in buffer.GroupBy(value => value))
+				{
+					Assert.IsTrue(
+						repeats.Count() >= fewest && repeats.Count() <= most,
+						$"{oldCount} to {length}: sample {repeats.Key} appears {repeats.Count()} times, expected {fewest} to {most}.");
+				}
+
+				Assert.AreEqual(0, buffer.Front(), $"{oldCount} to {length}: the first sample must come first.");
+				Assert.AreEqual(oldCount - 1, buffer.Back(), $"{oldCount} to {length}: the last sample must come last.");
+			}
+		}
 	}
 
 	[TestMethod]
