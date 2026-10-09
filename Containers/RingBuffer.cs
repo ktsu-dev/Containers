@@ -242,12 +242,15 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	public void Resize(int length) => AllocateBuffer(length);
 
 	/// <summary>
-	/// Resamples the buffer to a new length, interpolating or decimating the contents as needed.
+	/// Resamples the buffer to a new length, repeating or dropping elements as needed.
 	/// </summary>
 	/// <remarks>
-	/// The resampling process preserves the data pattern by applying simple linear interpolation.
-	/// If the new length is smaller than the old length, data is decimated (some values are dropped).
-	/// If the new length is larger, data is interpolated (new values are created between existing ones).
+	/// Each new slot takes the existing element nearest to its centre (nearest-neighbour), since a
+	/// generic <typeparamref name="T"/> cannot be interpolated. No new values are created.
+	/// If the new length is larger than the old length, every element is repeated as evenly as the
+	/// ratio allows: each appears either the rounded-down or the rounded-up number of times, and the
+	/// first and last elements stay first and last.
+	/// If the new length is smaller, elements are decimated: evenly spaced ones are kept and the rest dropped.
 	///
 	/// This is useful when you need to change the buffer size while preserving the overall pattern of the data.
 	/// For example, resampling time-series data when changing the sampling rate.
@@ -280,13 +283,12 @@ public class RingBuffer<T> : IReadOnlyList<T>
 		// Resample the data into the new buffer
 		for (int i = 0; i < length; i++)
 		{
-			// Map the new index to the old data range
-			// Multiply in double: the int product overflows once length * oldCount passes int.MaxValue
-			double oldIndex = (double)i * (oldCount - 1) / Math.Max(length - 1, 1);
-			int index = (int)Math.Round(oldIndex);
-
-			// Ensure we don't go out of bounds
-			index = Math.Min(index, oldCount - 1);
+			// Take the old element under the centre of new slot i: floor((i + 0.5) * oldCount / length).
+			// Sampling at the centre spreads repeats evenly where mapping the ends onto each other
+			// and rounding leaves ties that all round the same way. Doubling both sides keeps the
+			// arithmetic integral, so there are no floating-point ties, and the long product cannot
+			// overflow: (2 * i + 1) * oldCount stays below 2^63 for any int i and oldCount.
+			int index = (int)(((2L * i) + 1) * oldCount / (2L * length));
 
 			PushBack(oldData[index]);
 		}
