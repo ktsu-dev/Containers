@@ -1,3 +1,9 @@
+## v2.0.3 (patch)
+
+Changes since v2.0.2:
+
+- fix: spread RingBuffer.Resample repeats evenly and document nearest-neighbour [patch] ([@Claude](https://github.com/Claude))
+
 ## v2.0.3-pre.1 (prerelease)
 
 Changes since v2.0.2:

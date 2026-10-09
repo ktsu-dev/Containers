@@ -1,6 +1,6 @@
-## v2.0.3-pre.1 (prerelease)
+## v2.0.3 (patch)
 
 Changes since v2.0.2:
 
-- Bump MSTest.Sdk from 4.4.1 to 4.5.1 ([@dependabot[bot]](https://github.com/dependabot[bot]))
+- fix: spread RingBuffer.Resample repeats evenly and document nearest-neighbour [patch] ([@Claude](https://github.com/Claude))
 
