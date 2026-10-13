@@ -246,21 +246,10 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 	/// </remarks>
 	public bool Remove(T item)
 	{
-		int first = FindFirst(item);
-		if (first < 0)
+		int index = FindMatchIndex(item);
+		if (index < 0)
 		{
 			return false;
-		}
-
-		int index = first;
-		EqualityComparer<T> equality = EqualityComparer<T>.Default;
-		for (int i = first; i < items.Count && comparer.Compare(items[i], item) == 0; i++)
-		{
-			if (equality.Equals(items[i], item))
-			{
-				index = i;
-				break;
-			}
 		}
 
 		items.RemoveAt(index);
@@ -324,10 +313,39 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 	/// </summary>
 	/// <param name="item">The element to locate.</param>
 	/// <returns>The zero-based index of the first occurrence if found; otherwise, -1.</returns>
-	public int IndexOf(T item)
+	/// <remarks>
+	/// When several elements compare equal to <paramref name="item"/>, the index of the first of
+	/// them that also equals it is returned, so a key-based comparer does not return the index of a
+	/// different element with the same key. If none of them equals it, the index of the first
+	/// element that compares equal is returned. This is the element <see cref="Remove(T)"/> removes.
+	/// </remarks>
+	public int IndexOf(T item) => FindMatchIndex(item);
+
+	/// <summary>
+	/// Finds the element that <see cref="IndexOf(T)"/> and <see cref="Remove(T)"/> act on: among the
+	/// run of elements that compare equal to <paramref name="item"/>, the first that also equals it,
+	/// or the first of the run if none does.
+	/// </summary>
+	/// <param name="item">The element to search for.</param>
+	/// <returns>The index of the matching element, or -1 if no element compares equal.</returns>
+	private int FindMatchIndex(T item)
 	{
-		int index = FindFirst(item);
-		return index >= 0 ? index : -1;
+		int first = FindFirst(item);
+		if (first < 0)
+		{
+			return -1;
+		}
+
+		EqualityComparer<T> equality = EqualityComparer<T>.Default;
+		for (int i = first; i < items.Count && comparer.Compare(items[i], item) == 0; i++)
+		{
+			if (equality.Equals(items[i], item))
+			{
+				return i;
+			}
+		}
+
+		return first;
 	}
 
 	/// <summary>
