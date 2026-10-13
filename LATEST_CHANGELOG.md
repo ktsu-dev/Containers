@@ -1,6 +1,6 @@
-## v2.0.3 (patch)
+## v2.0.4 (patch)
 
-Changes since v2.0.2:
+Changes since v2.0.3:
 
-- fix: spread RingBuffer.Resample repeats evenly and document nearest-neighbour [patch] ([@Claude](https://github.com/Claude))
+- Reject ring buffer sizes above 2^30 with ArgumentOutOfRangeException [patch] ([@Claude](https://github.com/Claude))
 
