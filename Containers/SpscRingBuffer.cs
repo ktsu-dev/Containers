@@ -51,6 +51,12 @@ using System.Threading;
 public sealed class SpscRingBuffer<T>
 {
 	/// <summary>
+	/// The largest capacity accepted: one slot is reserved, so the backing array (a power of two no
+	/// larger than 2^30) holds at most 2^30 - 1 usable elements.
+	/// </summary>
+	private const int MaxCapacity = (1 << 30) - 1;
+
+	/// <summary>
 	/// The backing store. Its length is always a power of two so that index wrapping can use
 	/// a bitwise AND with <see cref="mask"/> instead of a modulo.
 	/// </summary>
@@ -81,10 +87,11 @@ public sealed class SpscRingBuffer<T>
 	/// least <paramref name="capacity"/> elements.
 	/// </summary>
 	/// <param name="capacity">The minimum number of elements the buffer must be able to hold.</param>
-	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="capacity"/> is less than one.</exception>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="capacity"/> is less than one or greater than 2^30 - 1.</exception>
 	public SpscRingBuffer(int capacity)
 	{
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(capacity, MaxCapacity);
 
 		// Reserve one slot to disambiguate full vs empty, then round up to a power of two.
 		int arrayLength = NextPower2(capacity + 1);

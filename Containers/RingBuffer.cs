@@ -73,6 +73,11 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	private int version;
 
 	/// <summary>
+	/// The largest length the buffer accepts: 2^30, the largest power of two an <see cref="int"/> can hold.
+	/// </summary>
+	private const int MaxLength = 1 << 30;
+
+	/// <summary>
 	/// Gets the element at the specified index in the buffer.
 	/// </summary>
 	/// <param name="index">The index of the element to get.</param>
@@ -83,7 +88,7 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// Initializes a new instance of the <see cref="RingBuffer{T}"/> class with the specified length.
 	/// </summary>
 	/// <param name="length">The number of elements the buffer should store.</param>
-	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one.</exception>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one or greater than 2^30.</exception>
 	public RingBuffer(int length) => AllocateBuffer(length);
 
 	/// <summary>
@@ -92,7 +97,7 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// </summary>
 	/// <param name="items">The items to prefill the buffer with.</param>
 	/// <param name="length">The number of elements the buffer should store.</param>
-	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one.</exception>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one or greater than 2^30.</exception>
 	public RingBuffer(IEnumerable<T> items, int length)
 		: this(length)
 	{
@@ -118,7 +123,7 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// </summary>
 	/// <param name="value">The value to prefill the buffer with.</param>
 	/// <param name="length">The number of elements the buffer should store.</param>
-	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one.</exception>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one or greater than 2^30.</exception>
 	public RingBuffer(T value, int length)
 		: this(length)
 	{
@@ -132,14 +137,19 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// Allocates and initializes the internal buffer with the specified length.
 	/// </summary>
 	/// <param name="length">The number of elements to allocate space for.</param>
-	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one.</exception>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one or greater than 2^30.</exception>
 	private void AllocateBuffer(int length)
 	{
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(length);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(length, MaxLength);
+
+		// Allocate before assigning any field, so a failed allocation leaves the buffer as it was.
+		int capacity = NextPower2(length);
+		T[] buffer = new T[capacity];
 
 		Length = length;
-		Capacity = NextPower2(Length);
-		Buffer = new T[Capacity];
+		Capacity = capacity;
+		Buffer = buffer;
 		BackIndex = 0;
 		FrontIndex = 0;
 		Count = 0;
@@ -238,7 +248,7 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// Resizes the buffer to the specified length, discarding all current contents.
 	/// </summary>
 	/// <param name="length">The new length of the buffer.</param>
-	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one.</exception>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one or greater than 2^30.</exception>
 	public void Resize(int length) => AllocateBuffer(length);
 
 	/// <summary>
@@ -258,7 +268,7 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// If the buffer is empty, this method will resize the buffer without adding any elements.
 	/// </remarks>
 	/// <param name="length">The new length of the buffer.</param>
-	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one.</exception>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one or greater than 2^30.</exception>
 	public void Resample(int length)
 	{
 		// Save the current count of valid elements

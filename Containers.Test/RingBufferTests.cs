@@ -393,6 +393,38 @@ public class RingBufferTests
 	}
 
 	[TestMethod]
+	public void Constructor_LengthAbove2Pow30_Throws()
+	{
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new RingBuffer<byte>((1 << 30) + 1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new RingBuffer<byte>(int.MaxValue));
+	}
+
+	[TestMethod]
+	public void Resize_LengthAbove2Pow30_ThrowsAndLeavesBufferUnchanged()
+	{
+		RingBuffer<int> buffer = new([1, 2], 4);
+
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => buffer.Resize((1 << 30) + 1));
+		Assert.AreSequenceEqual([1, 2], buffer);
+
+		for (int i = 3; i <= 10; i++)
+		{
+			buffer.PushBack(i);
+		}
+
+		Assert.AreSequenceEqual([7, 8, 9, 10], buffer);
+	}
+
+	[TestMethod]
+	public void Resample_LengthAbove2Pow30_ThrowsAndLeavesBufferUnchanged()
+	{
+		RingBuffer<int> buffer = new([1, 2, 3], 4);
+
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => buffer.Resample((1 << 30) + 1));
+		Assert.AreSequenceEqual([1, 2, 3], buffer);
+	}
+
+	[TestMethod]
 	public void Resample_LargeBufferToSameLength_KeepsContents()
 	{
 		const int length = 50_000;

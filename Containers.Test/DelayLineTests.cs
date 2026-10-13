@@ -15,6 +15,13 @@ public class DelayLineTests
 	}
 
 	[TestMethod]
+	public void Constructor_CapacityAbove2Pow30Minus1_Throws()
+	{
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new DelayLine(1 << 30));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new DelayLine(int.MaxValue));
+	}
+
+	[TestMethod]
 	public void Capacity_MatchesRequestedMaxDelay()
 	{
 		DelayLine line = new(100);
