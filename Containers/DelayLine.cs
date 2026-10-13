@@ -46,6 +46,12 @@ public sealed class DelayLine
 	public const float DenormalThreshold = 1e-30f;
 
 	/// <summary>
+	/// The largest capacity accepted: one slot is reserved, so the backing array (a power of two no
+	/// larger than 2^30) holds at most 2^30 - 1 usable elements.
+	/// </summary>
+	private const int MaxCapacity = (1 << 30) - 1;
+
+	/// <summary>
 	/// The backing store, whose length is always a power of two.
 	/// </summary>
 	private readonly float[] buffer;
@@ -70,10 +76,11 @@ public sealed class DelayLine
 	/// to <paramref name="maxDelaySamples"/> samples.
 	/// </summary>
 	/// <param name="maxDelaySamples">The maximum delay, in samples, the line must support.</param>
-	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="maxDelaySamples"/> is less than one.</exception>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="maxDelaySamples"/> is less than one or greater than 2^30 - 1.</exception>
 	public DelayLine(int maxDelaySamples)
 	{
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxDelaySamples);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(maxDelaySamples, MaxCapacity);
 
 		// One extra slot is needed so the oldest readable sample (delay == maxDelaySamples) is not
 		// the slot about to be overwritten.

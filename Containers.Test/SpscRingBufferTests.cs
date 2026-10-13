@@ -23,6 +23,13 @@ public class SpscRingBufferTests
 	}
 
 	[TestMethod]
+	public void Constructor_CapacityAbove2Pow30Minus1_Throws()
+	{
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new SpscRingBuffer<byte>(1 << 30));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new SpscRingBuffer<byte>(int.MaxValue));
+	}
+
+	[TestMethod]
 	public void Capacity_IsAtLeastRequested()
 	{
 		SpscRingBuffer<int> buffer = new(5);
