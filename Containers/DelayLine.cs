@@ -109,8 +109,7 @@ public sealed class DelayLine
 	/// <remarks>With this convention a delay of <c>d</c> returns <c>x[n - d]</c>, so <see cref="Process(float, int)"/> with a delay of <c>d</c> outputs the input from exactly <c>d</c> samples earlier.</remarks>
 	public float Read(int delaySamples)
 	{
-		ArgumentOutOfRangeException.ThrowIfNegative(delaySamples);
-		ArgumentOutOfRangeException.ThrowIfGreaterThan(delaySamples, Capacity);
+		ThrowIfDelayOutOfRange(delaySamples);
 
 		// The most recently written sample sits one slot behind the write cursor (delay 0).
 		int index = (writeIndex - 1 - delaySamples) & mask;
@@ -155,11 +154,21 @@ public sealed class DelayLine
 	/// <param name="delaySamples">The delay in samples; must lie in the range <c>[0, Capacity]</c>.</param>
 	/// <returns>The delayed output sample, equal to the input from <paramref name="delaySamples"/> samples earlier.</returns>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="delaySamples"/> is not in the range <c>[0, Capacity]</c>.</exception>
-	/// <remarks>This is the common per-sample idiom: push the input, then tap the output.</remarks>
+	/// <remarks>
+	/// This is the common per-sample idiom: push the input, then tap the output. The delay is
+	/// validated before anything is written, so a rejected call leaves the delay line unchanged.
+	/// </remarks>
 	public float Process(float input, int delaySamples)
 	{
+		ThrowIfDelayOutOfRange(delaySamples);
 		Write(input);
 		return Read(delaySamples);
+	}
+
+	private void ThrowIfDelayOutOfRange(int delaySamples)
+	{
+		ArgumentOutOfRangeException.ThrowIfNegative(delaySamples);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(delaySamples, Capacity);
 	}
 
 	/// <summary>

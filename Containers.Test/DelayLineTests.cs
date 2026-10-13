@@ -74,6 +74,32 @@ public class DelayLineTests
 	}
 
 	[TestMethod]
+	public void Process_DelayAboveCapacity_ThrowsAndLeavesLineUnchanged()
+	{
+		DelayLine line = new(4);
+		line.Write(1f);
+		line.Write(2f);
+
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => line.Process(99f, 5));
+
+		Assert.AreEqual(2f, line.Read(0));
+		Assert.AreEqual(1f, line.Read(1));
+		Assert.AreEqual(0f, line.Read(2));
+	}
+
+	[TestMethod]
+	public void Process_NegativeDelay_ThrowsAndLeavesLineUnchanged()
+	{
+		DelayLine line = new(4);
+		line.Write(1f);
+
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => line.Process(99f, -1));
+
+		Assert.AreEqual(1f, line.Read(0));
+		Assert.AreEqual(0f, line.Read(1));
+	}
+
+	[TestMethod]
 	public void Read_OutOfRange_Throws()
 	{
 		DelayLine line = new(8);
