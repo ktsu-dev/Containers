@@ -197,24 +197,22 @@ public class ContiguousSet<T> : ISet<T>
 	/// </remarks>
 	public bool Add(T item)
 	{
+		// Grow before touching the uniqueness index, so a failed grow cannot leave an item in the index
+		// that the array does not hold. Only a full array pays for the extra lookup.
+		if (Count == items.Length)
+		{
+			if (uniquenessSet.Contains(item))
+			{
+				return false;
+			}
+
+			Grow();
+		}
+
 		if (!uniquenessSet.Add(item))
 		{
 			// Element already exists
 			return false;
-		}
-
-		if (Count == items.Length)
-		{
-			try
-			{
-				Grow();
-			}
-			catch
-			{
-				// Keep the uniqueness index in step with the array when growth fails.
-				uniquenessSet.Remove(item);
-				throw;
-			}
 		}
 
 		items[Count] = item;
