@@ -684,6 +684,53 @@ public class OrderedCollectionTests
 		Comparer<(int Key, string Name)>.Create((x, y) => x.Key.CompareTo(y.Key));
 
 	[TestMethod]
+	public void IndexOf_KeyComparerWithDuplicateKeys_ReturnsIndexOfTheElementPassedIn()
+	{
+		// Arrange
+		OrderedCollection<(int Key, string Name)> collection = new(ByKey)
+		{
+			(1, "a"), (1, "b"), (0, "zero"), (2, "two"),
+		};
+
+		// Act
+		int index = collection.IndexOf((1, "b"));
+
+		// Assert
+		Assert.AreEqual(2, index);
+		Assert.AreEqual((1, "b"), collection[index]);
+	}
+
+	[TestMethod]
+	public void IndexOf_KeyComparerWithNoExactMatch_ReturnsFirstOccurrence()
+	{
+		// Arrange
+		OrderedCollection<(int Key, string Name)> collection = new(ByKey)
+		{
+			(1, "a"), (1, "b"), (0, "zero"),
+		};
+
+		// Act & Assert
+		Assert.AreEqual(1, collection.IndexOf((1, "missing")));
+	}
+
+	[TestMethod]
+	public void RemoveAtIndexOf_KeyComparerWithDuplicateKeys_RemovesSameElementAsRemove()
+	{
+		// Arrange
+		(int Key, string Name)[] source = [(1, "a"), (1, "b"), (1, "c"), (0, "zero")];
+		OrderedCollection<(int Key, string Name)> byIndex = new(source, ByKey);
+		OrderedCollection<(int Key, string Name)> byRemove = new(source, ByKey);
+
+		// Act
+		byIndex.RemoveAt(byIndex.IndexOf((1, "b")));
+		byRemove.Remove((1, "b"));
+
+		// Assert
+		Assert.AreSequenceEqual(byRemove, byIndex);
+		Assert.DoesNotContain((1, "b"), byIndex.ToList());
+	}
+
+	[TestMethod]
 	public void Add_KeyComparer_KeepsEqualElementsInInsertionOrder()
 	{
 		// Act
