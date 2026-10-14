@@ -670,12 +670,7 @@ public class ContiguousMap<TKey, TValue>
 	/// <param name="minimumCapacity">The minimum required capacity.</param>
 	private void Grow(int minimumCapacity = 0)
 	{
-		int newCapacity = items.Length == 0 ? DefaultCapacity : items.Length * 2;
-		if (newCapacity < minimumCapacity)
-		{
-			newCapacity = minimumCapacity;
-		}
-
+		int newCapacity = Growth.NextCapacity(items.Length, minimumCapacity, DefaultCapacity);
 		Entry[] newItems = new Entry[newCapacity];
 		Array.Copy(items, newItems, Count);
 		items = newItems;

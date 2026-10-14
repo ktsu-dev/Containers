@@ -87,6 +87,39 @@ public class ContiguousSetTests
 	}
 
 	[TestMethod]
+	public void Add_DuplicateElementWhenFull_ReturnsFalseWithoutGrowing()
+	{
+		// Arrange
+		ContiguousSet<int> set = [1, 2, 3, 4];
+		Assert.AreEqual(set.Count, set.Capacity, "Precondition: the array is full");
+		int capacity = set.Capacity;
+
+		// Act
+		bool result = set.Add(2);
+
+		// Assert
+		Assert.IsFalse(result, "Add should return false for a duplicate even when the array is full");
+		Assert.AreEqual(capacity, set.Capacity, "A rejected duplicate should not grow the array");
+		Assert.AreSequenceEqual([1, 2, 3, 4], set);
+	}
+
+	[TestMethod]
+	public void Add_NewElementWhenFull_Grows()
+	{
+		// Arrange
+		ContiguousSet<int> set = [1, 2, 3, 4];
+		Assert.AreEqual(set.Count, set.Capacity, "Precondition: the array is full");
+
+		// Act
+		bool result = set.Add(5);
+
+		// Assert
+		Assert.IsTrue(result);
+		Assert.IsGreaterThan(4, set.Capacity);
+		Assert.AreSequenceEqual([1, 2, 3, 4, 5], set);
+	}
+
+	[TestMethod]
 	public void Add_MultipleUniqueElements_AddsAll()
 	{
 		// Arrange

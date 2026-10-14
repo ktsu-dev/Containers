@@ -197,15 +197,22 @@ public class ContiguousSet<T> : ISet<T>
 	/// </remarks>
 	public bool Add(T item)
 	{
+		// Grow before touching the uniqueness index, so a failed grow cannot leave an item in the index
+		// that the array does not hold. Only a full array pays for the extra lookup.
+		if (Count == items.Length)
+		{
+			if (uniquenessSet.Contains(item))
+			{
+				return false;
+			}
+
+			Grow();
+		}
+
 		if (!uniquenessSet.Add(item))
 		{
 			// Element already exists
 			return false;
-		}
-
-		if (Count == items.Length)
-		{
-			Grow();
 		}
 
 		items[Count] = item;
@@ -600,12 +607,7 @@ public class ContiguousSet<T> : ISet<T>
 	/// <param name="minimumCapacity">The minimum required capacity.</param>
 	private void Grow(int minimumCapacity = 0)
 	{
-		int newCapacity = items.Length == 0 ? DefaultCapacity : items.Length * 2;
-		if (newCapacity < minimumCapacity)
-		{
-			newCapacity = minimumCapacity;
-		}
-
+		int newCapacity = Growth.NextCapacity(items.Length, minimumCapacity, DefaultCapacity);
 		T[] newItems = new T[newCapacity];
 		Array.Copy(items, newItems, Count);
 		items = newItems;
