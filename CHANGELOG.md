@@ -57,7 +57,7 @@ Changes since v1.0.0:
 - fix: make OrderedCollection.IndexOf and Remove find the first occurrence [patch] (Claude)
 - fix: remove set items from storage using the set's comparer [patch] (Claude)
 - fix: let OrderedCollection.GetRange take a zero-length range at the end [patch] (Claude)
-- fix: reject non-positive lengths in RingBuffer<T> [patch] (Claude)
+- fix: reject non-positive lengths in RingBuffer\<T\> [patch] (Claude)
 - fix: honor OrderedSet's own comparer in the set operations [patch] (Claude)
 - Gate Dependabot auto-merge on CI actually being green (Claude)
 - test: simplify the nullable-bool return in ImportsKtsuSdk [patch] (Claude)
@@ -211,7 +211,7 @@ Changes since v1.1.20:
 
 Changes since v1.1.19:
 
-- fix: reject non-positive lengths in RingBuffer<T> [patch] (Claude)
+- fix: reject non-positive lengths in RingBuffer\<T\> [patch] (Claude)
 - fix: honor OrderedSet's own comparer in the set operations [patch] (Claude)
 
 ## v1.1.19 (patch)
