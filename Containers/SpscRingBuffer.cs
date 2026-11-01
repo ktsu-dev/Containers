@@ -68,12 +68,14 @@ public sealed class SpscRingBuffer<T>
 	private readonly int mask;
 
 	/// <summary>
-	/// Index of the next element to be read. Owned by the consumer; read by the producer.
+	/// Number of elements ever read, wrapping at 2^32. Owned by the consumer; read by the producer.
+	/// It is masked only when indexing <see cref="buffer"/>, so it does not repeat after one lap.
 	/// </summary>
 	private SpscPaddedIndex head;
 
 	/// <summary>
-	/// Index of the next slot to be written. Owned by the producer; read by the consumer.
+	/// Number of elements ever written, wrapping at 2^32. Owned by the producer; read by the consumer.
+	/// It is masked only when indexing <see cref="buffer"/>, so it does not repeat after one lap.
 	/// </summary>
 	private SpscPaddedIndex tail;
 
@@ -123,8 +125,8 @@ public sealed class SpscRingBuffer<T>
 		get
 		{
 			// Head and tail are read one after the other, so between the two reads the producer and
-			// consumer can both move on. If head passed the tail that was read, the masked difference
-			// would wrap to a value near Capacity that the buffer never held. Reading head on both
+			// consumer can both move on. If head passed the tail that was read, the difference
+			// would wrap to a value that the buffer never held. Reading head on both
 			// sides of tail, and retrying until it did not move, gives a tail observed while head
 			// held that value, so the difference is a count the buffer really had.
 			while (true)
@@ -133,7 +135,9 @@ public sealed class SpscRingBuffer<T>
 				int currentTail = Volatile.Read(ref tail.Value);
 				if (Volatile.Read(ref head.Value) == currentHead)
 				{
-					return (currentTail - currentHead) & mask;
+					// Head and tail are free-running, so a matching head means the same lap: a stale
+					// match would need 2^32 dequeues between the two reads.
+					return unchecked(currentTail - currentHead);
 				}
 			}
 		}
@@ -149,19 +153,18 @@ public sealed class SpscRingBuffer<T>
 	{
 		// The producer owns Tail, so a plain read is sufficient here.
 		int currentTail = tail.Value;
-		int nextTail = (currentTail + 1) & mask;
 
-		// Full when advancing Tail would collide with the consumer's Head.
+		// Full when Tail is a whole Capacity ahead of the consumer's Head.
 		// Acquire the consumer's published Head.
-		if (nextTail == Volatile.Read(ref head.Value))
+		if (unchecked(currentTail - Volatile.Read(ref head.Value)) == Capacity)
 		{
 			return false;
 		}
 
-		buffer[currentTail] = item;
+		buffer[currentTail & mask] = item;
 
 		// Release: publish the written slot to the consumer.
-		Volatile.Write(ref tail.Value, nextTail);
+		Volatile.Write(ref tail.Value, unchecked(currentTail + 1));
 		return true;
 	}
 
@@ -184,14 +187,15 @@ public sealed class SpscRingBuffer<T>
 			return false;
 		}
 
-		item = buffer[currentHead];
+		int index = currentHead & mask;
+		item = buffer[index];
 
 		// Avoid keeping a reference alive for reference types (no-op cost for value types
 		// is negligible and the JIT elides it for non-reference T).
-		buffer[currentHead] = default!;
+		buffer[index] = default!;
 
 		// Release: publish the freed slot to the producer.
-		Volatile.Write(ref head.Value, (currentHead + 1) & mask);
+		Volatile.Write(ref head.Value, unchecked(currentHead + 1));
 		return true;
 	}
 
@@ -210,7 +214,7 @@ public sealed class SpscRingBuffer<T>
 			return false;
 		}
 
-		item = buffer[currentHead];
+		item = buffer[currentHead & mask];
 		return true;
 	}
 
