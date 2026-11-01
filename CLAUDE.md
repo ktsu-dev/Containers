@@ -21,13 +21,13 @@ dotnet test
 dotnet test --filter "FullyQualifiedName~ClassName.MethodName"
 
 # Run benchmarks (quick development feedback)
-.\scripts\run-benchmarks.ps1 -Target Quick
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*" --job short
 
 # Run specific container benchmarks
-.\scripts\run-benchmarks.ps1 -Target OrderedSet -Export Html
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*.OrderedSetBenchmarks.*" --exporters html
 
 # Run full benchmark suite
-.\scripts\run-benchmarks.ps1 -Target All -Export Html
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*" --exporters html
 
 # Manual benchmark with filter
 dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*Add*"

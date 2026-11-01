@@ -2,6 +2,7 @@
 
 namespace ktsu.Containers.Tests;
 
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -15,7 +16,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 /// <c>Containers.Benchmarks</c> while its namespace was <c>ktsu.Containers.Benchmarks</c>.
 /// </remarks>
 [TestClass]
-public class ProjectConventionTests
+public partial class ProjectConventionTests
 {
 	/// <summary>
 	/// Walks up from the test binary until the directory holding the solution file is found.
@@ -108,5 +109,39 @@ public class ProjectConventionTests
 		}
 
 		Assert.IsEmpty(violations, $"ktsu.Sdk derives both values from the folder path; these projects override them: {string.Join(", ", violations)}");
+	}
+
+	[GeneratedRegex(@"[\w.\\/-]+\.(?:ps1|psm1|sh)\b", RegexOptions.CultureInvariant)]
+	private static partial Regex ScriptReference();
+
+	[TestMethod]
+	public void Documentation_ReferencesOnlyScriptsThatExist()
+	{
+		// ktsu-dev/Containers#120: the docs kept calling scripts/run-benchmarks.ps1 after 59bde7f deleted it.
+		DirectoryInfo root = FindRepositoryRoot();
+		List<FileInfo> documents =
+		[
+			new(Path.Combine(root.FullName, "README.md")),
+			new(Path.Combine(root.FullName, "CLAUDE.md")),
+			.. new DirectoryInfo(Path.Combine(root.FullName, "Containers.Benchmarks")).EnumerateFiles("*.md"),
+		];
+
+		List<string> violations = [];
+
+		foreach (FileInfo document in documents.Where(file => file.Exists))
+		{
+			foreach (Match match in ScriptReference().Matches(File.ReadAllText(document.FullName)))
+			{
+				string relative = match.Value.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
+				bool exists = File.Exists(Path.Combine(document.DirectoryName!, relative))
+					|| File.Exists(Path.Combine(root.FullName, relative));
+				if (!exists)
+				{
+					violations.Add($"{Path.GetRelativePath(root.FullName, document.FullName)}: {match.Value}");
+				}
+			}
+		}
+
+		Assert.IsEmpty(violations, $"These documents reference scripts that are not in the repository: {string.Join(", ", violations.Distinct(StringComparer.Ordinal))}");
 	}
 }

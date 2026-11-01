@@ -27,11 +27,10 @@ Containers.Benchmarks/
 │
 ├── Comparative Analysis:
 ├── CrossCollectionComparisonBenchmarks.cs  # Direct cross-collection comparisons
-├── PerformanceAnalysisBenchmarks.cs       # Scalability and edge case analysis
-│
-└── Automation:
-    └── ../scripts/run-benchmarks.ps1       # PowerShell automation script
+└── PerformanceAnalysisBenchmarks.cs       # Scalability and edge case analysis
 ```
+
+`Program.cs` hands its arguments to `BenchmarkSwitcher`, so filters, jobs and exporters are plain BenchmarkDotNet options.
 
 ### 🎯 **Benchmark Categories**
 
@@ -86,37 +85,37 @@ Containers.Benchmarks/
 ## 🎮 **Usage Guide**
 
 ### **Quick Start**
-```powershell
+```bash
 # Fast development feedback
-.\scripts\run-benchmarks.ps1 -Target Quick
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*" --job short
 
 # Compare specific containers
-.\scripts\run-benchmarks.ps1 -Target OrderedSet -Export Html
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*.OrderedSetBenchmarks.*" --exporters html
 
 # Cross-collection analysis
-.\scripts\run-benchmarks.ps1 -Target CrossComparison -Export All
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*.CrossCollectionComparisonBenchmarks.*" --exporters html csv json
 
 # Full benchmark suite (warning: takes significant time!)
-.\scripts\run-benchmarks.ps1 -Target All -Export Html
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*" --exporters html
 ```
 
 ### **Benchmark Categories**
-| Target | Description | Use Case |
+| Filter | Description | Use Case |
 |--------|-------------|----------|
-| `Quick` | Fast subset with short jobs | Development feedback |
-| `OrderedCollection` | Our ordered collection vs alternatives | Validate OrderedCollection<T> performance |
-| `OrderedSet` | Our ordered set vs alternatives | Validate OrderedSet<T> performance |
-| `RingBuffer` | Our ring buffer vs alternatives | Validate RingBuffer<T> performance |
-| `Standard` | Built-in .NET collection baselines | Establish performance references |
-| `CrossComparison` | Direct cross-collection comparisons | Understand trade-offs between approaches |
-| `PerformanceAnalysis` | Scalability and edge cases | Deep performance analysis |
-| `All` | Complete benchmark suite | Comprehensive evaluation |
+| `*` with `--job short` | Every benchmark, short jobs | Development feedback |
+| `*.OrderedCollectionBenchmarks.*` | Our ordered collection vs alternatives | Validate OrderedCollection<T> performance |
+| `*.OrderedSetBenchmarks.*` | Our ordered set vs alternatives | Validate OrderedSet<T> performance |
+| `*.RingBufferBenchmarks.*` | Our ring buffer vs alternatives | Validate RingBuffer<T> performance |
+| `*.StandardCollectionBenchmarks.*` | Built-in .NET collection baselines | Establish performance references |
+| `*.CrossCollectionComparisonBenchmarks.*` | Direct cross-collection comparisons | Understand trade-offs between approaches |
+| `*.PerformanceAnalysisBenchmarks.*` | Scalability and edge cases | Deep performance analysis |
+| `*` | Complete benchmark suite | Comprehensive evaluation |
 
 ### **Export Formats**
 - **HTML**: Interactive reports with charts and detailed analysis
 - **CSV**: Raw data for custom analysis and tooling
 - **JSON**: Programmatic access to results
-- **All**: Generate all formats simultaneously
+- Pass several to `--exporters` (for example `--exporters html csv json`) to generate them together
 
 ## 🏆 **Expected Performance Characteristics**
 
@@ -164,13 +163,13 @@ Containers.Benchmarks/
 ### **Custom Filtering**
 ```powershell
 # Test only insertion operations
-.\scripts\run-benchmarks.ps1 -Filter "*Add*" -Export Csv
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*Add*" --exporters csv
 
 # Test specific container with memory analysis
-.\scripts\run-benchmarks.ps1 -Filter "*OrderedSet*" -Export Html
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*OrderedSet*" --exporters html
 
 # Test scalability scenarios
-.\scripts\run-benchmarks.ps1 -Filter "*Scalability*" -Export Json
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*Scalability*" --exporters json
 ```
 
 ### **Development Workflow**

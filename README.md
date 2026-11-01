@@ -115,32 +115,35 @@ Advanced scenarios including:
 
 #### Quick Start
 
-```powershell
-# Fast development feedback
-.\scripts\run-benchmarks.ps1 -Target Quick
+The benchmarks are a BenchmarkDotNet console app. Everything after `--` goes to BenchmarkDotNet.
+
+```bash
+# Fast development feedback (short job, fewer iterations)
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*" --job short
 
 # Compare specific containers
-.\scripts\run-benchmarks.ps1 -Target OrderedSet -Export Html
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*.OrderedSetBenchmarks.*" --exporters html
 
 # Cross-collection analysis
-.\scripts\run-benchmarks.ps1 -Target CrossComparison -Export All
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*.CrossCollectionComparisonBenchmarks.*" --exporters html csv json
 
 # Full benchmark suite
-.\scripts\run-benchmarks.ps1 -Target All -Export Html
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*" --exporters html
 ```
 
-#### Available Targets
+#### Filters
 
-| Target                | Description                          |
-| --------------------- | ------------------------------------ |
-| `Quick`               | Fast subset for development feedback |
-| `OrderedCollection`   | OrderedCollection<T> vs alternatives |
-| `OrderedSet`          | OrderedSet<T> vs alternatives        |
-| `RingBuffer`          | RingBuffer<T> vs alternatives        |
-| `Standard`            | Built-in .NET collection baselines   |
-| `CrossComparison`     | Direct cross-collection comparisons  |
-| `PerformanceAnalysis` | Scalability and edge case analysis   |
-| `All`                 | Complete benchmark suite             |
+| Filter                                         | Description                          |
+| ---------------------------------------------- | ------------------------------------ |
+| `*.OrderedCollectionBenchmarks.*`              | OrderedCollection<T> vs alternatives |
+| `*.OrderedSetBenchmarks.*`                     | OrderedSet<T> vs alternatives        |
+| `*.RingBufferBenchmarks.*`                     | RingBuffer<T> vs alternatives        |
+| `*.StandardCollectionBenchmarks.*`             | Built-in .NET collection baselines   |
+| `*.CrossCollectionComparisonBenchmarks.*`      | Direct cross-collection comparisons  |
+| `*.PerformanceAnalysisBenchmarks.*`            | Scalability and edge case analysis   |
+| `*`                                            | Complete benchmark suite             |
+
+Add `--job short` to any of these for a quicker, less precise run. Run with no `--filter` to pick benchmarks from an interactive menu.
 
 #### Command Line Options
 
@@ -225,10 +228,10 @@ dotnet test
 
 ```bash
 # Quick performance check
-.\scripts\run-benchmarks.ps1 -Target Quick
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*" --job short
 
 # Comprehensive analysis
-.\scripts\run-benchmarks.ps1 -Target All -Export Html
+dotnet run --project Containers.Benchmarks --configuration Release -- --filter "*" --exporters html
 ```
 
 ## 📊 Performance Characteristics
