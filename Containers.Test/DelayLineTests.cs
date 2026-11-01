@@ -130,6 +130,39 @@ public class DelayLineTests
 	}
 
 	[TestMethod]
+	public void ReadInterpolated_CapacityRoundedUpAsFloat_ReadsOldestSample()
+	{
+		// (float)((1 << 25) - 1) rounds up to 2^25, one past Capacity: it used to wrap onto the newest sample.
+		DelayLine line = new((1 << 25) - 1);
+		line.Write(1f);
+		for (int i = 1; i < line.Capacity; i++)
+		{
+			line.Write(0f);
+		}
+
+		line.Write(99f);
+
+		Assert.AreEqual(1f, line.Read(line.Capacity));
+		Assert.AreEqual(line.Read(line.Capacity), line.ReadInterpolated(line.Capacity));
+		Assert.AreEqual(99f, line.ReadInterpolated(0f));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => line.ReadInterpolated(MathF.BitIncrement(line.Capacity)));
+	}
+
+	[TestMethod]
+	public void ReadInterpolated_CapacityRoundedDownAsFloat_ReadsExactDelay()
+	{
+		// (float)((1 << 24) + 1) rounds down to 2^24, which is a valid delay in its own right.
+		DelayLine line = new((1 << 24) + 1);
+		for (int i = 0; i <= line.Capacity; i++)
+		{
+			line.Write(i);
+		}
+
+		Assert.AreEqual(line.Read(1 << 24), line.ReadInterpolated(1 << 24));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => line.ReadInterpolated(line.Capacity + 1));
+	}
+
+	[TestMethod]
 	public void ReadInterpolated_OutOfRange_Throws()
 	{
 		DelayLine line = new(8);

@@ -129,9 +129,18 @@ public sealed class DelayLine
 	/// </remarks>
 	public float ReadInterpolated(float delaySamples)
 	{
+		// Above 2^24 a float cannot hold every int, so Capacity itself may only be reachable as the
+		// nearest float, which can sit just above it. Accept any value no larger than that float,
+		// and compare in double (exact for every int) to decide when the delay means Capacity.
 		if (float.IsNaN(delaySamples) || delaySamples < 0f || delaySamples > Capacity)
 		{
 			throw new ArgumentOutOfRangeException(nameof(delaySamples), delaySamples, $"Delay must be in the range [0, {Capacity}].");
+		}
+
+		if ((double)delaySamples >= Capacity)
+		{
+			// Clamp so the masked index can never wrap onto newer samples.
+			return buffer[(writeIndex - 1 - Capacity) & mask];
 		}
 
 		int delayInt = (int)delaySamples;
