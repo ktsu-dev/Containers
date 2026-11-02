@@ -39,7 +39,7 @@ using System.Diagnostics.CodeAnalysis;
 	"CA1710:Identifiers should have correct suffix",
 	Justification = "ContiguousCollection is a known collection name"
 )]
-public class ContiguousCollection<T> : ICollection<T>, IReadOnlyList<T>
+public class ContiguousCollection<T> : IList<T>, IReadOnlyList<T>
 {
 	/// <summary>
 	/// The backing array that stores elements in contiguous memory.
