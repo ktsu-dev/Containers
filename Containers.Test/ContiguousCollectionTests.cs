@@ -621,9 +621,9 @@ public class ContiguousCollectionTests
 	/// </summary>
 	private static IList<int> AsList(ContiguousCollection<int> collection)
 	{
-		IList<int>? list = (object)collection as IList<int>;
-		Assert.IsNotNull(list, "ContiguousCollection<T> should implement IList<T>");
-		return list;
+		object boxed = collection;
+		Assert.IsInstanceOfType<IList<int>>(boxed, "ContiguousCollection<T> should implement IList<T>");
+		return (IList<int>)boxed;
 	}
 
 	[TestMethod]
