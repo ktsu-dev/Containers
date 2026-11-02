@@ -680,4 +680,62 @@ public class ContiguousSetTests
 
 		Assert.AreSequenceEqual([3, 1, 2], span.ToArray());
 	}
+
+	private const int LargeCount = 1_000_000;
+
+	[TestMethod]
+	public void EnsureCapacity_ThenAdds_AllocatesAboutAsMuchAsTheCapacityConstructor()
+	{
+		long presized = AllocatedBy(() =>
+		{
+			ContiguousSet<int> set = new(LargeCount);
+			for (int i = 0; i < LargeCount; i++)
+			{
+				set.Add(i);
+			}
+		});
+		long ensured = AllocatedBy(() =>
+		{
+			ContiguousSet<int> set = [];
+			set.EnsureCapacity(LargeCount);
+			for (int i = 0; i < LargeCount; i++)
+			{
+				set.Add(i);
+			}
+		});
+
+		// Without presizing the hash index, EnsureCapacity allocates about twice as much (it rehashes ~18 times).
+		Assert.IsLessThan(presized * 1.25, ensured, $"EnsureCapacity path allocated {ensured} bytes, capacity constructor {presized}");
+	}
+
+	[TestMethod]
+	[DoNotParallelize]
+	public void TrimExcess_AfterShrinking_ReleasesTheHashIndex()
+	{
+		ContiguousSet<int> set = [];
+		for (int i = 0; i < LargeCount; i++)
+		{
+			set.Add(i);
+		}
+
+		set.IntersectWith(Enumerable.Range(0, 10));
+
+		long before = GC.GetTotalMemory(forceFullCollection: true);
+		set.TrimExcess();
+		long after = GC.GetTotalMemory(forceFullCollection: true);
+
+		// The array alone is ~4 MB; the HashSet index for 1M ints is ~20 MB more.
+		Assert.IsGreaterThan(12_000_000L, before - after, $"TrimExcess released only {before - after} bytes");
+		Assert.AreSequenceEqual(Enumerable.Range(0, 10), set);
+		Assert.IsTrue(set.Contains(5));
+		Assert.IsFalse(set.Contains(LargeCount - 1));
+		GC.KeepAlive(set);
+	}
+
+	private static long AllocatedBy(Action action)
+	{
+		long start = GC.GetAllocatedBytesForCurrentThread();
+		action();
+		return GC.GetAllocatedBytesForCurrentThread() - start;
+	}
 }

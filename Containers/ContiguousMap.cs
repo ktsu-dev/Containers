@@ -544,6 +544,11 @@ public class ContiguousMap<TKey, TValue>
 		{
 			Grow(capacity);
 		}
+
+#if !NETSTANDARD2_0
+		// Presize the hash index too, or it rehashes its way up to the final size as the elements arrive.
+		keyToIndex.EnsureCapacity(capacity);
+#endif
 	}
 
 	/// <summary>
@@ -561,6 +566,11 @@ public class ContiguousMap<TKey, TValue>
 			Array.Copy(items, newItems, Count);
 			items = newItems;
 		}
+
+#if !NETSTANDARD2_0
+		// The hash index is the larger of the two structures, and it keeps its peak size until it is trimmed itself.
+		keyToIndex.TrimExcess();
+#endif
 	}
 
 	/// <summary>

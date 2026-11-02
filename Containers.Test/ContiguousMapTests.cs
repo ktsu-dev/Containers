@@ -659,4 +659,62 @@ public class ContiguousMapTests
 
 		Assert.ThrowsExactly<ArgumentNullException>(() => map.GetValueRefOrNullRef(null!));
 	}
+
+	private const int LargeCount = 1_000_000;
+
+	[TestMethod]
+	public void EnsureCapacity_ThenAdds_AllocatesAboutAsMuchAsTheCapacityConstructor()
+	{
+		long presized = AllocatedBy(() =>
+		{
+			ContiguousMap<int, int> map = new(LargeCount);
+			for (int i = 0; i < LargeCount; i++)
+			{
+				map.Add(i, i);
+			}
+		});
+		long ensured = AllocatedBy(() =>
+		{
+			ContiguousMap<int, int> map = [];
+			map.EnsureCapacity(LargeCount);
+			for (int i = 0; i < LargeCount; i++)
+			{
+				map.Add(i, i);
+			}
+		});
+
+		// Without presizing the hash index, EnsureCapacity allocates about twice as much (it rehashes ~18 times).
+		Assert.IsLessThan(presized * 1.25, ensured, $"EnsureCapacity path allocated {ensured} bytes, capacity constructor {presized}");
+	}
+
+	[TestMethod]
+	[DoNotParallelize]
+	public void TrimExcess_AfterClear_ReleasesTheKeyIndex()
+	{
+		ContiguousMap<int, int> map = [];
+		for (int i = 0; i < LargeCount; i++)
+		{
+			map.Add(i, i);
+		}
+
+		map.Clear();
+
+		long before = GC.GetTotalMemory(forceFullCollection: true);
+		map.TrimExcess();
+		long after = GC.GetTotalMemory(forceFullCollection: true);
+
+		// The entry array alone is ~8 MB; the Dictionary index for 1M ints is ~25 MB more.
+		Assert.IsGreaterThan(20_000_000L, before - after, $"TrimExcess released only {before - after} bytes");
+		Assert.IsEmpty(map);
+		map.Add(1, 2);
+		Assert.AreEqual(2, map[1]);
+		GC.KeepAlive(map);
+	}
+
+	private static long AllocatedBy(Action action)
+	{
+		long start = GC.GetAllocatedBytesForCurrentThread();
+		action();
+		return GC.GetAllocatedBytesForCurrentThread() - start;
+	}
 }

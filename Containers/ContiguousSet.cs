@@ -545,6 +545,11 @@ public class ContiguousSet<T> : ISet<T>
 		{
 			Grow(capacity);
 		}
+
+#if !NETSTANDARD2_0
+		// Presize the hash index too, or it rehashes its way up to the final size as the elements arrive.
+		uniquenessSet.EnsureCapacity(capacity);
+#endif
 	}
 
 	/// <summary>
@@ -562,6 +567,9 @@ public class ContiguousSet<T> : ISet<T>
 			Array.Copy(items, newItems, Count);
 			items = newItems;
 		}
+
+		// The hash index is the larger of the two structures, and it keeps its peak size until it is trimmed itself.
+		uniquenessSet.TrimExcess();
 	}
 
 	/// <summary>
