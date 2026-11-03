@@ -357,11 +357,63 @@ public class OrderedSet<T> : ISet<T>
 	{
 		Ensure.NotNull(other);
 
-		foreach (T item in other)
+		if (ReferenceEquals(other, this))
 		{
-			Add(item);
+			return;
 		}
+
+		// A few additions are cheapest one at a time; a bulk one would shift the tail once per element
+		if (other is ICollection<T> collection && collection.Count <= SmallUnionCount)
+		{
+			foreach (T item in other)
+			{
+				Add(item);
+			}
+
+			return;
+		}
+
+		// Both sequences are sorted and distinct, so merge them, keeping this set's element on a tie
+		List<T> otherItems = ToComparerSet(other).items;
+		List<T> result = new(items.Count + otherItems.Count);
+		int i = 0;
+		int j = 0;
+		while (i < items.Count && j < otherItems.Count)
+		{
+			int comparison = Comparer.Compare(items[i], otherItems[j]);
+			if (comparison < 0)
+			{
+				result.Add(items[i++]);
+			}
+			else if (comparison > 0)
+			{
+				result.Add(otherItems[j++]);
+			}
+			else
+			{
+				result.Add(items[i++]);
+				j++;
+			}
+		}
+
+		for (; i < items.Count; i++)
+		{
+			result.Add(items[i]);
+		}
+
+		for (; j < otherItems.Count; j++)
+		{
+			result.Add(otherItems[j]);
+		}
+
+		items.Clear();
+		items.AddRange(result);
 	}
+
+	/// <summary>
+	/// The largest collection <see cref="UnionWith"/> adds one element at a time rather than merging.
+	/// </summary>
+	private const int SmallUnionCount = 16;
 
 	/// <summary>
 	/// Modifies the current set so that it contains only elements that are also in a specified collection.
