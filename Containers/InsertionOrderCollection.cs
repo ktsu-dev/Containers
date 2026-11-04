@@ -19,7 +19,7 @@ using System.Diagnostics.CodeAnalysis;
 /// <list type="bullet">
 ///   <item>Adding elements at the end (preserving insertion order)</item>
 ///   <item>Removing elements by value or at specific index</item>
-///   <item>Accessing elements by index</item>
+///   <item>Accessing, replacing and inserting elements by index (<see cref="IList{T}"/>)</item>
 ///   <item>Enumeration in insertion order</item>
 ///   <item>Linear search for element location</item>
 /// </list>
@@ -30,7 +30,7 @@ using System.Diagnostics.CodeAnalysis;
 	"CA1710:Identifiers should have correct suffix",
 	Justification = "InsertionOrderCollection is a known collection name"
 )]
-public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyList<T>
+public class InsertionOrderCollection<T> : IList<T>, IReadOnlyList<T>
 {
 	/// <summary>
 	/// The internal list that stores elements in insertion order.
@@ -48,11 +48,14 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyList<T>
 	public bool IsReadOnly => false;
 
 	/// <summary>
-	/// Gets the element at the specified index.
+	/// Gets or sets the element at the specified index.
 	/// </summary>
-	/// <param name="index">The zero-based index of the element to get.</param>
+	/// <param name="index">The zero-based index of the element to get or set.</param>
 	/// <returns>The element at the specified index.</returns>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when index is out of range.</exception>
+	/// <remarks>
+	/// Setting an element replaces it in place, keeping its position, and invalidates any live enumerator.
+	/// </remarks>
 	public T this[int index]
 	{
 		get
@@ -60,6 +63,12 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyList<T>
 			ArgumentOutOfRangeException.ThrowIfNegative(index);
 			ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
 			return items[index];
+		}
+		set
+		{
+			ArgumentOutOfRangeException.ThrowIfNegative(index);
+			ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
+			items[index] = value;
 		}
 	}
 
@@ -99,6 +108,23 @@ public class InsertionOrderCollection<T> : ICollection<T>, IReadOnlyList<T>
 	/// The element is added at the end of the collection to maintain insertion order.
 	/// </remarks>
 	public void Add(T item) => items.Add(item);
+
+	/// <summary>
+	/// Inserts an element at the specified index, shifting later elements one position towards the end.
+	/// </summary>
+	/// <param name="index">The zero-based index at which to insert the element; <see cref="Count"/> appends it.</param>
+	/// <param name="item">The element to insert.</param>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when index is negative or greater than <see cref="Count"/>.</exception>
+	/// <remarks>
+	/// This operation has O(n) time complexity as it may need to shift elements.
+	/// </remarks>
+	public void Insert(int index, T item)
+	{
+		ArgumentOutOfRangeException.ThrowIfNegative(index);
+		ArgumentOutOfRangeException.ThrowIfGreaterThan(index, Count);
+
+		items.Insert(index, item);
+	}
 
 	/// <summary>
 	/// Removes all elements from the collection.
