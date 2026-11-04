@@ -266,13 +266,16 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	/// For example, resampling time-series data when changing the sampling rate.
 	///
 	/// If the buffer is empty, this method will resize the buffer without adding any elements.
+	/// A part-filled buffer keeps the same fill ratio: its element count is scaled by the ratio of the
+	/// new length to the old one and rounded, so resampling to the current length changes nothing.
 	/// </remarks>
 	/// <param name="length">The new length of the buffer.</param>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="length"/> is less than one or greater than 2^30.</exception>
 	public void Resample(int length)
 	{
-		// Save the current count of valid elements
+		// Save the current count of valid elements and the length they filled
 		int oldCount = Count;
+		int oldLength = Length;
 
 		// Create a temporary array to store the current valid elements
 		T[] oldData = new T[oldCount];
@@ -290,15 +293,20 @@ public class RingBuffer<T> : IReadOnlyList<T>
 			return;
 		}
 
+		// A part-filled buffer stays part-filled: scale the element count by the length ratio,
+		// round(oldCount * length / oldLength), kept in [1, length]. Integer arithmetic rounds a
+		// half up, and the long product cannot overflow because both factors are at most 2^30.
+		int newCount = (int)Math.Min(Math.Max(((2L * oldCount * length) + oldLength) / (2L * oldLength), 1L), length);
+
 		// Resample the data into the new buffer
-		for (int i = 0; i < length; i++)
+		for (int i = 0; i < newCount; i++)
 		{
-			// Take the old element under the centre of new slot i: floor((i + 0.5) * oldCount / length).
+			// Take the old element under the centre of new slot i: floor((i + 0.5) * oldCount / newCount).
 			// Sampling at the centre spreads repeats evenly where mapping the ends onto each other
 			// and rounding leaves ties that all round the same way. Doubling both sides keeps the
 			// arithmetic integral, so there are no floating-point ties, and the long product cannot
 			// overflow: (2 * i + 1) * oldCount stays below 2^63 for any int i and oldCount.
-			int index = (int)(((2L * i) + 1) * oldCount / (2L * length));
+			int index = (int)(((2L * i) + 1) * oldCount / (2L * newCount));
 
 			PushBack(oldData[index]);
 		}

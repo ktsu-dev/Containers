@@ -436,6 +436,55 @@ public class RingBufferTests
 	}
 
 	[TestMethod]
+	public void Resample_PartFilledToSameLength_LeavesCountAndContentsUnchanged()
+	{
+		RingBuffer<int> buffer = new(10);
+		buffer.PushBack(1);
+		buffer.PushBack(2);
+
+		buffer.Resample(10);
+
+		Assert.AreSequenceEqual([1, 2], buffer);
+	}
+
+	[TestMethod]
+	public void Resample_SingleElementToSameLength_StaysSingle()
+	{
+		RingBuffer<int> buffer = new(4);
+		buffer.PushBack(7);
+
+		buffer.Resample(4);
+
+		Assert.AreSequenceEqual([7], buffer);
+	}
+
+	[TestMethod]
+	public void Resample_PartFilled_ScalesCountByLengthRatio()
+	{
+		RingBuffer<int> buffer = new(1000);
+		for (int i = 0; i < 10; i++)
+		{
+			buffer.PushBack(i);
+		}
+
+		buffer.Resample(2000);
+
+		Assert.HasCount(20, buffer);
+		Assert.AreSequenceEqual(Enumerable.Range(0, 10).SelectMany(i => new[] { i, i }), buffer);
+	}
+
+	[TestMethod]
+	public void Resample_PartFilledDownsample_KeepsAtLeastOneElement()
+	{
+		RingBuffer<int> buffer = new(1000);
+		buffer.PushBack(5);
+
+		buffer.Resample(10);
+
+		Assert.AreSequenceEqual([5], buffer);
+	}
+
+	[TestMethod]
 	public void Resample_UpsampleToMillionsOfElements_Succeeds()
 	{
 		RingBuffer<int> buffer = new(Enumerable.Range(0, 1000), 1000);
