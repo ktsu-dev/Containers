@@ -357,11 +357,30 @@ public class OrderedSet<T> : ISet<T>
 	{
 		Ensure.NotNull(other);
 
-		foreach (T item in other)
+		if (ReferenceEquals(other, this))
 		{
-			Add(item);
+			return;
 		}
+
+		// A few additions are cheapest one at a time; a bulk one would shift the tail once per element
+		if (other is ICollection<T> collection && collection.Count <= SmallUnionCount)
+		{
+			foreach (T item in other)
+			{
+				Add(item);
+			}
+
+			return;
+		}
+
+		// Both sequences are sorted and distinct, so merge them, keeping this set's element on a tie
+		MergeWith(ToComparerSet(other).items, keepCommon: true);
 	}
+
+	/// <summary>
+	/// The largest collection <see cref="UnionWith"/> adds one element at a time rather than merging.
+	/// </summary>
+	private const int SmallUnionCount = 16;
 
 	/// <summary>
 	/// Modifies the current set so that it contains only elements that are also in a specified collection.
@@ -417,7 +436,16 @@ public class OrderedSet<T> : ISet<T>
 		}
 
 		// Both sequences are sorted and distinct, so merge them, keeping the elements found in only one
-		List<T> otherItems = otherSet.items;
+		MergeWith(otherSet.items, keepCommon: false);
+	}
+
+	/// <summary>
+	/// Replaces this set's elements with a linear merge of them and another sorted, distinct list.
+	/// </summary>
+	/// <param name="otherItems">Elements sorted and deduplicated by this set's comparer.</param>
+	/// <param name="keepCommon">Whether an element in both keeps this set's copy (union) or is dropped (symmetric difference).</param>
+	private void MergeWith(List<T> otherItems, bool keepCommon)
+	{
 		List<T> result = new(items.Count + otherItems.Count);
 		int i = 0;
 		int j = 0;
@@ -434,6 +462,11 @@ public class OrderedSet<T> : ISet<T>
 			}
 			else
 			{
+				if (keepCommon)
+				{
+					result.Add(items[i]);
+				}
+
 				i++;
 				j++;
 			}

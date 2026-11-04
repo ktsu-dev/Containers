@@ -830,6 +830,43 @@ public class OrderedSetTests
 	}
 
 	[TestMethod]
+	public void UnionWith_LargeDescendingArray_RunsInLinearithmicTime()
+	{
+		OrderedSet<int> set = [.. Enumerable.Range(0, BulkSize)];
+		int[] descending = [.. Enumerable.Range(BulkSize / 2, BulkSize).Reverse()];
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		set.UnionWith(descending);
+		stopwatch.Stop();
+
+		Assert.AreSequenceEqual(Enumerable.Range(0, BulkSize + (BulkSize / 2)), set);
+		Assert.IsLessThan(BulkBudgetMilliseconds, stopwatch.ElapsedMilliseconds);
+	}
+
+	[TestMethod]
+	public void UnionWith_LargeCollection_KeepsThisSetsElementOnTie()
+	{
+		OrderedSet<(int Key, int Index)> set = new([.. Enumerable.Range(0, 100).Select(i => (i * 2, 0))], ByKey);
+		(int Key, int Index)[] other = [.. Enumerable.Range(0, 100).Select(i => (i, 1))];
+
+		set.UnionWith(other);
+
+		Assert.AreSequenceEqual(Enumerable.Range(0, 200).Where(k => k < 100 || k % 2 == 0), set.Select(x => x.Key));
+		Assert.IsTrue(set.Where(x => x.Key % 2 == 0).All(x => x.Index == 0), "a tie replaced this set's element");
+		Assert.IsTrue(set.Where(x => x.Key % 2 == 1).All(x => x.Index == 1));
+	}
+
+	[TestMethod]
+	public void UnionWith_Itself_LeavesSetUnchanged()
+	{
+		OrderedSet<int> set = [.. Enumerable.Range(0, 100)];
+
+		set.UnionWith(set);
+
+		Assert.AreSequenceEqual(Enumerable.Range(0, 100), set);
+	}
+
+	[TestMethod]
 	public void IntersectWith_LargeDescendingArray_RunsInLinearithmicTime()
 	{
 		OrderedSet<int> set = [.. Enumerable.Range(0, BulkSize)];
