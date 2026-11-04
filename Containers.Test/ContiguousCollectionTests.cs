@@ -614,4 +614,55 @@ public class ContiguousCollectionTests
 
 		Assert.AreSequenceEqual([1, 2, 3, 4], collection);
 	}
+
+	/// <summary>
+	/// Reaches the collection through <see cref="IList{T}"/> by a runtime check, so these tests compile either way and
+	/// fail only when the interface is missing.
+	/// </summary>
+	private static IList<int> AsList(ContiguousCollection<int> collection)
+	{
+		object boxed = collection;
+		Assert.IsInstanceOfType<IList<int>>(boxed, "ContiguousCollection<T> should implement IList<T>");
+		return (IList<int>)boxed;
+	}
+
+	[TestMethod]
+	public void IList_IsImplemented()
+	{
+		ContiguousCollection<int> collection = [1, 2, 3];
+
+		Assert.IsInstanceOfType<IList<int>>(collection);
+	}
+
+	[TestMethod]
+	public void IList_InsertRemoveAndIndexer_RoundTripThroughTheInterface()
+	{
+		ContiguousCollection<int> collection = [1, 2, 3];
+		IList<int> list = AsList(collection);
+
+		list.Insert(1, 9);
+		Assert.AreSequenceEqual([1, 9, 2, 3], collection);
+		Assert.AreEqual(1, list.IndexOf(9));
+
+		list[2] = 7;
+		Assert.AreEqual(7, collection[2]);
+		Assert.AreEqual(7, list[2]);
+
+		list.RemoveAt(0);
+		Assert.AreSequenceEqual([9, 7, 3], collection);
+		Assert.AreEqual(-1, list.IndexOf(1));
+	}
+
+	[TestMethod]
+	public void IList_SetThroughTheInterfaceIndexer_InvalidatesALiveEnumerator()
+	{
+		ContiguousCollection<int> collection = [1, 2, 3];
+		IList<int> list = AsList(collection);
+		using IEnumerator<int> enumerator = collection.GetEnumerator();
+		Assert.IsTrue(enumerator.MoveNext());
+
+		list[0] = 9;
+
+		Assert.ThrowsExactly<InvalidOperationException>(() => enumerator.MoveNext());
+	}
 }
