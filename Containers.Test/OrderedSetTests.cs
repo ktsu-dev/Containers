@@ -770,6 +770,12 @@ public class OrderedSetTests
 	private const int BulkSize = 1_000_000;
 	private const int BulkBudgetMilliseconds = 5_000;
 
+	/// <summary>
+	/// The budget for a thousand one-element unions into a <see cref="BulkSize"/> set: inserting in place
+	/// takes tens of milliseconds, rebuilding the set for each takes several seconds.
+	/// </summary>
+	private const int SmallUnionsBudgetMilliseconds = 1_500;
+
 	private static readonly IComparer<(int Key, int Index)> ByKey =
 		Comparer<(int Key, int Index)>.Create((x, y) => x.Key.CompareTo(y.Key));
 
@@ -854,6 +860,83 @@ public class OrderedSetTests
 		Assert.AreSequenceEqual(Enumerable.Range(0, 200).Where(k => k < 100 || k % 2 == 0), set.Select(x => x.Key));
 		Assert.IsTrue(set.Where(x => x.Key % 2 == 0).All(x => x.Index == 0), "a tie replaced this set's element");
 		Assert.IsTrue(set.Where(x => x.Key % 2 == 1).All(x => x.Index == 1));
+	}
+
+	[TestMethod]
+	public void UnionWith_NothingNewDuringEnumeration_DoesNotInvalidateEnumerator()
+	{
+		OrderedSet<int> set = [.. Enumerable.Range(0, 100)];
+		int[] subset = [.. Enumerable.Range(0, 50)];
+		int visited = 0;
+
+		// Every element of subset is already in the set, so the union changes nothing, as HashSet<T> and SortedSet<T> allow
+		foreach (int item in set)
+		{
+			if (item == 10)
+			{
+				set.UnionWith(subset);
+			}
+
+			visited++;
+		}
+
+		Assert.AreEqual(100, visited);
+		Assert.AreSequenceEqual(Enumerable.Range(0, 100), set);
+	}
+
+	[TestMethod]
+	public void SymmetricExceptWith_EmptyDuringEnumeration_DoesNotInvalidateEnumerator()
+	{
+		OrderedSet<int> set = [.. Enumerable.Range(0, 100)];
+		int visited = 0;
+
+		foreach (int item in set)
+		{
+			if (item == 10)
+			{
+				set.SymmetricExceptWith([]);
+			}
+
+			visited++;
+		}
+
+		Assert.AreEqual(100, visited);
+		Assert.AreSequenceEqual(Enumerable.Range(0, 100), set);
+	}
+
+	[TestMethod]
+	public void UnionWith_ManySingleElementSequences_CostAboutAsMuchAsAdd()
+	{
+		OrderedSet<int> set = [.. Enumerable.Range(0, BulkSize).Select(i => i * 2)];
+
+		// Rebuilding the whole set for each one-element union took seconds; inserting in place takes milliseconds
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		for (int i = 0; i < 1_000; i++)
+		{
+			set.UnionWith(One((i * 2) + 1));
+		}
+
+		stopwatch.Stop();
+
+		Assert.HasCount(BulkSize + 1_000, set);
+		Assert.IsTrue(set.Contains(1) && set.Contains(1_999), "a single-element union was lost");
+		Assert.IsLessThan(SmallUnionsBudgetMilliseconds, stopwatch.ElapsedMilliseconds);
+
+		static IEnumerable<int> One(int value)
+		{
+			yield return value;
+		}
+	}
+
+	[TestMethod]
+	public void UnionWith_LargeLazySequence_AddsOnlyTheNewElementsInOrder()
+	{
+		OrderedSet<int> set = [.. Enumerable.Range(0, 100).Select(i => i * 3)];
+
+		// More new elements than are inserted one at a time, so this takes the merge path
+		set.UnionWith(Enumerable.Range(0, 300).Where(i => i % 2 == 0));
+
+		Assert.AreSequenceEqual(Enumerable.Range(0, 300).Where(i => i % 2 == 0 || i % 3 == 0), set);
 	}
 
 	[TestMethod]
