@@ -391,10 +391,10 @@ public class ContiguousSet<T> : ISet<T>
 			return;
 		}
 
-		foreach (T item in other)
-		{
-			Remove(item);
-		}
+		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
+
+		// Remove matching items in one compaction pass rather than one rescan and shift each
+		RemoveWhere(otherSet.Contains);
 	}
 
 	/// <summary>

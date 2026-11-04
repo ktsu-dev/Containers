@@ -307,10 +307,10 @@ public class InsertionOrderSet<T> : ISet<T>
 			return;
 		}
 
-		foreach (T item in other)
-		{
-			Remove(item);
-		}
+		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
+
+		// Remove matching items in one pass rather than one linear search and RemoveAt each
+		items.RemoveAll(item => otherSet.Contains(item) && uniquenessSet.Remove(item));
 	}
 
 	/// <summary>
