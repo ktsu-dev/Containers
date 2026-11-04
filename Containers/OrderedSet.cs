@@ -373,12 +373,40 @@ public class OrderedSet<T> : ISet<T>
 			return;
 		}
 
-		// Both sequences are sorted and distinct, so merge them, keeping this set's element on a tie
-		MergeWith(ToComparerSet(other).items, keepCommon: true);
+		// Only the elements this set lacks change it. Finding them by binary search costs m log n, so a
+		// union that adds little never pays for rebuilding the whole set, and one that adds nothing leaves
+		// it untouched, as Add does, so enumerators over it stay valid
+		List<T> added = [];
+		foreach (T item in ToComparerSet(other).items)
+		{
+			if (items.BinarySearch(item, Comparer) < 0)
+			{
+				added.Add(item);
+			}
+		}
+
+		if (added.Count == 0)
+		{
+			return;
+		}
+
+		// A few additions are cheapest in place; more would shift the tail once per element
+		if (added.Count <= SmallUnionCount)
+		{
+			foreach (T item in added)
+			{
+				items.Insert(~items.BinarySearch(item, Comparer), item);
+			}
+
+			return;
+		}
+
+		// Both sequences are sorted and share no element, so merge them
+		MergeWith(added, keepCommon: true);
 	}
 
 	/// <summary>
-	/// The largest collection <see cref="UnionWith"/> adds one element at a time rather than merging.
+	/// The most elements <see cref="UnionWith"/> adds one at a time rather than merging.
 	/// </summary>
 	private const int SmallUnionCount = 16;
 
@@ -432,6 +460,12 @@ public class OrderedSet<T> : ISet<T>
 		if (ReferenceEquals(otherSet, this))
 		{
 			Clear();
+			return;
+		}
+
+		// Nothing to add or remove: leave the set untouched, so enumerators over it stay valid
+		if (otherSet.Count == 0)
+		{
 			return;
 		}
 
