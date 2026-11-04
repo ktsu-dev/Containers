@@ -24,9 +24,9 @@ public class SpscRingBufferTests
 	}
 
 	[TestMethod]
-	public void Constructor_CapacityAbove2Pow30Minus1_Throws()
+	public void Constructor_CapacityAbove2Pow30_Throws()
 	{
-		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new SpscRingBuffer<byte>(1 << 30));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new SpscRingBuffer<byte>((1 << 30) + 1));
 		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => new SpscRingBuffer<byte>(int.MaxValue));
 	}
 
@@ -35,6 +35,46 @@ public class SpscRingBufferTests
 	{
 		SpscRingBuffer<int> buffer = new(5);
 		Assert.IsGreaterThanOrEqualTo(5, buffer.Capacity, "Usable capacity must be at least the requested amount.");
+	}
+
+	[TestMethod]
+	[DataRow(1, 1)]
+	[DataRow(4, 4)]
+	[DataRow(5, 8)]
+	[DataRow(1024, 1024)]
+	[DataRow(4096, 4096)]
+	public void Capacity_IsTheRequestRoundedUpToAPowerOfTwo(int requested, int expected)
+	{
+		// No slot is reserved: a power-of-two request gets exactly that many, not twice as many
+		SpscRingBuffer<int> buffer = new(requested);
+		Assert.AreEqual(expected, buffer.Capacity);
+	}
+
+	[TestMethod]
+	public void PowerOfTwoBuffer_HoldsExactlyItsRequestedCapacity()
+	{
+		SpscRingBuffer<int> buffer = new(4);
+
+		// Over several laps, so the free-running indices pass the array length
+		for (int lap = 0; lap < 3; lap++)
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				Assert.IsTrue(buffer.TryEnqueue((lap * 4) + i), "a requested slot was unavailable");
+			}
+
+			Assert.IsFalse(buffer.TryEnqueue(-1), "a full buffer accepted an extra element");
+			Assert.AreEqual(4, buffer.Count);
+
+			for (int i = 0; i < 4; i++)
+			{
+				Assert.IsTrue(buffer.TryDequeue(out int item));
+				Assert.AreEqual((lap * 4) + i, item);
+			}
+
+			Assert.IsFalse(buffer.TryDequeue(out _), "an empty buffer returned an element");
+			Assert.IsTrue(buffer.IsEmpty);
+		}
 	}
 
 	[TestMethod]
