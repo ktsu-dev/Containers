@@ -1,12 +1,25 @@
-## v2.0.4 (patch)
+## v2.1.0 (minor)
 
-Changes since v2.0.3:
+Changes since v2.0.0:
 
+- Merge a bulk OrderedSet.UnionWith instead of inserting one at a time [patch] (#137) (matt-edmondson)
+- Size the hash index in ContiguousSet/Map EnsureCapacity and TrimExcess [patch] (#136) (matt-edmondson)
+- Implement IList\<T\> on ContiguousCollection [minor] (#135) (matt-edmondson)
+- Keep a part-filled RingBuffer part-filled when it is resampled [patch] (#132) (matt-edmondson)
+- Keep SpscRingBuffer head and tail free-running so Count can't pair a stale lap [patch] (#131) (matt-edmondson)
+- Read the oldest sample when ReadInterpolated gets Capacity as a rounded-up float [patch] (#130) (matt-edmondson)
+- Replace the deleted run-benchmarks.ps1 calls in the docs with dotnet run (#128) (matt-edmondson)
+- Throw ArgumentNullException for a null OrderedMap comparer on any key type [patch] (#127) (matt-edmondson)
+- Regenerate CompatibilitySuppressions.xml for the TFMs the SDK now builds [patch] (#124) (matt-edmondson)
 - Validate the delay before writing in DelayLine.Process [patch] (Claude)
 - Make IndexOf return the element Remove removes [patch] (Claude)
 - Grow ContiguousSet before touching its index instead of rolling back (Claude)
 - Clamp contiguous container growth to Array.MaxLength [patch] (Claude)
 - Reject ring buffer sizes above 2^30 with ArgumentOutOfRangeException [patch] (Claude)
+- fix: spread RingBuffer.Resample repeats evenly and document nearest-neighbour [patch] (Claude)
+- fix: build OrderedSet/OrderedCollection/OrderedMap in O(n log n) and stop OrderedSet set operations going quadratic [patch] (Claude)
+- Merge remote-tracking branch 'origin/main' into perf/83-set-compaction (Claude)
+- fix: make ContiguousSet and InsertionOrderSet IntersectWith/SymmetricExceptWith linear [patch] (Claude)
 
 ## v2.0.3 (patch)
 
