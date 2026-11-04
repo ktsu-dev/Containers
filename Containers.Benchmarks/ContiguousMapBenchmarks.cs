@@ -213,11 +213,12 @@ public class ContiguousMapBenchmarks
 			map.TryAdd(item.Key, item.Value);
 		}
 
-		ReadOnlySpan<int> keysSpan = map.GetKeysSpan();
+		// AsReadOnlySpan is the zero-copy view; GetKeysSpan copied every key into a new array
+		ReadOnlySpan<ContiguousMap<int, string>.Entry> entries = map.AsReadOnlySpan();
 		int sum = 0;
-		for (int i = 0; i < keysSpan.Length; i++)
+		for (int i = 0; i < entries.Length; i++)
 		{
-			sum += keysSpan[i];
+			sum += entries[i].Key;
 		}
 		return sum;
 	}
