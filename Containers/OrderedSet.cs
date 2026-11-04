@@ -413,10 +413,10 @@ public class OrderedSet<T> : ISet<T>
 			return;
 		}
 
-		foreach (T item in other)
-		{
-			Remove(item);
-		}
+		OrderedSet<T> otherSet = ToComparerSet(other);
+
+		// Compacting in one pass keeps this linearithmic, where one RemoveAt per element shifts the tail each time
+		items.RemoveAll(otherSet.Contains);
 	}
 
 	/// <summary>
