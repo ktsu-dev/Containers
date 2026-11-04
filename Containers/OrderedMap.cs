@@ -180,7 +180,9 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <exception cref="ArgumentNullException">Thrown when comparer is null.</exception>
 	/// <exception cref="ArgumentOutOfRangeException">Thrown when capacity is negative.</exception>
 	public OrderedMap(int capacity, IComparer<TKey> comparer)
-		: this(comparer)
+		// Checked before chaining: the primary constructor accepts null to mean "default ordering",
+		// and its field initializer rejects a key type without one before this body could run.
+		: this(Ensure.NotNull(comparer))
 	{
 		ArgumentOutOfRangeException.ThrowIfNegative(capacity);
 		Ensure.NotNull(comparer);
@@ -218,7 +220,8 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <param name="comparer">The comparer to use for ordering keys.</param>
 	/// <exception cref="ArgumentNullException">Thrown when dictionary or comparer is null.</exception>
 	public OrderedMap(IDictionary<TKey, TValue> dictionary, IComparer<TKey> comparer)
-		: this(comparer)
+		// Checked before chaining, for the same reason as the capacity overload.
+		: this(Ensure.NotNull(comparer))
 	{
 		Ensure.NotNull(dictionary);
 		Ensure.NotNull(comparer);

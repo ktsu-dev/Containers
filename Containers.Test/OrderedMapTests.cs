@@ -455,6 +455,25 @@ public class OrderedMapTests
 	}
 
 	/// <summary>
+	/// A null comparer is reported as such even when the key type has no default ordering, which the
+	/// primary constructor would otherwise reject first with an ArgumentException.
+	/// </summary>
+	[TestMethod]
+	public void Constructor_CapacityAndNullComparer_NonComparableKey_ThrowsArgumentNullException()
+	{
+		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedMap<object, int>(4, null!));
+	}
+
+	/// <summary>
+	/// The dictionary-copying overload reports a null comparer the same way for a key type with no default ordering.
+	/// </summary>
+	[TestMethod]
+	public void Constructor_DictionaryAndNullComparer_NonComparableKey_ThrowsArgumentNullException()
+	{
+		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedMap<object, int>(new Dictionary<object, int>(), null!));
+	}
+
+	/// <summary>
 	/// Tests error handling for negative capacity.
 	/// </summary>
 	[TestMethod]
