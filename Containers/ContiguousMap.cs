@@ -181,7 +181,7 @@ public class ContiguousMap<TKey, TValue>
 	{
 		get
 		{
-			Ensure.NotNull((object?)key, nameof(key));
+			NullKey.ThrowIfNull(key);
 
 			return !keyToIndex.TryGetValue(key, out int index)
 				? throw new KeyNotFoundException($"The key '{key}' was not found in the map.")
@@ -189,7 +189,7 @@ public class ContiguousMap<TKey, TValue>
 		}
 		set
 		{
-			Ensure.NotNull((object?)key, nameof(key));
+			NullKey.ThrowIfNull(key);
 
 			if (keyToIndex.TryGetValue(key, out int index))
 			{
@@ -344,7 +344,7 @@ public class ContiguousMap<TKey, TValue>
 	/// </remarks>
 	public void Add(TKey key, TValue value)
 	{
-		Ensure.NotNull((object?)key, nameof(key));
+		NullKey.ThrowIfNull(key);
 
 		if (keyToIndex.ContainsKey(key))
 		{
@@ -378,7 +378,7 @@ public class ContiguousMap<TKey, TValue>
 	/// </remarks>
 	public bool Remove(TKey key)
 	{
-		Ensure.NotNull((object?)key, nameof(key));
+		NullKey.ThrowIfNull(key);
 
 		if (!keyToIndex.TryGetValue(key, out int index))
 		{
@@ -421,7 +421,7 @@ public class ContiguousMap<TKey, TValue>
 	/// </remarks>
 	public bool ContainsKey(TKey key)
 	{
-		Ensure.NotNull((object?)key, nameof(key));
+		NullKey.ThrowIfNull(key);
 		return keyToIndex.ContainsKey(key);
 	}
 
@@ -437,7 +437,7 @@ public class ContiguousMap<TKey, TValue>
 	/// </remarks>
 	public bool TryGetValue(TKey key, out TValue value)
 	{
-		Ensure.NotNull((object?)key, nameof(key));
+		NullKey.ThrowIfNull(key);
 
 		if (keyToIndex.TryGetValue(key, out int index))
 		{
@@ -602,7 +602,7 @@ public class ContiguousMap<TKey, TValue>
 	/// </remarks>
 	public ref TValue GetValueRefOrNullRef(TKey key)
 	{
-		Ensure.NotNull((object?)key, nameof(key));
+		NullKey.ThrowIfNull(key);
 
 		if (keyToIndex.TryGetValue(key, out int index))
 		{
@@ -706,7 +706,7 @@ public class ContiguousMap<TKey, TValue>
 
 		public bool Contains(TKey item)
 		{
-			Ensure.NotNull((object?)item, nameof(item));
+			NullKey.ThrowIfNullItem(item);
 			return map.ContainsKey(item);
 		}
 

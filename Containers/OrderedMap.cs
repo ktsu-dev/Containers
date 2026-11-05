@@ -100,7 +100,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	{
 		get
 		{
-			Ensure.NotNull((object?)key, nameof(key));
+			NullKey.ThrowIfNull(key);
 
 			int index = BinarySearchByKey(key);
 			return index < 0
@@ -109,7 +109,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 		}
 		set
 		{
-			Ensure.NotNull((object?)key, nameof(key));
+			NullKey.ThrowIfNull(key);
 
 			int index = BinarySearchByKey(key);
 			if (index >= 0)
@@ -246,7 +246,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 		List<Entry> list = new(dictionary.Count);
 		foreach (KeyValuePair<TKey, TValue> pair in dictionary)
 		{
-			Ensure.NotNull((object?)pair.Key, nameof(dictionary));
+			NullKey.ThrowIfNullIn(pair.Key);
 			list.Add(new Entry(pair.Key, pair.Value));
 		}
 
@@ -275,7 +275,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <exception cref="ArgumentException">Thrown when key already exists in the map.</exception>
 	public void Add(TKey key, TValue value)
 	{
-		Ensure.NotNull((object?)key, nameof(key));
+		NullKey.ThrowIfNull(key);
 
 		int index = BinarySearchByKey(key);
 		if (index >= 0)
@@ -296,7 +296,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <exception cref="ArgumentNullException">Thrown when key is null.</exception>
 	public bool Remove(TKey key)
 	{
-		Ensure.NotNull((object?)key, nameof(key));
+		NullKey.ThrowIfNull(key);
 
 		int index = BinarySearchByKey(key);
 		if (index < 0)
@@ -317,7 +317,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <exception cref="ArgumentNullException">Thrown when key is null.</exception>
 	public bool ContainsKey(TKey key)
 	{
-		Ensure.NotNull((object?)key, nameof(key));
+		NullKey.ThrowIfNull(key);
 
 		return BinarySearchByKey(key) >= 0;
 	}
@@ -335,7 +335,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 #endif
 		out TValue value)
 	{
-		Ensure.NotNull((object?)key, nameof(key));
+		NullKey.ThrowIfNull(key);
 
 		int index = BinarySearchByKey(key);
 		if (index >= 0)
@@ -376,7 +376,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <returns>True if the key-value pair is found; otherwise, false.</returns>
 	public bool Contains(KeyValuePair<TKey, TValue> item)
 	{
-		Ensure.NotNull((object?)item.Key, nameof(item));
+		NullKey.ThrowIfNullItem(item.Key);
 
 		int index = BinarySearchByKey(item.Key);
 		return (index >= 0)
@@ -419,7 +419,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <returns>True if the key-value pair was successfully removed; otherwise, false.</returns>
 	public bool Remove(KeyValuePair<TKey, TValue> item)
 	{
-		Ensure.NotNull((object?)item.Key, nameof(item));
+		NullKey.ThrowIfNullItem(item.Key);
 
 		int index = BinarySearchByKey(item.Key);
 		if (index < 0)
@@ -464,7 +464,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <exception cref="ArgumentNullException">Thrown when key is null.</exception>
 	private int BinarySearchByKey(TKey key)
 	{
-		Ensure.NotNull((object?)key, nameof(key));
+		NullKey.ThrowIfNull(key);
 
 		int left = 0;
 		int right = items.Count - 1;
@@ -511,7 +511,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 
 		public bool Contains(TKey item)
 		{
-			Ensure.NotNull((object?)item, nameof(item));
+			NullKey.ThrowIfNullItem(item);
 			return map.ContainsKey(item);
 		}
 
