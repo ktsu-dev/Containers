@@ -91,7 +91,7 @@ public class InsertionOrderMap<TKey, TValue>
 	{
 		get
 		{
-			Ensure.NotNull((object?)key);
+			NullKey.ThrowIfNull(key);
 
 			return !keyToIndex.TryGetValue(key, out int index)
 				? throw new KeyNotFoundException($"The key '{key}' was not found in the map.")
@@ -99,7 +99,7 @@ public class InsertionOrderMap<TKey, TValue>
 		}
 		set
 		{
-			Ensure.NotNull((object?)key);
+			NullKey.ThrowIfNull(key);
 
 			if (keyToIndex.TryGetValue(key, out int index))
 			{
@@ -242,7 +242,7 @@ public class InsertionOrderMap<TKey, TValue>
 	/// </remarks>
 	public void Add(TKey key, TValue value)
 	{
-		Ensure.NotNull((object?)key);
+		NullKey.ThrowIfNull(key);
 
 		if (keyToIndex.ContainsKey(key))
 		{
@@ -269,7 +269,7 @@ public class InsertionOrderMap<TKey, TValue>
 	/// </remarks>
 	public bool Remove(TKey key)
 	{
-		Ensure.NotNull((object?)key);
+		NullKey.ThrowIfNull(key);
 
 		if (!keyToIndex.TryGetValue(key, out int index))
 		{
@@ -302,7 +302,7 @@ public class InsertionOrderMap<TKey, TValue>
 	/// </remarks>
 	public bool ContainsKey(TKey key)
 	{
-		Ensure.NotNull((object?)key);
+		NullKey.ThrowIfNull(key);
 		return keyToIndex.ContainsKey(key);
 	}
 
@@ -322,7 +322,7 @@ public class InsertionOrderMap<TKey, TValue>
 #endif
 		out TValue value)
 	{
-		Ensure.NotNull((object?)key);
+		NullKey.ThrowIfNull(key);
 
 		if (keyToIndex.TryGetValue(key, out int index))
 		{
@@ -434,7 +434,7 @@ public class InsertionOrderMap<TKey, TValue>
 
 		public bool Contains(TKey item)
 		{
-			Ensure.NotNull((object?)item);
+			NullKey.ThrowIfNullItem(item);
 			return map.ContainsKey(item);
 		}
 
