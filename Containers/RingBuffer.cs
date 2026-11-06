@@ -58,14 +58,25 @@ public class RingBuffer<T> : IReadOnlyList<T>
 	private int Capacity { get; set; }
 
 	/// <summary>
-	/// Gets or sets the logical length of the buffer (number of elements to store).
+	/// Gets the number of elements the buffer holds when full: the length given to the constructor,
+	/// <see cref="Resize"/> or <see cref="Resample"/>.
 	/// </summary>
-	private int Length { get; set; }
+	/// <remarks>
+	/// This is the logical length, not the power-of-two size of the storage behind it. Once
+	/// <see cref="Count"/> reaches it, each <see cref="PushBack"/> evicts the oldest element.
+	/// </remarks>
+	public int Length { get; private set; }
 
 	/// <summary>
 	/// Gets the number of valid elements in the buffer.
 	/// </summary>
 	public int Count { get; private set; } // Track number of valid elements
+
+	/// <summary>
+	/// Gets a value indicating whether the buffer holds <see cref="Length"/> elements, so the next
+	/// <see cref="PushBack"/> evicts the oldest one.
+	/// </summary>
+	public bool IsFull => Count == Length;
 
 	/// <summary>
 	/// Incremented by every change, so an enumerator can tell the buffer changed under it.

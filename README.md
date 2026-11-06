@@ -61,6 +61,7 @@ A fixed-size circular buffer optimized for continuous data streams.
 
 -   O(1) insertion and access operations
 -   Automatic wrapping when capacity is reached
+-   `Length` and `IsFull` tell whether the next push evicts the oldest element
 -   Index-based access to buffer elements
 -   Resizing and resampling capabilities
 -   Power-of-two sizing for optimal performance
@@ -208,6 +209,10 @@ buffer.PushBack(4); // Overwrites first element
 
 // Index access
 int latest = buffer[buffer.Count - 1]; // 4 (most recent)
+
+// Length is the size given to the constructor, Resize or Resample
+bool evictsNext = buffer.IsFull; // true: Count == Length == 3
+buffer.Resample(buffer.Length * 2);
 ```
 
 ## 🛠️ Development
