@@ -283,4 +283,35 @@ public class OrderedCollectionBenchmarks
 
 		return list;
 	}
+
+	/// <summary>
+	/// Benchmark adding the second half of the data to a collection holding the first half, one element at a time.
+	/// </summary>
+	[Benchmark]
+	public OrderedCollection<int> OrderedCollection_AddBatchOneAtATime()
+	{
+		OrderedCollection<int> collection = CreateFirstHalf();
+		foreach (int item in testData.Skip(testData.Length / 2))
+		{
+			collection.Add(item);
+		}
+
+		return collection;
+	}
+
+	/// <summary>
+	/// Benchmark adding the second half of the data to a collection holding the first half with AddRange.
+	/// </summary>
+	[Benchmark]
+	public OrderedCollection<int> OrderedCollection_AddRange()
+	{
+		OrderedCollection<int> collection = CreateFirstHalf();
+		collection.AddRange(testData.Skip(testData.Length / 2));
+		return collection;
+	}
+
+	/// <summary>
+	/// Builds a collection holding the first half of the test data.
+	/// </summary>
+	private OrderedCollection<int> CreateFirstHalf() => new(testData.Take(testData.Length / 2), Comparer<int>.Default);
 }

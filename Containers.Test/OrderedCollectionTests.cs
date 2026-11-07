@@ -815,4 +815,64 @@ public class OrderedCollectionTests
 		(int Key, string Name)[] expected = [.. source.OrderBy(item => item.Key)];
 		Assert.AreSequenceEqual(expected, collection);
 	}
+
+	[TestMethod]
+	public void AddRange_KeyComparerWithDuplicateKeys_MatchesAddingOneAtATime()
+	{
+		// Enough elements, on both sides, that the bulk path merges rather than adding one at a time
+		(int Key, string Name)[] existing = [.. Enumerable.Range(0, 200).Select(i => (i * 7 % 10, "existing" + i.ToString(System.Globalization.CultureInfo.InvariantCulture)))];
+		(int Key, string Name)[] batch = [.. Enumerable.Range(0, 300).Select(i => (i * 3 % 11, "added" + i.ToString(System.Globalization.CultureInfo.InvariantCulture)))];
+
+		OrderedCollection<(int Key, string Name)> oneAtATime = new(existing, ByKey);
+		foreach ((int Key, string Name) item in batch)
+		{
+			oneAtATime.Add(item);
+		}
+
+		OrderedCollection<(int Key, string Name)> bulk = new(existing, ByKey);
+		bulk.AddRange(batch);
+
+		Assert.AreSequenceEqual(oneAtATime, bulk);
+	}
+
+	[TestMethod]
+	public void AddRange_SmallBatch_MatchesAddingOneAtATime()
+	{
+		OrderedCollection<(int Key, string Name)> collection = new(ByKey) { (1, "a"), (2, "b") };
+
+		collection.AddRange([(2, "c"), (0, "d"), (1, "e")]);
+
+		Assert.AreSequenceEqual([(0, "d"), (1, "a"), (1, "e"), (2, "b"), (2, "c")], collection);
+	}
+
+	[TestMethod]
+	public void AddRange_Itself_AddsASnapshotOfItsElements()
+	{
+		OrderedCollection<int> collection = [.. Enumerable.Range(0, 100)];
+
+		collection.AddRange(collection);
+
+		Assert.AreSequenceEqual(Enumerable.Range(0, 100).SelectMany(i => new[] { i, i }), collection);
+	}
+
+	[TestMethod]
+	public void AddRange_Null_Throws() =>
+		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedCollection<int>().AddRange(null!));
+
+	[TestMethod]
+	public void AddRange_LargeBatchIntoLargeCollection_RunsInLinearithmicTime()
+	{
+		const int size = 200_000;
+		Random random = new(42);
+		int[] existing = [.. Enumerable.Range(0, size).Select(_ => random.Next())];
+		int[] batch = [.. Enumerable.Range(0, size).Select(_ => random.Next())];
+		OrderedCollection<int> collection = new(existing, Comparer<int>.Default);
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		collection.AddRange(batch);
+		stopwatch.Stop();
+
+		Assert.AreSequenceEqual(existing.Concat(batch).Order(), collection);
+		Assert.IsLessThan(1_000, stopwatch.ElapsedMilliseconds);
+	}
 }

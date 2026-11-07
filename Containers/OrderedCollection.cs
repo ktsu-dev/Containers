@@ -197,6 +197,61 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 	public void Add(T item) => items.Insert(FindUpperBound(item), item);
 
 	/// <summary>
+	/// Adds the elements of a sequence to the collection, each in its sorted position.
+	/// </summary>
+	/// <param name="collection">The elements to add.</param>
+	/// <exception cref="ArgumentNullException">Thrown when collection is null.</exception>
+	/// <remarks>
+	/// The result is the same as calling <see cref="Add"/> for each element in turn: an added
+	/// element goes after every element already in the collection that compares equal to it, and
+	/// equal added elements keep the order they had in <paramref name="collection"/>. A large batch
+	/// is sorted and merged in one pass, O(n + m log m), rather than shifting the tail of the
+	/// collection once per element, which is O(n·m).
+	/// </remarks>
+	public void AddRange(IEnumerable<T> collection)
+	{
+		Ensure.NotNull(collection);
+
+		// Copied first, so adding the collection to itself reads a snapshot
+		T[] batch = [.. collection];
+
+		// A few additions are cheapest one at a time
+		if (batch.Length <= SmallBatchCount)
+		{
+			foreach (T item in batch)
+			{
+				Add(item);
+			}
+
+			return;
+		}
+
+		StableSort.Sort(batch, comparer);
+
+		// Grow by the batch, then merge from the back so no element moves more than once.
+		// On a tie the added element is placed first from the back, so it ends up after the existing one.
+		int i = items.Count - 1;
+		int j = batch.Length - 1;
+		items.AddRange(batch);
+		int k = items.Count - 1;
+
+		while (j >= 0 && i >= 0)
+		{
+			items[k--] = comparer.Compare(batch[j], items[i]) >= 0 ? batch[j--] : items[i--];
+		}
+
+		while (j >= 0)
+		{
+			items[k--] = batch[j--];
+		}
+	}
+
+	/// <summary>
+	/// The largest batch <see cref="AddRange"/> adds one element at a time rather than merging.
+	/// </summary>
+	private const int SmallBatchCount = 16;
+
+	/// <summary>
 	/// Removes all elements from the collection.
 	/// </summary>
 	public void Clear() => items.Clear();

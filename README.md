@@ -181,6 +181,9 @@ bool contains = collection.Contains(2); // O(log n) binary search
 
 // Access by index
 int first = collection[0]; // 1
+
+// Add a batch in one sorted merge rather than one insert per element
+collection.AddRange([5, 0, 4]); // [0, 1, 2, 3, 4, 5]
 ```
 
 ### OrderedSet<T>

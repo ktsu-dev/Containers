@@ -591,4 +591,90 @@ public class OrderedMapTests
 		Assert.AreSequenceEqual([3, 2, 1], map.Keys);
 		Assert.AreSequenceEqual(["three", "two", "one"], map.Values);
 	}
+
+	[TestMethod]
+	public void AddRange_MatchesAddingOneAtATime()
+	{
+		OrderedMap<int, int> oneAtATime = [.. Enumerable.Range(0, 200).ToDictionary(i => i * 3, i => i)];
+		OrderedMap<int, int> bulk = [.. Enumerable.Range(0, 200).ToDictionary(i => i * 3, i => i)];
+		KeyValuePair<int, int>[] batch = [.. Enumerable.Range(0, 300).Where(i => i % 3 != 0).Reverse().Select(i => new KeyValuePair<int, int>(i, -i))];
+
+		foreach (KeyValuePair<int, int> pair in batch)
+		{
+			oneAtATime.Add(pair.Key, pair.Value);
+		}
+
+		bulk.AddRange(batch);
+
+		Assert.AreSequenceEqual(oneAtATime, bulk);
+	}
+
+	[TestMethod]
+	public void AddRange_KeyAlreadyInMap_ThrowsAndLeavesMapUnchanged()
+	{
+		OrderedMap<string, int> map = new(StringComparer.OrdinalIgnoreCase) { ["a"] = 1, ["c"] = 3 };
+		KeyValuePair<string, int>[] before = [.. map];
+
+		Assert.ThrowsExactly<ArgumentException>(() => map.AddRange([new("b", 2), new("A", 4), new("d", 5)]));
+
+		Assert.AreSequenceEqual(before, map);
+	}
+
+	[TestMethod]
+	public void AddRange_KeysEqualWithinBatch_ThrowsAndLeavesMapUnchanged()
+	{
+		OrderedMap<string, int> map = new(StringComparer.OrdinalIgnoreCase) { ["a"] = 1 };
+		KeyValuePair<string, int>[] before = [.. map];
+
+		Assert.ThrowsExactly<ArgumentException>(() => map.AddRange([new("b", 2), new("c", 3), new("B", 4)]));
+
+		Assert.AreSequenceEqual(before, map);
+	}
+
+	[TestMethod]
+	public void AddRange_NullKey_ThrowsAndLeavesMapUnchanged()
+	{
+		OrderedMap<string, int> map = new() { ["a"] = 1 };
+
+		Assert.ThrowsExactly<ArgumentNullException>(() => map.AddRange([new("b", 2), new(null!, 3)]));
+
+		Assert.AreSequenceEqual([new KeyValuePair<string, int>("a", 1)], map);
+	}
+
+	[TestMethod]
+	public void AddRange_InvalidatesAnEnumerator()
+	{
+		OrderedMap<int, int> map = new() { [1] = 1 };
+		using IEnumerator<KeyValuePair<int, int>> enumerator = map.GetEnumerator();
+
+		map.AddRange([new(2, 2)]);
+
+		Assert.ThrowsExactly<InvalidOperationException>(() => enumerator.MoveNext());
+	}
+
+	[TestMethod]
+	public void AddRange_Empty_LeavesAnEnumeratorValid()
+	{
+		OrderedMap<int, int> map = new() { [1] = 1 };
+		using IEnumerator<KeyValuePair<int, int>> enumerator = map.GetEnumerator();
+
+		map.AddRange([]);
+
+		Assert.IsTrue(enumerator.MoveNext());
+	}
+
+	[TestMethod]
+	public void AddRange_LargeBatchIntoLargeMap_RunsInLinearithmicTime()
+	{
+		const int size = 200_000;
+		OrderedMap<int, int> map = [.. Enumerable.Range(0, size).ToDictionary(i => i * 2, i => i)];
+		KeyValuePair<int, int>[] batch = [.. Enumerable.Range(0, size).Reverse().Select(i => new KeyValuePair<int, int>((i * 2) + 1, i))];
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		map.AddRange(batch);
+		stopwatch.Stop();
+
+		Assert.AreSequenceEqual(Enumerable.Range(0, size * 2), map.Keys);
+		Assert.IsLessThan(1_000, stopwatch.ElapsedMilliseconds);
+	}
 }
