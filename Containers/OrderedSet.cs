@@ -4,6 +4,7 @@ namespace ktsu.Containers;
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 /// <summary>
 /// Represents a generic set that maintains unique elements in sorted order.
@@ -33,6 +34,7 @@ using System.Diagnostics.CodeAnalysis;
 	"CA1710:Identifiers should have correct suffix",
 	Justification = "OrderedSet is a known collection name"
 )]
+[CollectionBuilder(typeof(OrderedSet), nameof(OrderedSet.Create))]
 public class OrderedSet<T> : ISet<T>
 #if NET5_0_OR_GREATER
 		, IReadOnlySet<T>
@@ -573,4 +575,24 @@ public class OrderedSet<T> : ISet<T>
 	/// </summary>
 	/// <returns>A shallow copy of the set.</returns>
 	public OrderedSet<T> Clone() => new(items, Comparer);
+}
+
+/// <summary>
+/// Builds <see cref="OrderedSet{T}"/> instances, including from collection expressions.
+/// </summary>
+public static class OrderedSet
+{
+	/// <summary>
+	/// Creates an <see cref="OrderedSet{T}"/> that uses the default comparer and holds the specified elements.
+	/// </summary>
+	/// <typeparam name="T">The type of elements stored in the set.</typeparam>
+	/// <param name="items">The elements to add.</param>
+	/// <returns>A new set holding <paramref name="items"/> in sorted order.</returns>
+	/// <remarks>
+	/// Collection expressions such as <c>[.. data]</c> call this method, so they sort the elements once in
+	/// O(n log n) rather than inserting them one at a time in O(n^2). The result is the same as
+	/// <see cref="OrderedSet{T}.OrderedSet(IEnumerable{T})"/>: of any elements that compare equal, only the first is kept.
+	/// </remarks>
+	/// <exception cref="ArgumentException">Thrown when T does not implement IComparable{T} or IComparable.</exception>
+	public static OrderedSet<T> Create<T>(ReadOnlySpan<T> items) => new(items.ToArray());
 }
