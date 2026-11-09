@@ -1,6 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Sdk Name="ktsu.Sdk" />
 
+  <!-- netstandard's IDictionary and IReadOnlyDictionary predate nullable annotations, so CS8767 reads the
+       maps' honest [MaybeNullWhen(false)] on TryGetValue as weaker than the interface. The value is default on
+       a miss, which is what every later target's interface says too (#105). -->
+  <PropertyGroup Condition="$(TargetFramework.StartsWith('netstandard'))">
+    <NoWarn>$(NoWarn);CS8767</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Polyfill" PrivateAssets="all" />
     <PackageReference Include="System.Memory" />

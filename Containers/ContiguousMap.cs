@@ -435,16 +435,7 @@ public class ContiguousMap<TKey, TValue>
 	/// <remarks>
 	/// This operation has O(1) average time complexity.
 	/// </remarks>
-#if !NET5_0_OR_GREATER
-	// netstandard's IDictionary and IReadOnlyDictionary predate nullable annotations, so CS8767
-	// reads this out value's honest annotation as weaker than theirs. The value really is default
-	// on a miss, which is what every later target's interface says too (#105).
-#pragma warning disable CS8767
-#endif
 	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
-#if !NET5_0_OR_GREATER
-#pragma warning restore CS8767
-#endif
 	{
 		Ensure.NotNull((object?)key);
 
