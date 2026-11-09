@@ -79,18 +79,16 @@ public class MapTryGetValueNullabilityTests
 			using PEReader pe = new(stream);
 			MetadataReader reader = pe.GetMetadataReader();
 
-			foreach (TypeDefinitionHandle typeHandle in reader.TypeDefinitions)
+			foreach (TypeDefinition type in reader.TypeDefinitions.Select(reader.GetTypeDefinition))
 			{
-				TypeDefinition type = reader.GetTypeDefinition(typeHandle);
 				string typeName = $"{reader.GetString(type.Namespace)}.{reader.GetString(type.Name)}";
 				if (!MapTypeNames.Contains(typeName))
 				{
 					continue;
 				}
 
-				foreach (MethodDefinitionHandle methodHandle in type.GetMethods())
+				foreach (MethodDefinition method in type.GetMethods().Select(reader.GetMethodDefinition))
 				{
-					MethodDefinition method = reader.GetMethodDefinition(methodHandle);
 					if (reader.GetString(method.Name) != "TryGetValue")
 					{
 						continue;
