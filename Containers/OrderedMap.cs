@@ -329,11 +329,16 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	/// <param name="value">When this method returns, contains the value associated with the specified key, if the key is found; otherwise, the default value for the type of the value parameter.</param>
 	/// <returns>True if the map contains an element with the specified key; otherwise, false.</returns>
 	/// <exception cref="ArgumentNullException">Thrown when key is null.</exception>
-	public bool TryGetValue(TKey key,
-#if NET5_0_OR_GREATER
-		[MaybeNullWhen(false)]
+#if !NET5_0_OR_GREATER
+	// netstandard's IDictionary and IReadOnlyDictionary predate nullable annotations, so CS8767
+	// reads this out value's honest annotation as weaker than theirs. The value really is default
+	// on a miss, which is what every later target's interface says too (#105).
+#pragma warning disable CS8767
 #endif
-		out TValue value)
+	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
+#if !NET5_0_OR_GREATER
+#pragma warning restore CS8767
+#endif
 	{
 		Ensure.NotNull((object?)key);
 
@@ -344,11 +349,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 			return true;
 		}
 
-#if NET5_0_OR_GREATER
 		value = default;
-#else
-		value = default!;
-#endif
 		return false;
 	}
 
