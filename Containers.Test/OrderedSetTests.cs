@@ -4,6 +4,7 @@ namespace ktsu.Containers.Test;
 
 using System.Collections;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 [TestClass]
@@ -944,5 +945,77 @@ public class OrderedSetTests
 
 		Assert.AreSequenceEqual([1, 2, 5, 6], set);
 		Assert.AreSequenceEqual([3, 4, 5, 6], other);
+	}
+
+	/// <summary>An element ordered by <see cref="Key"/> alone, so elements with the same key tie.</summary>
+	private readonly record struct Tied(int Key, int Order) : IComparable<Tied>
+	{
+		public int CompareTo(Tied other) => Key.CompareTo(other.Key);
+	}
+
+	private sealed class NoOrdering;
+
+	[TestMethod]
+	public void CollectionExpression_IsBuiltByCreate()
+	{
+		CollectionBuilderAttribute? builder = typeof(OrderedSet<>).GetCustomAttributes(typeof(CollectionBuilderAttribute), false).OfType<CollectionBuilderAttribute>().SingleOrDefault();
+
+		Assert.IsNotNull(builder);
+		Assert.AreEqual(typeof(OrderedSet), builder.BuilderType);
+		Assert.AreEqual(nameof(OrderedSet.Create), builder.MethodName);
+	}
+
+	[TestMethod]
+	public void CollectionExpression_MatchesConstructor()
+	{
+		Random random = new(42);
+		int[] data = [.. Enumerable.Range(0, 1_000).Select(_ => random.Next(100))];
+
+		OrderedSet<int> fromExpression = [.. data];
+
+		Assert.AreSequenceEqual(new OrderedSet<int>(data), fromExpression);
+	}
+
+	[TestMethod]
+	public void CollectionExpression_Empty_CreatesEmptyInstance()
+	{
+		OrderedSet<int> empty = [];
+
+		Assert.IsEmpty(empty);
+	}
+
+	[TestMethod]
+	public void Create_TypeWithoutDefaultOrdering_ThrowsArgumentException()
+	{
+		NoOrdering[] data = [new(), new()];
+
+		Assert.ThrowsExactly<ArgumentException>(() => OrderedSet.Create<NoOrdering>(data));
+		Assert.ThrowsExactly<ArgumentException>(() => OrderedSet.Create<NoOrdering>([]));
+	}
+
+	[TestMethod]
+	public void CollectionExpression_FromLargeDescendingSequence_RunsInLinearithmicTime()
+	{
+		// Adding one at a time inserts each element at the front, which takes many seconds at this size
+		const int size = 1_000_000;
+		int[] descending = [.. Enumerable.Range(0, size).Reverse()];
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		OrderedSet<int> fromExpression = [.. descending];
+		stopwatch.Stop();
+
+		Assert.AreSequenceEqual(Enumerable.Range(0, size), fromExpression);
+		Assert.IsLessThan(5_000, stopwatch.ElapsedMilliseconds);
+	}
+
+	[TestMethod]
+	public void CollectionExpression_ComparerTies_KeepsFirstElement()
+	{
+		Tied[] data = [new(2, 0), new(1, 1), new(2, 2), new(1, 3), new(3, 4)];
+
+		OrderedSet<Tied> fromExpression = [.. data];
+
+		Assert.AreSequenceEqual([new Tied(1, 1), new Tied(2, 0), new Tied(3, 4)], fromExpression);
+		Assert.AreSequenceEqual(new OrderedSet<Tied>(data), fromExpression);
 	}
 }

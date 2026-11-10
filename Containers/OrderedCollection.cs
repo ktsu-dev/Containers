@@ -4,6 +4,7 @@ namespace ktsu.Containers;
 
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 
 /// <summary>
 /// Represents a generic collection that maintains elements in sorted order.
@@ -32,6 +33,7 @@ using System.Diagnostics.CodeAnalysis;
 	"CA1710:Identifiers should have correct suffix",
 	Justification = "OrderedCollection is a known collection name"
 )]
+[CollectionBuilder(typeof(OrderedCollection), nameof(OrderedCollection.Create))]
 public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 {
 	/// <summary>
@@ -446,4 +448,29 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 	/// </summary>
 	/// <returns>A shallow copy of the collection.</returns>
 	public OrderedCollection<T> Clone() => new(items, comparer);
+}
+
+/// <summary>
+/// Builds <see cref="OrderedCollection{T}"/> instances, including from collection expressions.
+/// </summary>
+[SuppressMessage(
+	"Naming",
+	"CA1711:Identifiers should not have incorrect suffix",
+	Justification = "Named for the OrderedCollection<T> it builds, as collection expressions expect"
+)]
+public static class OrderedCollection
+{
+	/// <summary>
+	/// Creates an <see cref="OrderedCollection{T}"/> that uses the default comparer and holds the specified elements.
+	/// </summary>
+	/// <typeparam name="T">The type of elements stored in the collection.</typeparam>
+	/// <param name="items">The elements to add.</param>
+	/// <returns>A new collection holding <paramref name="items"/> in sorted order.</returns>
+	/// <remarks>
+	/// Collection expressions such as <c>[.. data]</c> call this method, so they sort the elements once in
+	/// O(n log n) rather than inserting them one at a time in O(n^2). The result is the same as
+	/// <see cref="OrderedCollection{T}.OrderedCollection(IEnumerable{T})"/>: elements that compare equal keep their original order.
+	/// </remarks>
+	/// <exception cref="ArgumentException">Thrown when T does not implement IComparable{T} or IComparable.</exception>
+	public static OrderedCollection<T> Create<T>(ReadOnlySpan<T> items) => new(items.ToArray());
 }
