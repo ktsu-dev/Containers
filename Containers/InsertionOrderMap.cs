@@ -316,11 +316,7 @@ public class InsertionOrderMap<TKey, TValue>
 	/// <remarks>
 	/// This operation has O(1) average time complexity.
 	/// </remarks>
-	public bool TryGetValue(TKey key,
-#if NET5_0_OR_GREATER
-		[MaybeNullWhen(false)]
-#endif
-		out TValue value)
+	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
 	{
 		Ensure.NotNull((object?)key);
 
@@ -330,11 +326,7 @@ public class InsertionOrderMap<TKey, TValue>
 			return true;
 		}
 
-#if NET5_0_OR_GREATER
 		value = default;
-#else
-		value = default!;
-#endif
 		return false;
 	}
 
