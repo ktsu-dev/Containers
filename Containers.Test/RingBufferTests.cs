@@ -9,6 +9,67 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 public class RingBufferTests
 {
 	[TestMethod]
+	public void Length_IsTheLengthGivenToEachConstructor()
+	{
+		Assert.AreEqual(5, new RingBuffer<int>(5).Length);
+		Assert.AreEqual(3, new RingBuffer<int>([1, 2, 3, 4, 5], 3).Length);
+		Assert.AreEqual(4, new RingBuffer<int>([1, 2], 4).Length);
+		Assert.AreEqual(6, new RingBuffer<int>(7, 6).Length);
+	}
+
+	[TestMethod]
+	public void Length_FollowsResizeAndResample()
+	{
+		RingBuffer<int> buffer = new([1, 2, 3], 3);
+
+		buffer.Resize(5);
+		Assert.AreEqual(5, buffer.Length);
+
+		buffer.PushBack(1);
+		buffer.PushBack(2);
+		buffer.Resample(buffer.Length * 2);
+		Assert.AreEqual(10, buffer.Length);
+		Assert.AreEqual(4, buffer.Count, "A part-filled buffer keeps its fill ratio, so Count is not the length");
+
+		buffer.Resample(buffer.Length / 4);
+		Assert.AreEqual(2, buffer.Length);
+	}
+
+	[TestMethod]
+	public void Length_IsUnchangedByAFailedResize()
+	{
+		RingBuffer<int> buffer = new([1, 2, 3], 3);
+
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => buffer.Resize(0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => buffer.Resize((1 << 30) + 1));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => buffer.Resample(-1));
+
+		Assert.AreEqual(3, buffer.Length);
+		Assert.IsTrue(buffer.IsFull);
+	}
+
+	[TestMethod]
+	public void IsFull_IsTrueFromTheLengththPushOn()
+	{
+		// 5 is not a power of two, so the backing storage is larger than the length
+		RingBuffer<int> buffer = new(5);
+
+		for (int i = 0; i < 5; i++)
+		{
+			Assert.IsFalse(buffer.IsFull, $"Full after {i} pushes");
+			buffer.PushBack(i);
+		}
+
+		Assert.IsTrue(buffer.IsFull);
+		buffer.PushBack(5);
+		Assert.IsTrue(buffer.IsFull, "Still full after a push that evicts");
+		Assert.AreEqual(1, buffer.Front());
+
+		buffer.Clear();
+		Assert.IsFalse(buffer.IsFull);
+	}
+
+	[TestMethod]
 	public void Constructor_InitializesCorrectly()
 	{
 		RingBuffer<int> buffer = new(4);
