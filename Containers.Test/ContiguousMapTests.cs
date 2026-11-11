@@ -415,6 +415,108 @@ public class ContiguousMapTests
 	}
 
 	[TestMethod]
+	public void CopyKeysTo_FillsDestinationInInsertionOrder()
+	{
+		ContiguousMap<int, string> map = new() { { 3, "three" }, { 1, "one" }, { 4, "four" }, { 2, "two" } };
+		int[] destination = new int[4];
+
+		map.CopyKeysTo(destination);
+
+		int[] expected = [3, 1, 4, 2];
+		Assert.AreSequenceEqual(expected, destination);
+	}
+
+	[TestMethod]
+	public void CopyValuesTo_FillsDestinationInInsertionOrder()
+	{
+		ContiguousMap<int, string> map = new() { { 3, "three" }, { 1, "one" }, { 4, "four" }, { 2, "two" } };
+		string[] destination = new string[4];
+
+		map.CopyValuesTo(destination);
+
+		string[] expected = ["three", "one", "four", "two"];
+		Assert.AreSequenceEqual(expected, destination);
+	}
+
+	[TestMethod]
+	public void CopyKeysTo_LongerDestination_LeavesTailUntouched()
+	{
+		ContiguousMap<int, string> map = new() { { 7, "seven" }, { 8, "eight" } };
+		int[] destination = [-1, -1, -1, -1];
+
+		map.CopyKeysTo(destination);
+
+		int[] expected = [7, 8, -1, -1];
+		Assert.AreSequenceEqual(expected, destination);
+	}
+
+	[TestMethod]
+	public void CopyKeysTo_ShorterDestination_ThrowsWithoutWriting()
+	{
+		ContiguousMap<int, string> map = new() { { 7, "seven" }, { 8, "eight" } };
+		int[] destination = [-1];
+
+		ArgumentException exception = Assert.ThrowsExactly<ArgumentException>(() => map.CopyKeysTo(destination));
+
+		Assert.AreEqual("destination", exception.ParamName);
+		Assert.AreEqual(-1, destination[0]);
+	}
+
+	[TestMethod]
+	public void CopyValuesTo_ShorterDestination_ThrowsWithoutWriting()
+	{
+		ContiguousMap<int, string> map = new() { { 7, "seven" }, { 8, "eight" } };
+		string[] destination = ["untouched"];
+
+		ArgumentException exception = Assert.ThrowsExactly<ArgumentException>(() => map.CopyValuesTo(destination));
+
+		Assert.AreEqual("destination", exception.ParamName);
+		Assert.AreEqual("untouched", destination[0]);
+	}
+
+	[TestMethod]
+	public void CopyKeysAndValuesTo_DoNotAllocate()
+	{
+		ContiguousMap<int, int> map = [];
+		for (int i = 0; i < 1_000; i++)
+		{
+			map.Add(i, i * 2);
+		}
+
+		int[] keys = new int[map.Count];
+		int[] values = new int[map.Count];
+		map.CopyKeysTo(keys);
+		map.CopyValuesTo(values);
+
+		long before = GC.GetAllocatedBytesForCurrentThread();
+		map.CopyKeysTo(keys);
+		map.CopyValuesTo(values);
+		long allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+
+		Assert.AreEqual(0, allocated);
+		Assert.AreEqual(999, keys[999]);
+		Assert.AreEqual(1_998, values[999]);
+	}
+
+	[TestMethod]
+	[DataRow(nameof(ContiguousMap<,>.GetKeysSpan), nameof(ContiguousMap<,>.CopyKeysTo))]
+	[DataRow(nameof(ContiguousMap<,>.GetValuesSpan), nameof(ContiguousMap<,>.CopyValuesTo))]
+	public void CopyingSpanAccessors_AreObsoleteAndPointAtTheirReplacement(string method, string replacement)
+	{
+		// The *Span names read as zero-copy views, but every call allocates and copies the whole map
+		ObsoleteAttribute? obsolete = typeof(ContiguousMap<int, int>).GetMethod(method)!
+			.GetCustomAttributes(typeof(ObsoleteAttribute), inherit: false)
+			.Cast<ObsoleteAttribute>()
+			.SingleOrDefault();
+
+		Assert.IsNotNull(obsolete, $"{method} should be marked [Obsolete]");
+		Assert.Contains(replacement, obsolete.Message!);
+		Assert.Contains("AsReadOnlySpan", obsolete.Message!);
+		Assert.IsFalse(obsolete.IsError, "Obsoleting must not break existing callers");
+	}
+
+#pragma warning disable CS0618 // GetKeysSpan/GetValuesSpan are obsolete but still supported
+	[TestMethod]
 	public void GetKeysSpan_ReturnsCorrectSpan()
 	{
 		// Arrange
@@ -442,7 +544,9 @@ public class ContiguousMapTests
 		Assert.Contains(3, spanKeys);
 		Assert.Contains(4, spanKeys);
 	}
+#pragma warning restore CS0618
 
+#pragma warning disable CS0618 // GetKeysSpan/GetValuesSpan are obsolete but still supported
 	[TestMethod]
 	public void GetValuesSpan_ReturnsCorrectSpan()
 	{
@@ -471,7 +575,9 @@ public class ContiguousMapTests
 		Assert.Contains("three", spanValues);
 		Assert.Contains("four", spanValues);
 	}
+#pragma warning restore CS0618
 
+#pragma warning disable CS0618 // GetKeysSpan/GetValuesSpan are obsolete but still supported
 	[TestMethod]
 	public void ContiguousMemoryLayout_OptimalForCachePerformance()
 	{
@@ -506,6 +612,7 @@ public class ContiguousMapTests
 		}
 		Assert.HasCount(1000, spanKeys);
 	}
+#pragma warning restore CS0618
 
 	[TestMethod]
 	public void WorksWithCustomTypes()

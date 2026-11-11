@@ -623,39 +623,87 @@ public class ContiguousMap<TKey, TValue>
 	public ReadOnlySpan<Entry> AsReadOnlySpan() => new(items, 0, Count);
 
 	/// <summary>
-	/// Gets a read-only span representing the keys in the map.
+	/// Copies the keys of the map, in insertion order, into the start of <paramref name="destination"/>.
 	/// </summary>
-	/// <returns>A read-only span over the map's keys.</returns>
+	/// <param name="destination">The span to fill. It must hold at least <see cref="Count"/> elements.</param>
+	/// <exception cref="ArgumentException">Thrown when <paramref name="destination"/> is shorter than <see cref="Count"/>.</exception>
 	/// <remarks>
-	/// This method provides direct access to the keys from the contiguous memory, enabling high-performance
-	/// operations. The keys are extracted from the underlying Entry array.
+	/// O(n), with no allocation. For indexed access without any copy, use <see cref="AsReadOnlySpan"/> and read
+	/// <see cref="Entry.Key"/>.
 	/// </remarks>
-	public ReadOnlySpan<TKey> GetKeysSpan()
+	public void CopyKeysTo(Span<TKey> destination)
 	{
-		TKey[] keys = new TKey[Count];
+		if (destination.Length < Count)
+		{
+			throw new ArgumentException(
+				$"The destination span holds {destination.Length} elements, but the map has {Count}.",
+				nameof(destination)
+			);
+		}
+
 		for (int i = 0; i < Count; i++)
 		{
-			keys[i] = items[i].Key;
+			destination[i] = items[i].Key;
 		}
-		return keys.AsSpan();
 	}
 
 	/// <summary>
-	/// Gets a read-only span representing the values in the map.
+	/// Copies the values of the map, in insertion order, into the start of <paramref name="destination"/>.
 	/// </summary>
-	/// <returns>A read-only span over the map's values.</returns>
+	/// <param name="destination">The span to fill. It must hold at least <see cref="Count"/> elements.</param>
+	/// <exception cref="ArgumentException">Thrown when <paramref name="destination"/> is shorter than <see cref="Count"/>.</exception>
 	/// <remarks>
-	/// This method provides direct access to the values from the contiguous memory, enabling high-performance
-	/// operations. The values are extracted from the underlying Entry array.
+	/// O(n), with no allocation. For indexed access without any copy, use <see cref="AsReadOnlySpan"/> and read
+	/// <see cref="Entry.Value"/>.
 	/// </remarks>
+	public void CopyValuesTo(Span<TValue> destination)
+	{
+		if (destination.Length < Count)
+		{
+			throw new ArgumentException(
+				$"The destination span holds {destination.Length} elements, but the map has {Count}.",
+				nameof(destination)
+			);
+		}
+
+		for (int i = 0; i < Count; i++)
+		{
+			destination[i] = items[i].Value;
+		}
+	}
+
+	/// <summary>
+	/// Copies the keys in the map into a new array and returns a span over it.
+	/// </summary>
+	/// <returns>A read-only span over a new array holding the map's keys, in insertion order.</returns>
+	/// <remarks>
+	/// Despite the name this is not a view: every call allocates an array and copies all n keys, so calling it
+	/// inside an indexed loop is O(n²). Use <see cref="CopyKeysTo"/> to fill a buffer you own, or
+	/// <see cref="AsReadOnlySpan"/> for zero-copy access to <see cref="Entry.Key"/>.
+	/// </remarks>
+	[Obsolete("GetKeysSpan allocates and copies every key on each call. Use CopyKeysTo to fill a buffer you own, or AsReadOnlySpan() for zero-copy access to Entry.Key.")]
+	public ReadOnlySpan<TKey> GetKeysSpan()
+	{
+		TKey[] keys = new TKey[Count];
+		CopyKeysTo(keys);
+		return keys;
+	}
+
+	/// <summary>
+	/// Copies the values in the map into a new array and returns a span over it.
+	/// </summary>
+	/// <returns>A read-only span over a new array holding the map's values, in insertion order.</returns>
+	/// <remarks>
+	/// Despite the name this is not a view: every call allocates an array and copies all n values, so calling it
+	/// inside an indexed loop is O(n²). Use <see cref="CopyValuesTo"/> to fill a buffer you own, or
+	/// <see cref="AsReadOnlySpan"/> for zero-copy access to <see cref="Entry.Value"/>.
+	/// </remarks>
+	[Obsolete("GetValuesSpan allocates and copies every value on each call. Use CopyValuesTo to fill a buffer you own, or AsReadOnlySpan() for zero-copy access to Entry.Value.")]
 	public ReadOnlySpan<TValue> GetValuesSpan()
 	{
 		TValue[] values = new TValue[Count];
-		for (int i = 0; i < Count; i++)
-		{
-			values[i] = items[i].Value;
-		}
-		return values.AsSpan();
+		CopyValuesTo(values);
+		return values;
 	}
 
 	/// <summary>
