@@ -892,7 +892,7 @@ public class OrderedCollectionTests
 			Assert.Contains(original, contents);
 		}
 
-		Assert.AreEqual(contents.Length, contents.Distinct().Count());
+		Assert.HasCount(contents.Length, contents.Distinct());
 	}
 
 	[TestMethod]
