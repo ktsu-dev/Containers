@@ -882,6 +882,24 @@ public class OrderedSetTests
 	}
 
 	[TestMethod]
+	public void ExceptWith_LargeEvens_RunsInLinearithmicTime()
+	{
+		// One RemoveAt per excepted element shifts the whole tail each time: about 2.4e11 moves at this size,
+		// over ten seconds even as a memmove, where one compaction pass takes about a hundred milliseconds
+		const int size = 800_000;
+		const int budgetMilliseconds = 1_500;
+		OrderedSet<int> set = [.. Enumerable.Range(0, size)];
+		int[] evens = [.. Enumerable.Range(0, size / 2).Select(i => i * 2)];
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		set.ExceptWith(evens);
+		stopwatch.Stop();
+
+		Assert.AreSequenceEqual(Enumerable.Range(0, size / 2).Select(i => (i * 2) + 1), set);
+		Assert.IsLessThan(budgetMilliseconds, stopwatch.ElapsedMilliseconds);
+	}
+
+	[TestMethod]
 	public void Constructor_FromSequenceWithDuplicates_KeepsFirstOccurrence()
 	{
 		// Enough elements that the bulk path merges rather than only insertion sorting

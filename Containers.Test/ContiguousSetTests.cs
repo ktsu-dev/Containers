@@ -600,6 +600,21 @@ public class ContiguousSetTests
 	private const int LargeSetBudgetMilliseconds = 1_500;
 
 	[TestMethod]
+	public void ExceptWith_LargeSetRemovingEvens_RunsInLinearTimeAndKeepsOrder()
+	{
+		ContiguousSet<int> set = [.. Enumerable.Range(0, LargeSetSize)];
+
+		Stopwatch stopwatch = Stopwatch.StartNew();
+		set.ExceptWith(Enumerable.Range(0, LargeSetSize / 2).Select(i => i * 2));
+		stopwatch.Stop();
+
+		Assert.AreSequenceEqual(Enumerable.Range(0, LargeSetSize / 2).Select(i => (i * 2) + 1), set);
+		Assert.IsFalse(set.Contains(0));
+		Assert.IsTrue(set.Contains(1));
+		Assert.IsLessThan(LargeSetBudgetMilliseconds, stopwatch.ElapsedMilliseconds);
+	}
+
+	[TestMethod]
 	public void IntersectWith_LargeSetWithEmpty_RunsInLinearTime()
 	{
 		ContiguousSet<int> set = [.. Enumerable.Range(0, LargeSetSize)];
