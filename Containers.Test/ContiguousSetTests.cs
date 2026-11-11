@@ -350,8 +350,8 @@ public class ContiguousSetTests
 
 		set.ExceptWith(set.Where(x => x % 2 == 0));
 
-		int[] expected = [1, 3, 5, 7, 9];
-		CollectionAssert.AreEqual(expected, set.ToArray());
+		int[] expectedElements = [1, 3, 5, 7, 9];
+		CollectionAssert.AreEqual(expectedElements, set.ToArray());
 	}
 
 	[TestMethod]
@@ -361,8 +361,8 @@ public class ContiguousSetTests
 
 		set.ExceptWith(set.Skip(2).Take(3));
 
-		int[] expected = [0, 1, 5, 6, 7, 8, 9];
-		CollectionAssert.AreEqual(expected, set.ToArray());
+		int[] expectedElements = [0, 1, 5, 6, 7, 8, 9];
+		CollectionAssert.AreEqual(expectedElements, set.ToArray());
 	}
 
 	[TestMethod]
