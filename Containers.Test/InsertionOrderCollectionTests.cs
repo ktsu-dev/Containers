@@ -477,4 +477,93 @@ public class InsertionOrderCollectionTests
 		Assert.AreEqual("bravo", collection[2]); // Third inserted
 		Assert.AreEqual("alpha", collection[3]); // Fourth inserted (duplicate allowed)
 	}
+
+	/// <summary>
+	/// Reaches the collection through <see cref="IList{T}"/> by a runtime check, so these tests compile either way and
+	/// fail only when the interface is missing.
+	/// </summary>
+	private static IList<int> AsList(InsertionOrderCollection<int> collection)
+	{
+		object boxed = collection;
+		Assert.IsInstanceOfType<IList<int>>(boxed, "InsertionOrderCollection<T> should implement IList<T>");
+		return (IList<int>)boxed;
+	}
+
+	[TestMethod]
+	public void IList_IsImplemented()
+	{
+		InsertionOrderCollection<int> collection = [1, 2, 3];
+
+		Assert.IsInstanceOfType<IList<int>>(collection);
+	}
+
+	[TestMethod]
+	public void IList_InsertRemoveAndIndexer_RoundTripThroughTheInterface()
+	{
+		InsertionOrderCollection<int> collection = [1, 2, 3];
+		IList<int> list = AsList(collection);
+
+		list.Insert(1, 9);
+		Assert.AreSequenceEqual([1, 9, 2, 3], collection);
+		Assert.AreEqual(1, list.IndexOf(9));
+
+		list.Insert(collection.Count, 8);
+		Assert.AreSequenceEqual([1, 9, 2, 3, 8], collection);
+
+		list[2] = 7;
+		Assert.AreEqual(7, collection[2]);
+		Assert.AreEqual(7, list[2]);
+
+		list.RemoveAt(0);
+		Assert.AreSequenceEqual([9, 7, 3, 8], collection);
+		Assert.AreEqual(-1, list.IndexOf(1));
+	}
+
+	[TestMethod]
+	public void IList_InsertOutOfRange_ThrowsArgumentOutOfRangeException()
+	{
+		InsertionOrderCollection<int> collection = [1, 2, 3];
+		IList<int> list = AsList(collection);
+
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.Insert(-1, 0));
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list.Insert(4, 0));
+		Assert.AreSequenceEqual([1, 2, 3], collection);
+	}
+
+	[TestMethod]
+	public void IList_SetOutOfRange_ThrowsArgumentOutOfRangeException()
+	{
+		InsertionOrderCollection<int> collection = [1, 2, 3];
+		IList<int> list = AsList(collection);
+
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list[-1] = 0);
+		Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => list[3] = 0);
+		Assert.AreSequenceEqual([1, 2, 3], collection);
+	}
+
+	[TestMethod]
+	public void IList_SetThroughTheInterfaceIndexer_InvalidatesALiveEnumerator()
+	{
+		InsertionOrderCollection<int> collection = [1, 2, 3];
+		IList<int> list = AsList(collection);
+		using IEnumerator<int> enumerator = collection.GetEnumerator();
+		Assert.IsTrue(enumerator.MoveNext());
+
+		list[0] = 9;
+
+		Assert.ThrowsExactly<InvalidOperationException>(() => enumerator.MoveNext());
+	}
+
+	[TestMethod]
+	public void IList_InsertThroughTheInterface_InvalidatesALiveEnumerator()
+	{
+		InsertionOrderCollection<int> collection = [1, 2, 3];
+		IList<int> list = AsList(collection);
+		using IEnumerator<int> enumerator = collection.GetEnumerator();
+		Assert.IsTrue(enumerator.MoveNext());
+
+		list.Insert(0, 9);
+
+		Assert.ThrowsExactly<InvalidOperationException>(() => enumerator.MoveNext());
+	}
 }
