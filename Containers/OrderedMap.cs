@@ -289,6 +289,70 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 	}
 
 	/// <summary>
+	/// Adds a sequence of key-value pairs to the map.
+	/// </summary>
+	/// <param name="pairs">The key-value pairs to add.</param>
+	/// <exception cref="ArgumentNullException">Thrown when pairs is null, or when a key is null.</exception>
+	/// <exception cref="ArgumentException">
+	/// Thrown when a key already exists in the map, or when two of the keys compare equal, as
+	/// <see cref="Add(TKey, TValue)"/> would. The map is left unchanged.
+	/// </exception>
+	/// <remarks>
+	/// Every pair is checked before any is added, so the map either gains all of them or none.
+	/// The batch is sorted and merged in one pass, O(n + m log m), rather than shifting the tail
+	/// of the map once per pair, which is O(n·m).
+	/// </remarks>
+	public void AddRange(IEnumerable<KeyValuePair<TKey, TValue>> pairs)
+	{
+		Ensure.NotNull(pairs);
+
+		// Copied first, so adding the map to itself reads a snapshot
+		List<Entry> list = [];
+		foreach (KeyValuePair<TKey, TValue> pair in pairs)
+		{
+			Ensure.NotNull((object?)pair.Key);
+			list.Add(new Entry(pair.Key, pair.Value));
+		}
+
+		if (list.Count == 0)
+		{
+			return;
+		}
+
+		Entry[] batch = [.. list];
+		StableSort.Sort(batch, Comparer<Entry>.Create((x, y) => comparer.Compare(x.Key, y.Key)));
+
+		// Merge into a new list, so a duplicate found partway leaves this map as it was
+		List<Entry> result = new(items.Count + batch.Length);
+		int i = 0;
+		int j = 0;
+		while (j < batch.Length)
+		{
+			if (j > 0 && comparer.Compare(batch[j - 1].Key, batch[j].Key) == 0)
+			{
+				throw new ArgumentException($"The key '{batch[j].Key}' already exists in the map.");
+			}
+
+			int comparison = i < items.Count ? comparer.Compare(items[i].Key, batch[j].Key) : 1;
+			if (comparison == 0)
+			{
+				throw new ArgumentException($"The key '{batch[j].Key}' already exists in the map.");
+			}
+
+			result.Add(comparison < 0 ? items[i++] : batch[j++]);
+		}
+
+		while (i < items.Count)
+		{
+			result.Add(items[i++]);
+		}
+
+		items.Clear();
+		items.AddRange(result);
+		version++;
+	}
+
+	/// <summary>
 	/// Removes a key-value pair from the map.
 	/// </summary>
 	/// <param name="key">The key of the element to remove.</param>

@@ -503,4 +503,38 @@ public class OrderedMapBenchmarks
 
 		return [.. sortedDict.Values];
 	}
+
+	/// <summary>
+	/// Benchmark adding the second half of the pairs to a map holding the first half, one pair at a time.
+	/// </summary>
+	[Benchmark]
+	public OrderedMap<int, string> OrderedMap_AddBatchOneAtATime()
+	{
+		int half = keys.Length / 2;
+		OrderedMap<int, string> map = CreateFirstHalf(half);
+		for (int i = half; i < keys.Length; i++)
+		{
+			map.Add(keys[i], values[i]);
+		}
+
+		return map;
+	}
+
+	/// <summary>
+	/// Benchmark adding the second half of the pairs to a map holding the first half with AddRange.
+	/// </summary>
+	[Benchmark]
+	public OrderedMap<int, string> OrderedMap_AddRange()
+	{
+		int half = keys.Length / 2;
+		OrderedMap<int, string> map = CreateFirstHalf(half);
+		map.AddRange(Enumerable.Range(half, keys.Length - half).Select(i => new KeyValuePair<int, string>(keys[i], values[i])));
+		return map;
+	}
+
+	/// <summary>
+	/// Builds a map holding the first <paramref name="half"/> pairs of the test data.
+	/// </summary>
+	private OrderedMap<int, string> CreateFirstHalf(int half) =>
+		new(Enumerable.Range(0, half).ToDictionary(i => keys[i], i => values[i]), Comparer<int>.Default);
 }
