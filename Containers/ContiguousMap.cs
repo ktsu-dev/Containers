@@ -435,7 +435,7 @@ public class ContiguousMap<TKey, TValue>
 	/// <remarks>
 	/// This operation has O(1) average time complexity.
 	/// </remarks>
-	public bool TryGetValue(TKey key, out TValue value)
+	public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
 	{
 		Ensure.NotNull((object?)key);
 
@@ -445,7 +445,7 @@ public class ContiguousMap<TKey, TValue>
 			return true;
 		}
 
-		value = default!;
+		value = default;
 		return false;
 	}
 
