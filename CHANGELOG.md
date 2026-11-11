@@ -2,6 +2,15 @@
 
 Changes since v2.0.0:
 
+- Add only the new elements in a bulk OrderedSet.UnionWith [patch] (#141) (matt-edmondson)
+- Stop reserving an empty slot in SpscRingBuffer [patch] (#142) (matt-edmondson)
+- Implement IList\<T\> on InsertionOrderCollection [minor] (#143) (matt-edmondson)
+- Make ExceptWith linear on InsertionOrderSet, OrderedSet and ContiguousSet [patch] (#144) (matt-edmondson)
+- Add ContiguousMap.CopyKeysTo/CopyValuesTo and obsolete the copying *Span accessors [minor] (#145) (matt-edmondson)
+- Report the parameter's name for a null map key [patch] (#147) (matt-edmondson)
+- Expose RingBuffer's Length and IsFull [minor] (#149) (matt-edmondson)
+- Build OrderedSet and OrderedCollection collection expressions with one sort [minor] (#152) (matt-edmondson)
+- Annotate every map's TryGetValue out value as MaybeNullWhen(false) on every target [patch] (#154) (matt-edmondson)
 - Merge a bulk OrderedSet.UnionWith instead of inserting one at a time [patch] (#137) (matt-edmondson)
 - Size the hash index in ContiguousSet/Map EnsureCapacity and TrimExcess [patch] (#136) (matt-edmondson)
 - Implement IList\<T\> on ContiguousCollection [minor] (#135) (matt-edmondson)
