@@ -857,6 +857,45 @@ public class OrderedCollectionTests
 	}
 
 	[TestMethod]
+	public void AddRange_ComparerThrowsDuringMerge_LeavesCollectionUnchanged()
+	{
+		bool armed = false;
+		Comparer<int> comparer = Comparer<int>.Create((a, b) =>
+			armed && (a == 30 || b == 30) ? throw new InvalidOperationException() : a.CompareTo(b));
+		OrderedCollection<int> collection = new(comparer) { 10, 20, 30, 40, 50 };
+		armed = true;
+
+		// More than the small-batch count, so the bulk path merges, and none of them is 30, so only the merge throws
+		int[] batch = [.. Enumerable.Range(0, 17).Select(x => 1 + (x * 3))];
+		Assert.ThrowsExactly<InvalidOperationException>(() => collection.AddRange(batch));
+
+		armed = false;
+		Assert.AreSequenceEqual([10, 20, 30, 40, 50], collection);
+	}
+
+	[TestMethod]
+	public void AddRange_ComparerThrowsOnSmallBatch_LeavesCollectionSorted()
+	{
+		bool armed = false;
+		Comparer<int> comparer = Comparer<int>.Create((a, b) =>
+			armed && (a == 30 || b == 30) ? throw new InvalidOperationException() : a.CompareTo(b));
+		OrderedCollection<int> collection = new(comparer) { 10, 20, 30, 40, 50 };
+		armed = true;
+
+		Assert.ThrowsExactly<InvalidOperationException>(() => collection.AddRange([1, 25, 45]));
+
+		armed = false;
+		int[] contents = [.. collection];
+		Assert.AreSequenceEqual(contents.Order(), contents);
+		foreach (int original in (int[])[10, 20, 30, 40, 50])
+		{
+			Assert.Contains(original, contents);
+		}
+
+		Assert.AreEqual(contents.Length, contents.Distinct().Count());
+	}
+
+	[TestMethod]
 	public void AddRange_Null_Throws() =>
 		Assert.ThrowsExactly<ArgumentNullException>(() => new OrderedCollection<int>().AddRange(null!));
 

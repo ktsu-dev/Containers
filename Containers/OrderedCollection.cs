@@ -230,22 +230,30 @@ public class OrderedCollection<T> : ICollection<T>, IReadOnlyList<T>
 
 		StableSort.Sort(batch, comparer);
 
-		// Grow by the batch, then merge from the back so no element moves more than once.
-		// On a tie the added element is placed first from the back, so it ends up after the existing one.
-		int i = items.Count - 1;
-		int j = batch.Length - 1;
-		items.AddRange(batch);
-		int k = items.Count - 1;
+		// Merge into a new array, so a comparer that throws partway leaves this collection as it was.
+		// On a tie the existing element is taken first, so the added one ends up after it.
+		T[] merged = new T[items.Count + batch.Length];
+		int i = 0;
+		int j = 0;
+		int k = 0;
 
-		while (j >= 0 && i >= 0)
+		while (i < items.Count && j < batch.Length)
 		{
-			items[k--] = comparer.Compare(batch[j], items[i]) >= 0 ? batch[j--] : items[i--];
+			merged[k++] = comparer.Compare(batch[j], items[i]) >= 0 ? items[i++] : batch[j++];
 		}
 
-		while (j >= 0)
+		while (i < items.Count)
 		{
-			items[k--] = batch[j--];
+			merged[k++] = items[i++];
 		}
+
+		while (j < batch.Length)
+		{
+			merged[k++] = batch[j++];
+		}
+
+		items.Clear();
+		items.AddRange(merged);
 	}
 
 	/// <summary>
