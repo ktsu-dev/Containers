@@ -37,9 +37,9 @@ using System.Threading;
 /// </para>
 ///
 /// <para>
-/// One slot is reserved internally to distinguish the full and empty states without a
-/// separate count, so the usable <see cref="Capacity"/> is one less than the (power-of-two)
-/// internal array length.
+/// The head and tail indices are free-running counters, so full (the tail a whole array ahead
+/// of the head) and empty (the two equal) are told apart without reserving a slot or keeping a
+/// separate count: <see cref="Capacity"/> is the whole (power-of-two) internal array length.
 /// </para>
 /// </remarks>
 /// <typeparam name="T">The type of elements stored in the buffer.</typeparam>
@@ -51,10 +51,11 @@ using System.Threading;
 public sealed class SpscRingBuffer<T>
 {
 	/// <summary>
-	/// The largest capacity accepted: one slot is reserved, so the backing array (a power of two no
-	/// larger than 2^30) holds at most 2^30 - 1 usable elements.
+	/// The largest capacity accepted: the backing array is a power of two no larger than 2^30. At that
+	/// size a full buffer's <c>tail - head</c> is still 2^30, well clear of the 32-bit counters wrapping
+	/// into an empty one.
 	/// </summary>
-	private const int MaxCapacity = (1 << 30) - 1;
+	private const int MaxCapacity = 1 << 30;
 
 	/// <summary>
 	/// The backing store. Its length is always a power of two so that index wrapping can use
@@ -89,17 +90,17 @@ public sealed class SpscRingBuffer<T>
 	/// least <paramref name="capacity"/> elements.
 	/// </summary>
 	/// <param name="capacity">The minimum number of elements the buffer must be able to hold.</param>
-	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="capacity"/> is less than one or greater than 2^30 - 1.</exception>
+	/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="capacity"/> is less than one or greater than 2^30.</exception>
 	public SpscRingBuffer(int capacity)
 	{
 		ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
 		ArgumentOutOfRangeException.ThrowIfGreaterThan(capacity, MaxCapacity);
 
-		// Reserve one slot to disambiguate full vs empty, then round up to a power of two.
-		int arrayLength = NextPower2(capacity + 1);
+		// Round up to a power of two. The free-running indices tell full from empty, so no slot is reserved.
+		int arrayLength = NextPower2(capacity);
 		buffer = new T[arrayLength];
 		mask = arrayLength - 1;
-		Capacity = arrayLength - 1;
+		Capacity = arrayLength;
 	}
 
 	/// <summary>
