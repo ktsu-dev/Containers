@@ -1,6 +1,6 @@
-## v2.2.0 (minor)
+## v2.2.1-pre.1 (prerelease)
 
-Changes since v2.1.0:
+Changes since v2.2.0:
 
-- Add AddRange to OrderedCollection and OrderedMap [minor] (#150) (matt-edmondson)
+- Bump the ktsu group with 9 updates (dependabot[bot])
 
