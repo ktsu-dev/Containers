@@ -342,6 +342,30 @@ public class ContiguousSetTests
 	}
 
 	[TestMethod]
+	public void ExceptWith_LazyViewOfSelf_RemovesExactlyTheMatchingElements()
+	{
+		// A view over the set is read in full before anything is removed, so it neither throws
+		// "Collection was modified" nor leaves the set half-changed (ktsu-dev/Containers#153)
+		ContiguousSet<int> set = [.. Enumerable.Range(0, 10)];
+
+		set.ExceptWith(set.Where(x => x % 2 == 0));
+
+		int[] expected = [1, 3, 5, 7, 9];
+		CollectionAssert.AreEqual(expected, set.ToArray());
+	}
+
+	[TestMethod]
+	public void ExceptWith_PartialLazyViewOfSelf_RemovesOnlyThoseElements()
+	{
+		ContiguousSet<int> set = [.. Enumerable.Range(0, 10)];
+
+		set.ExceptWith(set.Skip(2).Take(3));
+
+		int[] expected = [0, 1, 5, 6, 7, 8, 9];
+		CollectionAssert.AreEqual(expected, set.ToArray());
+	}
+
+	[TestMethod]
 	public void SymmetricExceptWith_KeepsUniqueElements()
 	{
 		// Arrange
