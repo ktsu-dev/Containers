@@ -322,6 +322,30 @@ public class InsertionOrderSetTests
 	}
 
 	[TestMethod]
+	public void ExceptWith_LazyViewOfSelf_RemovesExactlyTheMatchingElements()
+	{
+		// A view over the set is read in full before anything is removed, so it neither throws
+		// "Collection was modified" nor leaves the set half-changed (ktsu-dev/Containers#153)
+		InsertionOrderSet<int> set = [.. Enumerable.Range(0, 10)];
+
+		set.ExceptWith(set.Where(x => x % 2 == 0));
+
+		int[] expectedElements = [1, 3, 5, 7, 9];
+		CollectionAssert.AreEqual(expectedElements, set.ToArray());
+	}
+
+	[TestMethod]
+	public void ExceptWith_PartialLazyViewOfSelf_RemovesOnlyThoseElements()
+	{
+		InsertionOrderSet<int> set = [.. Enumerable.Range(0, 10)];
+
+		set.ExceptWith(set.Skip(2).Take(3));
+
+		int[] expectedElements = [0, 1, 5, 6, 7, 8, 9];
+		CollectionAssert.AreEqual(expectedElements, set.ToArray());
+	}
+
+	[TestMethod]
 	public void WorksWithStrings_MaintainsInsertionOrder()
 	{
 		// Arrange & Act
