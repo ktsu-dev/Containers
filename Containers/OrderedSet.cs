@@ -424,7 +424,7 @@ public class OrderedSet<T> : ISet<T>
 		OrderedSet<T> otherSet = ToComparerSet(other);
 
 		// Compacting in one pass keeps this linear, where removing one element at a time would not be
-		RemoveWhere(item => !otherSet.Contains(item));
+		TwoPassRemoval.RemoveWhere(items, item => !otherSet.Contains(item), dropped: null);
 	}
 
 	/// <summary>
@@ -446,46 +446,7 @@ public class OrderedSet<T> : ISet<T>
 		OrderedSet<T> otherSet = ToComparerSet(other);
 
 		// Compacting in one pass keeps this linearithmic, where one RemoveAt per element shifts the tail each time
-		RemoveWhere(otherSet.Contains);
-	}
-
-	/// <summary>
-	/// Removes every element that matches <paramref name="shouldRemove"/>, preserving the order of the rest.
-	/// </summary>
-	/// <param name="shouldRemove">Called once per element, in order; returns true to drop the element.</param>
-	/// <remarks>
-	/// Every call to <paramref name="shouldRemove"/>, and through it to the user's comparer, is made
-	/// before anything changes. <see cref="List{T}.RemoveAll"/> compacts while its predicate is still
-	/// running, so a comparer that threw partway left an element duplicated and another lost (#162).
-	/// Now the set is left as it was.
-	/// </remarks>
-	private void RemoveWhere(Func<T, bool> shouldRemove)
-	{
-		bool[]? drop = null;
-		for (int index = 0; index < items.Count; index++)
-		{
-			if (shouldRemove(items[index]))
-			{
-				drop ??= new bool[items.Count];
-				drop[index] = true;
-			}
-		}
-
-		if (drop is null)
-		{
-			return;
-		}
-
-		int write = 0;
-		for (int read = 0; read < items.Count; read++)
-		{
-			if (!drop[read])
-			{
-				items[write++] = items[read];
-			}
-		}
-
-		items.RemoveRange(write, items.Count - write);
+		TwoPassRemoval.RemoveWhere(items, otherSet.Contains, dropped: null);
 	}
 
 	/// <summary>

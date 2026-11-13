@@ -425,42 +425,18 @@ public class ContiguousSet<T> : ISet<T>
 	/// <remarks>
 	/// O(n), and preserves the order of the elements that remain. Calling <see cref="Remove"/> once per
 	/// dropped element would rescan and shift the array each time, which is O(n²) when most elements go.
-	/// <para>
-	/// Every call to <paramref name="shouldRemove"/>, and through it to the user's comparer, is made
-	/// before anything changes. If one throws, the set is left as it was, rather than half compacted
-	/// with an element duplicated, another lost, and the index disagreeing with the storage (#162).
-	/// </para>
+	/// Goes through <see cref="TwoPassRemoval"/>, so a comparer that throws leaves the set as it was.
 	/// </remarks>
 	private void RemoveWhere(Func<T, bool> shouldRemove)
 	{
-		bool[]? drop = null;
-		for (int index = 0; index < Count; index++)
-		{
-			if (shouldRemove(items[index]))
-			{
-				drop ??= new bool[Count];
-				drop[index] = true;
-			}
-		}
-
+		ArraySegment<T> live = new(items, 0, Count);
+		bool[]? drop = TwoPassRemoval.Mark<T, ArraySegment<T>>(live, shouldRemove);
 		if (drop is null)
 		{
 			return;
 		}
 
-		int write = 0;
-		for (int read = 0; read < Count; read++)
-		{
-			T item = items[read];
-			if (drop[read])
-			{
-				uniquenessSet.Remove(item);
-			}
-			else
-			{
-				items[write++] = item;
-			}
-		}
+		int write = TwoPassRemoval.Compact<T, ArraySegment<T>>(live, drop, item => uniquenessSet.Remove(item));
 
 		if (SlotClearing.IsNeeded<T>())
 		{

@@ -288,7 +288,7 @@ public class InsertionOrderSet<T> : ISet<T>
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
 
 		// Remove items that are not in the other collection, in one pass rather than one RemoveAt each
-		RemoveWhere(item => !otherSet.Contains(item));
+		TwoPassRemoval.RemoveWhere(items, item => !otherSet.Contains(item), item => uniquenessSet.Remove(item));
 	}
 
 	/// <summary>
@@ -310,7 +310,7 @@ public class InsertionOrderSet<T> : ISet<T>
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
 
 		// Remove matching items in one pass rather than one linear search and RemoveAt each
-		RemoveWhere(otherSet.Contains);
+		TwoPassRemoval.RemoveWhere(items, otherSet.Contains, item => uniquenessSet.Remove(item));
 	}
 
 	/// <summary>
@@ -326,57 +326,13 @@ public class InsertionOrderSet<T> : ISet<T>
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
 
 		// Remove items that are in both sets, in one pass rather than one RemoveAt each
-		RemoveWhere(otherSet.Remove);
+		TwoPassRemoval.RemoveWhere(items, otherSet.Remove, item => uniquenessSet.Remove(item));
 
 		// Add remaining items from other set (items that were only in other)
 		foreach (T item in otherSet)
 		{
 			Add(item);
 		}
-	}
-
-	/// <summary>
-	/// Removes every element that matches <paramref name="shouldRemove"/>, preserving the order of the rest.
-	/// </summary>
-	/// <param name="shouldRemove">Called once per element, in order; returns true to drop the element.</param>
-	/// <remarks>
-	/// Every call to <paramref name="shouldRemove"/>, and through it to the user's comparer, is made
-	/// before anything changes. <see cref="List{T}.RemoveAll"/> compacts while its predicate is still
-	/// running, so a comparer that threw partway left an element duplicated, another lost, and the
-	/// index disagreeing with the list (#162). Now the set is left as it was.
-	/// </remarks>
-	private void RemoveWhere(Func<T, bool> shouldRemove)
-	{
-		bool[]? drop = null;
-		for (int index = 0; index < items.Count; index++)
-		{
-			if (shouldRemove(items[index]))
-			{
-				drop ??= new bool[items.Count];
-				drop[index] = true;
-			}
-		}
-
-		if (drop is null)
-		{
-			return;
-		}
-
-		int write = 0;
-		for (int read = 0; read < items.Count; read++)
-		{
-			T item = items[read];
-			if (drop[read])
-			{
-				uniquenessSet.Remove(item);
-			}
-			else
-			{
-				items[write++] = item;
-			}
-		}
-
-		items.RemoveRange(write, items.Count - write);
 	}
 
 	/// <summary>
