@@ -34,6 +34,8 @@ public class NullKeyParamNameTests
 		AssertParamName("key", () => map.Remove(null!));
 		AssertParamName("key", () => map.ContainsKey(null!));
 		AssertParamName("key", () => map.TryGetValue(null!, out _));
+		AssertParamName("item", () => map.Contains(new KeyValuePair<string, int>(null!, 1)));
+		AssertParamName("item", () => map.Remove(new KeyValuePair<string, int>(null!, 1)));
 		AssertParamName("item", () => KeysContain(map.Keys));
 	}
 
@@ -48,6 +50,8 @@ public class NullKeyParamNameTests
 		AssertParamName("key", () => map.Remove(null!));
 		AssertParamName("key", () => map.ContainsKey(null!));
 		AssertParamName("key", () => map.TryGetValue(null!, out _));
+		AssertParamName("item", () => map.Contains(new KeyValuePair<string, int>(null!, 1)));
+		AssertParamName("item", () => map.Remove(new KeyValuePair<string, int>(null!, 1)));
 		AssertParamName("item", () => KeysContain(map.Keys));
 	}
 
@@ -74,6 +78,24 @@ public class NullKeyParamNameTests
 
 		AssertParamName("dictionary", () => new OrderedMap<string, int>(source));
 		AssertParamName("dictionary", () => new OrderedMap<string, int>(source, StringComparer.Ordinal));
+	}
+
+	[TestMethod]
+	public void ContiguousMap_DictionaryConstructorWithNullKey_ReportsDictionary()
+	{
+		NullKeyDictionary source = new();
+
+		AssertParamName("dictionary", () => new ContiguousMap<string, int>(source));
+		AssertParamName("dictionary", () => new ContiguousMap<string, int>(source, StringComparer.Ordinal));
+	}
+
+	[TestMethod]
+	public void InsertionOrderMap_DictionaryConstructorWithNullKey_ReportsDictionary()
+	{
+		NullKeyDictionary source = new();
+
+		AssertParamName("dictionary", () => new InsertionOrderMap<string, int>(source));
+		AssertParamName("dictionary", () => new InsertionOrderMap<string, int>(source, StringComparer.Ordinal));
 	}
 
 	/// <summary>

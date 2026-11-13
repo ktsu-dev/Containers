@@ -195,7 +195,7 @@ public class InsertionOrderMap<TKey, TValue>
 	/// Initializes a new instance of the <see cref="InsertionOrderMap{TKey, TValue}"/> class with key-value pairs from an existing dictionary.
 	/// </summary>
 	/// <param name="dictionary">The dictionary whose key-value pairs are copied to the new insertion-order map.</param>
-	/// <exception cref="ArgumentNullException">Thrown when dictionary is null.</exception>
+	/// <exception cref="ArgumentNullException">Thrown when dictionary is null or contains a null key.</exception>
 	public InsertionOrderMap(IDictionary<TKey, TValue> dictionary)
 	{
 		Ensure.NotNull(dictionary);
@@ -205,6 +205,7 @@ public class InsertionOrderMap<TKey, TValue>
 
 		foreach (KeyValuePair<TKey, TValue> pair in dictionary)
 		{
+			NullKey.ThrowIfNullIn(pair.Key);
 			Add(pair.Key, pair.Value);
 		}
 	}
@@ -214,7 +215,7 @@ public class InsertionOrderMap<TKey, TValue>
 	/// </summary>
 	/// <param name="dictionary">The dictionary whose key-value pairs are copied to the new insertion-order map.</param>
 	/// <param name="comparer">The equality comparer to use for keys.</param>
-	/// <exception cref="ArgumentNullException">Thrown when dictionary or comparer is null.</exception>
+	/// <exception cref="ArgumentNullException">Thrown when dictionary or comparer is null, or dictionary contains a null key.</exception>
 	public InsertionOrderMap(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer)
 	{
 		Ensure.NotNull(dictionary);
@@ -225,6 +226,7 @@ public class InsertionOrderMap<TKey, TValue>
 
 		foreach (KeyValuePair<TKey, TValue> pair in dictionary)
 		{
+			NullKey.ThrowIfNullIn(pair.Key);
 			Add(pair.Key, pair.Value);
 		}
 	}
@@ -352,9 +354,8 @@ public class InsertionOrderMap<TKey, TValue>
 	/// </summary>
 	/// <param name="item">The key-value pair to locate.</param>
 	/// <returns>true if the key-value pair is found; otherwise, false.</returns>
-	public bool Contains(KeyValuePair<TKey, TValue> item) =>
-		keyToIndex.TryGetValue(item.Key, out int index)
-		&& EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value);
+	/// <exception cref="ArgumentNullException">Thrown when the key of <paramref name="item"/> is null.</exception>
+	public bool Contains(KeyValuePair<TKey, TValue> item) => PairLookup.Contains(this, item);
 
 	/// <summary>
 	/// Copies the key-value pairs of the map to an array, starting at the specified array index.
@@ -383,10 +384,8 @@ public class InsertionOrderMap<TKey, TValue>
 	/// </summary>
 	/// <param name="item">The key-value pair to remove.</param>
 	/// <returns>true if the key-value pair was found and removed; otherwise, false.</returns>
-	public bool Remove(KeyValuePair<TKey, TValue> item) =>
-		keyToIndex.TryGetValue(item.Key, out int index)
-		&& EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value)
-		&& Remove(item.Key);
+	/// <exception cref="ArgumentNullException">Thrown when the key of <paramref name="item"/> is null.</exception>
+	public bool Remove(KeyValuePair<TKey, TValue> item) => PairLookup.Contains(this, item) && Remove(item.Key);
 
 	/// <summary>
 	/// Returns an enumerator that iterates through the map in insertion order.
