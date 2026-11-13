@@ -425,14 +425,34 @@ public class ContiguousSet<T> : ISet<T>
 	/// <remarks>
 	/// O(n), and preserves the order of the elements that remain. Calling <see cref="Remove"/> once per
 	/// dropped element would rescan and shift the array each time, which is O(n²) when most elements go.
+	/// <para>
+	/// Every call to <paramref name="shouldRemove"/>, and through it to the user's comparer, is made
+	/// before anything changes. If one throws, the set is left as it was, rather than half compacted
+	/// with an element duplicated, another lost, and the index disagreeing with the storage (#162).
+	/// </para>
 	/// </remarks>
 	private void RemoveWhere(Func<T, bool> shouldRemove)
 	{
+		bool[]? drop = null;
+		for (int index = 0; index < Count; index++)
+		{
+			if (shouldRemove(items[index]))
+			{
+				drop ??= new bool[Count];
+				drop[index] = true;
+			}
+		}
+
+		if (drop is null)
+		{
+			return;
+		}
+
 		int write = 0;
 		for (int read = 0; read < Count; read++)
 		{
 			T item = items[read];
-			if (shouldRemove(item))
+			if (drop[read])
 			{
 				uniquenessSet.Remove(item);
 			}
@@ -440,11 +460,6 @@ public class ContiguousSet<T> : ISet<T>
 			{
 				items[write++] = item;
 			}
-		}
-
-		if (write == Count)
-		{
-			return;
 		}
 
 		if (SlotClearing.IsNeeded<T>())
