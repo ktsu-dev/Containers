@@ -72,6 +72,18 @@ public class NullKeyParamNameTests
 	}
 
 	[TestMethod]
+	public void OrderedMap_AddRangeWithNullKey_ReportsPairsAndLeavesMapUnchanged()
+	{
+		OrderedMap<string, int> map = new() { ["a"] = 1 };
+
+		AssertParamName("pairs", () => map.AddRange([new KeyValuePair<string, int>(null!, 1)]));
+		AssertParamName("pairs", () => map.AddRange([new KeyValuePair<string, int>("b", 2), new KeyValuePair<string, int>(null!, 1)]));
+
+		Assert.HasCount(1, map);
+		Assert.AreEqual(1, map["a"]);
+	}
+
+	[TestMethod]
 	public void OrderedMap_DictionaryConstructorWithNullKey_ReportsDictionary()
 	{
 		NullKeyDictionary source = new();

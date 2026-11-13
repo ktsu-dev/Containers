@@ -310,7 +310,7 @@ public class OrderedMap<TKey, TValue>(IComparer<TKey>? comparer = null)
 		List<Entry> list = [];
 		foreach (KeyValuePair<TKey, TValue> pair in pairs)
 		{
-			Ensure.NotNull((object?)pair.Key);
+			NullKey.ThrowIfNullInPairs(pair.Key);
 			list.Add(new Entry(pair.Key, pair.Value));
 		}
 

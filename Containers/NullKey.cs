@@ -33,4 +33,11 @@ internal static class NullKey
 	/// <param name="dictionary">The key to check.</param>
 	/// <exception cref="ArgumentNullException">Thrown, with a ParamName of <c>dictionary</c>, when <paramref name="dictionary"/> is null.</exception>
 	internal static void ThrowIfNullIn(object? dictionary) => Ensure.NotNull(dictionary);
+
+	/// <summary>
+	/// Throws when a key read from a sequence of pairs passed as <c>pairs</c>, as to <c>AddRange</c>, is null.
+	/// </summary>
+	/// <param name="pairs">The key to check.</param>
+	/// <exception cref="ArgumentNullException">Thrown, with a ParamName of <c>pairs</c>, when <paramref name="pairs"/> is null.</exception>
+	internal static void ThrowIfNullInPairs(object? pairs) => Ensure.NotNull(pairs);
 }
