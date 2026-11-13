@@ -424,7 +424,7 @@ public class OrderedSet<T> : ISet<T>
 		OrderedSet<T> otherSet = ToComparerSet(other);
 
 		// Compacting in one pass keeps this linear, where removing one element at a time would not be
-		items.RemoveAll(item => !otherSet.Contains(item));
+		TwoPassRemoval.RemoveWhere(items, item => !otherSet.Contains(item), dropped: null);
 	}
 
 	/// <summary>
@@ -446,7 +446,7 @@ public class OrderedSet<T> : ISet<T>
 		OrderedSet<T> otherSet = ToComparerSet(other);
 
 		// Compacting in one pass keeps this linearithmic, where one RemoveAt per element shifts the tail each time
-		items.RemoveAll(otherSet.Contains);
+		TwoPassRemoval.RemoveWhere(items, otherSet.Contains, dropped: null);
 	}
 
 	/// <summary>

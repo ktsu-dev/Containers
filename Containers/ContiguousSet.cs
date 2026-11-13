@@ -425,27 +425,18 @@ public class ContiguousSet<T> : ISet<T>
 	/// <remarks>
 	/// O(n), and preserves the order of the elements that remain. Calling <see cref="Remove"/> once per
 	/// dropped element would rescan and shift the array each time, which is O(n²) when most elements go.
+	/// Goes through <see cref="TwoPassRemoval"/>, so a comparer that throws leaves the set as it was.
 	/// </remarks>
 	private void RemoveWhere(Func<T, bool> shouldRemove)
 	{
-		int write = 0;
-		for (int read = 0; read < Count; read++)
-		{
-			T item = items[read];
-			if (shouldRemove(item))
-			{
-				uniquenessSet.Remove(item);
-			}
-			else
-			{
-				items[write++] = item;
-			}
-		}
-
-		if (write == Count)
+		ArraySegment<T> live = new(items, 0, Count);
+		bool[]? drop = TwoPassRemoval.Mark<T, ArraySegment<T>>(live, shouldRemove);
+		if (drop is null)
 		{
 			return;
 		}
+
+		int write = TwoPassRemoval.Compact<T, ArraySegment<T>>(live, drop, item => uniquenessSet.Remove(item));
 
 		if (SlotClearing.IsNeeded<T>())
 		{

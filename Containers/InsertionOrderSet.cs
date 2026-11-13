@@ -288,7 +288,7 @@ public class InsertionOrderSet<T> : ISet<T>
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
 
 		// Remove items that are not in the other collection, in one pass rather than one RemoveAt each
-		items.RemoveAll(item => !otherSet.Contains(item) && uniquenessSet.Remove(item));
+		TwoPassRemoval.RemoveWhere(items, item => !otherSet.Contains(item), item => uniquenessSet.Remove(item));
 	}
 
 	/// <summary>
@@ -310,7 +310,7 @@ public class InsertionOrderSet<T> : ISet<T>
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
 
 		// Remove matching items in one pass rather than one linear search and RemoveAt each
-		items.RemoveAll(item => otherSet.Contains(item) && uniquenessSet.Remove(item));
+		TwoPassRemoval.RemoveWhere(items, otherSet.Contains, item => uniquenessSet.Remove(item));
 	}
 
 	/// <summary>
@@ -326,7 +326,7 @@ public class InsertionOrderSet<T> : ISet<T>
 		HashSet<T> otherSet = new(other, uniquenessSet.Comparer);
 
 		// Remove items that are in both sets, in one pass rather than one RemoveAt each
-		items.RemoveAll(item => otherSet.Remove(item) && uniquenessSet.Remove(item));
+		TwoPassRemoval.RemoveWhere(items, otherSet.Remove, item => uniquenessSet.Remove(item));
 
 		// Add remaining items from other set (items that were only in other)
 		foreach (T item in otherSet)
