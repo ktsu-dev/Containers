@@ -479,13 +479,7 @@ public class ContiguousMap<TKey, TValue>
 	/// <param name="item">The key-value pair to locate.</param>
 	/// <returns>true if the key-value pair is found; otherwise, false.</returns>
 	/// <exception cref="ArgumentNullException">Thrown when the key of <paramref name="item"/> is null.</exception>
-	public bool Contains(KeyValuePair<TKey, TValue> item)
-	{
-		NullKey.ThrowIfNullItem(item.Key);
-
-		return keyToIndex.TryGetValue(item.Key, out int index)
-			&& EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value);
-	}
+	public bool Contains(KeyValuePair<TKey, TValue> item) => PairLookup.Contains(this, item);
 
 	/// <summary>
 	/// Copies the key-value pairs of the map to an array, starting at the specified array index.
@@ -515,14 +509,7 @@ public class ContiguousMap<TKey, TValue>
 	/// <param name="item">The key-value pair to remove.</param>
 	/// <returns>true if the key-value pair was found and removed; otherwise, false.</returns>
 	/// <exception cref="ArgumentNullException">Thrown when the key of <paramref name="item"/> is null.</exception>
-	public bool Remove(KeyValuePair<TKey, TValue> item)
-	{
-		NullKey.ThrowIfNullItem(item.Key);
-
-		return keyToIndex.TryGetValue(item.Key, out int index)
-			&& EqualityComparer<TValue>.Default.Equals(items[index].Value, item.Value)
-			&& Remove(item.Key);
-	}
+	public bool Remove(KeyValuePair<TKey, TValue> item) => PairLookup.Contains(this, item) && Remove(item.Key);
 
 	/// <summary>
 	/// Returns an enumerator that iterates through the map.
